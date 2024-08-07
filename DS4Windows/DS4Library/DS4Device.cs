@@ -1012,6 +1012,10 @@ namespace DS4Windows
         private const int CRC32_NUM_ATTEMPTS = 10;
         private const int SONYWA_FEATURE_REPORT_LENGTH = 64;
         protected uint HamSeed = 2351727372;
+        private Debouncer TriangleDebouncer = new(20);
+        private Debouncer SquareDebouncer = new(20);
+        private Debouncer CrossDebouncer = new(20);
+        private Debouncer CircleDebouncer = new(20);
 
         protected unsafe void performDs4Input()
         {
@@ -1214,10 +1218,21 @@ namespace DS4Windows
                     cState.R2Raw = cState.R2;
 
                     tempByte = inputReport[5];
-                    cState.Triangle = (tempByte & (1 << 7)) != 0;
-                    cState.Circle = (tempByte & (1 << 6)) != 0;
-                    cState.Cross = (tempByte & (1 << 5)) != 0;
-                    cState.Square = (tempByte & (1 << 4)) != 0;
+                    var triangle = (tempByte & (1 << 7)) != 0;
+                    cState.Triangle = pState.Triangle != triangle ?
+                        TriangleDebouncer.Check(triangle) : triangle;
+
+                    var circle = (tempByte & (1 << 6)) != 0;
+                    cState.Circle = pState.Circle != circle ?
+                        CircleDebouncer.Check(circle) : circle;
+
+                    var cross = (tempByte & (1 << 5)) != 0;
+                    cState.Cross = pState.Cross != cross ?
+                        CrossDebouncer.Check(cross) : cross;
+
+                    var square = (tempByte & (1 << 4)) != 0;
+                    cState.Square = pState.Square != square ?
+                        SquareDebouncer.Check(square) : square;
 
                     // First 4 bits denote dpad state. Clock representation
                     // with 8 meaning centered and 0 meaning DpadUp.
