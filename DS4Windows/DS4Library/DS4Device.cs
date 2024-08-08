@@ -1013,10 +1013,11 @@ namespace DS4Windows
         private const int SONYWA_FEATURE_REPORT_LENGTH = 64;
         protected uint HamSeed = 2351727372;
         // TODO add debouncing to all digital keys
-        private Debouncer TriangleDebouncer = new(20);
-        private Debouncer SquareDebouncer = new(20);
-        private Debouncer CrossDebouncer = new(20);
-        private Debouncer CircleDebouncer = new(20);
+        // TODO think about what if a user changes the duration while the program is running
+        private Debouncer TriangleDebouncer = new(TimeSpan.FromMilliseconds(120));
+        private Debouncer SquareDebouncer = new(TimeSpan.FromMilliseconds(120));
+        private Debouncer CrossDebouncer = new(TimeSpan.FromMilliseconds(120));
+        private Debouncer CircleDebouncer = new(TimeSpan.FromMilliseconds(120));
 
         protected unsafe void performDs4Input()
         {
@@ -1220,20 +1221,16 @@ namespace DS4Windows
 
                     tempByte = inputReport[5];
                     var triangle = (tempByte & (1 << 7)) != 0;
-                    cState.Triangle = pState.Triangle != triangle ?
-                        TriangleDebouncer.Check(triangle) : triangle;
+                    cState.Triangle = TriangleDebouncer.ProcessInput(triangle, curtime);
 
                     var circle = (tempByte & (1 << 6)) != 0;
-                    cState.Circle = pState.Circle != circle ?
-                        CircleDebouncer.Check(circle) : circle;
+                    cState.Circle = CircleDebouncer.ProcessInput(circle, curtime);
 
                     var cross = (tempByte & (1 << 5)) != 0;
-                    cState.Cross = pState.Cross != cross ?
-                        CrossDebouncer.Check(cross) : cross;
+                    cState.Cross = CrossDebouncer.ProcessInput(cross, curtime);
 
                     var square = (tempByte & (1 << 4)) != 0;
-                    cState.Square = pState.Square != square ?
-                        SquareDebouncer.Check(square) : square;
+                    cState.Square = SquareDebouncer.ProcessInput(square, curtime);
 
                     // First 4 bits denote dpad state. Clock representation
                     // with 8 meaning centered and 0 meaning DpadUp.
