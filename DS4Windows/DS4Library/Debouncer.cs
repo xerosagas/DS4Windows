@@ -16,12 +16,8 @@ public class Debouncer(TimeSpan duration)
     public bool ProcessInput(string name, bool input, long timestamp)
     {
         if (duration.TotalMilliseconds == 0) return input;
-        if (!_debouncers.TryGetValue(name, out var debouncer))
-        {
-            throw new ArgumentException($"Debouncer '{name}' not found.");
-        }
 
-        return debouncer.ProcessInput(input, timestamp);
+        return _debouncers[name].ProcessInput(input, timestamp);
     }
 
     public void SetDuration(TimeSpan newDuration)
