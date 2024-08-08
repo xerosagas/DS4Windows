@@ -406,6 +406,18 @@ namespace DS4WinWPF.DS4Forms.ViewModels
             set => Global.LightbarSettingsInfo[device].ds4winSettings.maxRainbowSat = value / 100.0;
         }
 
+        public int DebouncingMs
+        {
+            get => Global.DebouncingMs;
+            set
+            {
+                Global.DebouncingMs = value;
+                DebouncingMsChanged?.Invoke(this, EventArgs.Empty);
+            }
+        }
+
+        public event EventHandler DebouncingMsChanged;
+
         public int RumbleBoost
         {
             get => Global.RumbleBoost[device];
@@ -1992,7 +2004,7 @@ namespace DS4WinWPF.DS4Forms.ViewModels
                 Global.DoubleTap[device] = value;
             }
         }
-        
+
         public bool TouchJitter
         {
             get => Global.TouchpadJitterCompensation[device];
@@ -2715,7 +2727,7 @@ namespace DS4WinWPF.DS4Forms.ViewModels
             get => Global.GyroMouseStickInf[device].smoothWeight;
             set => Global.GyroMouseStickInf[device].smoothWeight = value;
         }
-        
+
         private string touchDisInvertString = "None";
         public string TouchDisInvertString
         {
@@ -3199,7 +3211,7 @@ namespace DS4WinWPF.DS4Forms.ViewModels
             int index = 0;
             List<int> triggerList = new List<int>();
             List<string> triggerName = new List<string>();
-            
+
             foreach(MenuItem item in menu.Items)
             {
                 if (item.IsChecked)
@@ -3207,7 +3219,7 @@ namespace DS4WinWPF.DS4Forms.ViewModels
                     triggerList.Add(index);
                     triggerName.Add(item.Header.ToString());
                 }
-                
+
                 index++;
             }
 

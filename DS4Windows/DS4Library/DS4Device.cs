@@ -1012,6 +1012,7 @@ namespace DS4Windows
         private const int CRC32_NUM_ATTEMPTS = 10;
         private const int SONYWA_FEATURE_REPORT_LENGTH = 64;
         protected uint HamSeed = 2351727372;
+        // TODO add debouncing to all digital keys
         private Debouncer TriangleDebouncer = new(20);
         private Debouncer SquareDebouncer = new(20);
         private Debouncer CrossDebouncer = new(20);

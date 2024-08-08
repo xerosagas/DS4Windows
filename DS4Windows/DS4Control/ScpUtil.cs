@@ -1876,6 +1876,12 @@ namespace DS4Windows
             set => m_Config.absDisplayEDID = value;
         }
 
+        public static int DebouncingMs
+        {
+            get => m_Config.debouncingMs;
+            set => m_Config.debouncingMs = value;
+        }
+
         // controller/profile specfic values
         public static ButtonMouseInfo[] ButtonMouseInfos => m_Config.buttonMouseInfos;
         public static ButtonAbsMouseInfo[] ButtonAbsMouseInfos => m_Config.buttonAbsMouseInfos;
@@ -3682,6 +3688,8 @@ namespace DS4Windows
         public AppThemeChoice useCurrentTheme;
         public string fakeExeFileName = string.Empty;
         public string absDisplayEDID = string.Empty;
+
+        public int debouncingMs = 0;
 
         public ControlServiceDeviceOptions deviceOptions =
             new ControlServiceDeviceOptions();
