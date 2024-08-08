@@ -4,11 +4,11 @@ using System.Linq;
 
 namespace DS4Windows;
 
-public class Debouncer
+public class Debouncer(TimeSpan duration)
 {
     private readonly Dictionary<string, DebouncerInstance> _debouncers = new();
 
-    public void AddDebouncer(string name, TimeSpan duration)
+    public void AddDebouncer(string name)
     {
         _debouncers[name] = new DebouncerInstance(duration);
     }
@@ -23,11 +23,11 @@ public class Debouncer
         return debouncer.ProcessInput(input, timestamp);
     }
 
-    public void SetDuration(TimeSpan duration)
+    public void SetDuration(TimeSpan newDuration)
     {
         foreach (var debouncer in _debouncers.Values)
         {
-            debouncer.Duration = duration;
+            debouncer.Duration = newDuration;
         }
     }
 

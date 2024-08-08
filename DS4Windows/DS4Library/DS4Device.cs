@@ -1015,20 +1015,20 @@ namespace DS4Windows
         protected uint HamSeed = 2351727372;
 
         // TODO add debouncing to all digital keys
-        private Debouncer _debouncer = new();
 
         protected unsafe void performDs4Input()
         {
             unchecked
             {
                 var debouncingMs = TimeSpan.FromMilliseconds(Global.DebouncingMs);
-                _debouncer.AddDebouncer(nameof(DS4State.Cross), debouncingMs);
-                _debouncer.AddDebouncer(nameof(DS4State.Triangle), debouncingMs);
-                _debouncer.AddDebouncer(nameof(DS4State.Circle), debouncingMs);
-                _debouncer.AddDebouncer(nameof(DS4State.Square), debouncingMs);
+                Debouncer debouncer = new(debouncingMs);
+                debouncer.AddDebouncer(nameof(DS4State.Cross));
+                debouncer.AddDebouncer(nameof(DS4State.Triangle));
+                debouncer.AddDebouncer(nameof(DS4State.Circle));
+                debouncer.AddDebouncer(nameof(DS4State.Square));
                 Global.DebouncingMsChanged += (_, _) =>
                 {
-                    _debouncer.SetDuration(TimeSpan.FromMilliseconds(Global.DebouncingMs));
+                    debouncer.SetDuration(TimeSpan.FromMilliseconds(Global.DebouncingMs));
                 };
 
                 firstActive = DateTime.UtcNow;
@@ -1083,7 +1083,7 @@ namespace DS4Windows
 
                     readWaitEv.Set();
 
-                    // Sony DS4 and compatible gamepads send data packets with 0x11 type code in BT mode. 
+                    // Sony DS4 and compatible gamepads send data packets with 0x11 type code in BT mode.
                     // Will no longer support any third party fake DS4 that does not behave according to official DS4 specs
                     //if (conType == ConnectionType.BT)
                     if (conType == ConnectionType.BT && (this.featureSet & VidPidFeatureSet.OnlyInputData0x01) == 0)
@@ -1229,16 +1229,16 @@ namespace DS4Windows
 
                     tempByte = inputReport[5];
                     var triangle = (tempByte & (1 << 7)) != 0;
-                    cState.Triangle = _debouncer.ProcessInput(nameof(DS4State.Triangle), triangle, curtime);
+                    cState.Triangle = debouncer.ProcessInput(nameof(DS4State.Triangle), triangle, curtime);
 
                     var circle = (tempByte & (1 << 6)) != 0;
-                    cState.Circle = _debouncer.ProcessInput(nameof(DS4State.Circle), circle, curtime);
+                    cState.Circle = debouncer.ProcessInput(nameof(DS4State.Circle), circle, curtime);
 
                     var cross = (tempByte & (1 << 5)) != 0;
-                    cState.Cross = _debouncer.ProcessInput(nameof(DS4State.Cross), cross, curtime);
+                    cState.Cross = debouncer.ProcessInput(nameof(DS4State.Cross), cross, curtime);
 
                     var square = (tempByte & (1 << 4)) != 0;
-                    cState.Square = _debouncer.ProcessInput(nameof(DS4State.Square), square, curtime);
+                    cState.Square = debouncer.ProcessInput(nameof(DS4State.Square), square, curtime);
 
                     // First 4 bits denote dpad state. Clock representation
                     // with 8 meaning centered and 0 meaning DpadUp.
