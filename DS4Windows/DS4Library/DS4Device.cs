@@ -633,6 +633,7 @@ namespace DS4Windows
             set => outputMapGyro = value;
         }
 
+
         public DS4Device(HidDevice hidDevice, string disName, VidPidFeatureSet featureSet = VidPidFeatureSet.DefaultDS4)
         {
             hDevice = hidDevice;
@@ -1012,17 +1013,24 @@ namespace DS4Windows
         private const int CRC32_NUM_ATTEMPTS = 10;
         private const int SONYWA_FEATURE_REPORT_LENGTH = 64;
         protected uint HamSeed = 2351727372;
+
         // TODO add debouncing to all digital keys
-        // TODO think about what if a user changes the duration while the program is running
-        private Debouncer TriangleDebouncer = new(TimeSpan.FromMilliseconds(Global.DebouncingMs));
-        private Debouncer SquareDebouncer = new(TimeSpan.FromMilliseconds(Global.DebouncingMs));
-        private Debouncer CrossDebouncer = new(TimeSpan.FromMilliseconds(Global.DebouncingMs));
-        private Debouncer CircleDebouncer = new(TimeSpan.FromMilliseconds(Global.DebouncingMs));
+        private Debouncer _debouncer = new();
 
         protected unsafe void performDs4Input()
         {
             unchecked
             {
+                var debouncingMs = TimeSpan.FromMilliseconds(Global.DebouncingMs);
+                _debouncer.AddDebouncer(nameof(DS4State.Cross), debouncingMs);
+                _debouncer.AddDebouncer(nameof(DS4State.Triangle), debouncingMs);
+                _debouncer.AddDebouncer(nameof(DS4State.Circle), debouncingMs);
+                _debouncer.AddDebouncer(nameof(DS4State.Square), debouncingMs);
+                Global.DebouncingMsChanged += (_, _) =>
+                {
+                    _debouncer.SetDuration(TimeSpan.FromMilliseconds(Global.DebouncingMs));
+                };
+
                 firstActive = DateTime.UtcNow;
                 NativeMethods.HidD_SetNumInputBuffers(hDevice.safeReadHandle.DangerousGetHandle(), 3);
                 Queue<long> latencyQueue = new Queue<long>(21); // Set capacity at max + 1 to avoid any resizing
@@ -1221,16 +1229,16 @@ namespace DS4Windows
 
                     tempByte = inputReport[5];
                     var triangle = (tempByte & (1 << 7)) != 0;
-                    cState.Triangle = TriangleDebouncer.ProcessInput(triangle, curtime);
+                    cState.Triangle = _debouncer.ProcessInput(nameof(DS4State.Triangle), triangle, curtime);
 
                     var circle = (tempByte & (1 << 6)) != 0;
-                    cState.Circle = CircleDebouncer.ProcessInput(circle, curtime);
+                    cState.Circle = _debouncer.ProcessInput(nameof(DS4State.Circle), circle, curtime);
 
                     var cross = (tempByte & (1 << 5)) != 0;
-                    cState.Cross = CrossDebouncer.ProcessInput(cross, curtime);
+                    cState.Cross = _debouncer.ProcessInput(nameof(DS4State.Cross), cross, curtime);
 
                     var square = (tempByte & (1 << 4)) != 0;
-                    cState.Square = SquareDebouncer.ProcessInput(square, curtime);
+                    cState.Square = _debouncer.ProcessInput(nameof(DS4State.Square), square, curtime);
 
                     // First 4 bits denote dpad state. Clock representation
                     // with 8 meaning centered and 0 meaning DpadUp.

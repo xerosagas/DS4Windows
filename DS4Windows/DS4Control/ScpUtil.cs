@@ -1879,8 +1879,14 @@ namespace DS4Windows
         public static int DebouncingMs
         {
             get => m_Config.debouncingMs;
-            set => m_Config.debouncingMs = value;
+            set
+            {
+                m_Config.debouncingMs = value;
+                DebouncingMsChanged?.Invoke(typeof(Global), EventArgs.Empty);
+            }
         }
+
+        public static event EventHandler DebouncingMsChanged;
 
         // controller/profile specfic values
         public static ButtonMouseInfo[] ButtonMouseInfos => m_Config.buttonMouseInfos;
