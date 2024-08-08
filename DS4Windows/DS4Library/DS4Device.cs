@@ -1014,10 +1014,10 @@ namespace DS4Windows
         protected uint HamSeed = 2351727372;
         // TODO add debouncing to all digital keys
         // TODO think about what if a user changes the duration while the program is running
-        private Debouncer TriangleDebouncer = new(TimeSpan.FromMilliseconds(120));
-        private Debouncer SquareDebouncer = new(TimeSpan.FromMilliseconds(120));
-        private Debouncer CrossDebouncer = new(TimeSpan.FromMilliseconds(120));
-        private Debouncer CircleDebouncer = new(TimeSpan.FromMilliseconds(120));
+        private Debouncer TriangleDebouncer = new(TimeSpan.FromMilliseconds(Global.DebouncingMs));
+        private Debouncer SquareDebouncer = new(TimeSpan.FromMilliseconds(Global.DebouncingMs));
+        private Debouncer CrossDebouncer = new(TimeSpan.FromMilliseconds(Global.DebouncingMs));
+        private Debouncer CircleDebouncer = new(TimeSpan.FromMilliseconds(Global.DebouncingMs));
 
         protected unsafe void performDs4Input()
         {
