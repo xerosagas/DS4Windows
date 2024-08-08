@@ -1014,8 +1014,6 @@ namespace DS4Windows
         private const int SONYWA_FEATURE_REPORT_LENGTH = 64;
         protected uint HamSeed = 2351727372;
 
-        // TODO add debouncing to all digital keys
-
         protected unsafe void performDs4Input()
         {
             unchecked
@@ -1026,6 +1024,16 @@ namespace DS4Windows
                 debouncer.AddDebouncer(nameof(DS4State.Triangle));
                 debouncer.AddDebouncer(nameof(DS4State.Circle));
                 debouncer.AddDebouncer(nameof(DS4State.Square));
+                debouncer.AddDebouncer(nameof(DS4State.R3));
+                debouncer.AddDebouncer(nameof(DS4State.L3));
+                debouncer.AddDebouncer(nameof(DS4State.Options));
+                debouncer.AddDebouncer(nameof(DS4State.Share));
+                debouncer.AddDebouncer(nameof(DS4State.R2Btn));
+                debouncer.AddDebouncer(nameof(DS4State.L2Btn));
+                debouncer.AddDebouncer(nameof(DS4State.R1));
+                debouncer.AddDebouncer(nameof(DS4State.L1));
+                debouncer.AddDebouncer(nameof(DS4State.PS));
+                debouncer.AddDebouncer(nameof(DS4State.TouchButton));
                 Global.DebouncingMsChanged += (_, _) =>
                 {
                     debouncer.SetDuration(TimeSpan.FromMilliseconds(Global.DebouncingMs));
@@ -1259,18 +1267,37 @@ namespace DS4Windows
                     }
 
                     tempByte = inputReport[6];
-                    cState.R3 = (tempByte & (1 << 7)) != 0;
-                    cState.L3 = (tempByte & (1 << 6)) != 0;
-                    cState.Options = (tempByte & (1 << 5)) != 0;
-                    cState.Share = (tempByte & (1 << 4)) != 0;
-                    cState.R2Btn = (inputReport[6] & (1 << 3)) != 0;
-                    cState.L2Btn = (inputReport[6] & (1 << 2)) != 0;
-                    cState.R1 = (tempByte & (1 << 1)) != 0;
-                    cState.L1 = (tempByte & (1 << 0)) != 0;
+                    var r3 = (tempByte & (1 << 7)) != 0;
+                    cState.R3 = debouncer.ProcessInput(nameof(DS4State.R3), r3, curtime);
+
+                    var l3 = (tempByte & (1 << 6)) != 0;
+                    cState.L3 = debouncer.ProcessInput(nameof(DS4State.L3), l3, curtime);
+
+                    var options = (tempByte & (1 << 5)) != 0;
+                    cState.Options = debouncer.ProcessInput(nameof(DS4State.Options), options, curtime);
+
+                    var share = (tempByte & (1 << 4)) != 0;
+                    cState.Share = debouncer.ProcessInput(nameof(DS4State.Share), share, curtime);
+
+                    var r2Btn = (inputReport[6] & (1 << 3)) != 0;
+                    cState.R2Btn = debouncer.ProcessInput(nameof(DS4State.R2Btn), r2Btn, curtime);
+
+                    var l2Btn = (inputReport[6] & (1 << 2)) != 0;
+                    cState.L2Btn = debouncer.ProcessInput(nameof(DS4State.L2Btn), l2Btn, curtime);
+
+                    var r1 = (tempByte & (1 << 1)) != 0;
+                    cState.R1 = debouncer.ProcessInput(nameof(DS4State.R1), r1, curtime);
+
+                    var l1 = (tempByte & (1 << 0)) != 0;
+                    cState.L1 = debouncer.ProcessInput(nameof(DS4State.L1), l1, curtime);
 
                     tempByte = inputReport[7];
-                    cState.PS = (tempByte & (1 << 0)) != 0;
-                    cState.TouchButton = (tempByte & 0x02) != 0;
+                    var ps = (tempByte & (1 << 0)) != 0;
+                    cState.PS = debouncer.ProcessInput(nameof(DS4State.PS), ps, curtime);
+
+                    var touchButton = (tempByte & 0x02) != 0;
+                    cState.TouchButton = debouncer.ProcessInput(nameof(DS4State.TouchButton), touchButton, curtime);
+
                     cState.OutputTouchButton = cState.TouchButton;
                     cState.FrameCounter = (byte)(tempByte >> 2);
 
