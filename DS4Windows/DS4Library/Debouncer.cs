@@ -69,8 +69,8 @@ public class Debouncer(TimeSpan duration)
         private void StartDebouncing(bool input, long timestamp)
         {
             _currentlyDebouncing = true;
-            Debounce(input, timestamp);
             _debounceStartTime = timestamp;
+            Debounce(input, timestamp);
         }
 
         private void StopDebouncing()
