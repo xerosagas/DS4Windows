@@ -276,7 +276,7 @@ namespace DS4WinWPF.DS4Forms
                             MessageBox.Show(Properties.Resources.PleaseDownloadUpdater);
                             if (!string.IsNullOrEmpty(newUpdaterVersion))
                             {
-                                Util.StartProcessHelper($"https://github.com/Ryochan7/DS4Updater/releases/tag/v{newUpdaterVersion}/{mainWinVM.updaterExe}");
+                                Util.StartProcessHelper($"https://github.com/schmaldeo/DS4Updater/releases/tag/v{newUpdaterVersion}/{mainWinVM.updaterExe}");
                             }
                         });
                     }

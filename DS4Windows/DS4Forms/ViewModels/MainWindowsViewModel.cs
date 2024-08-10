@@ -47,7 +47,7 @@ namespace DS4WinWPF.DS4Forms.ViewModels
         {
             string result = string.Empty;
             // Sorry other devs, gonna have to find your own server
-            Uri url = new Uri("https://raw.githubusercontent.com/Ryochan7/DS4Updater/master/Updater2/newest.txt");
+            Uri url = new Uri("https://raw.githubusercontent.com/schmaldeo/DS4Updater/master/Updater2/newest.txt");
             string filename = Path.Combine(Path.GetTempPath(), "DS4Updater_version.txt");
             bool readFile = false;
             using (var downloadStream = new FileStream(filename, FileMode.Create))
@@ -67,7 +67,6 @@ namespace DS4WinWPF.DS4Forms.ViewModels
             return result;
         }
 
-        // TODO make this work for schmaldeo repo
         public bool RunUpdaterCheck(bool launch, out string upstreamVersion)
         {
             string destPath = Path.Combine(Global.exedirpath, "DS4Updater.exe");
@@ -77,7 +76,7 @@ namespace DS4WinWPF.DS4Forms.ViewModels
                 (!string.IsNullOrEmpty(upstreamVersion) && FileVersionInfo.GetVersionInfo(destPath).FileVersion.CompareTo(upstreamVersion) != 0))
             {
                 launch = false;
-                Uri url2 = new Uri($"https://github.com/Ryochan7/DS4Updater/releases/download/v{upstreamVersion}/{updaterExe}");
+                Uri url2 = new Uri($"https://github.com/schmaldeo/DS4Updater/releases/download/v{upstreamVersion}/{updaterExe}");
                 string filename = Path.Combine(Path.GetTempPath(), "DS4Updater.exe");
                 using (var downloadStream = new FileStream(filename, FileMode.Create))
                 {
