@@ -1018,26 +1018,7 @@ namespace DS4Windows
         {
             unchecked
             {
-                var debouncingMs = TimeSpan.FromMilliseconds(Global.DebouncingMs);
-                Debouncer debouncer = new(debouncingMs);
-                debouncer.AddDebouncer(nameof(DS4State.Cross));
-                debouncer.AddDebouncer(nameof(DS4State.Triangle));
-                debouncer.AddDebouncer(nameof(DS4State.Circle));
-                debouncer.AddDebouncer(nameof(DS4State.Square));
-                debouncer.AddDebouncer(nameof(DS4State.R3));
-                debouncer.AddDebouncer(nameof(DS4State.L3));
-                debouncer.AddDebouncer(nameof(DS4State.Options));
-                debouncer.AddDebouncer(nameof(DS4State.Share));
-                debouncer.AddDebouncer(nameof(DS4State.R2Btn));
-                debouncer.AddDebouncer(nameof(DS4State.L2Btn));
-                debouncer.AddDebouncer(nameof(DS4State.R1));
-                debouncer.AddDebouncer(nameof(DS4State.L1));
-                debouncer.AddDebouncer(nameof(DS4State.PS));
-                debouncer.AddDebouncer(nameof(DS4State.TouchButton));
-                Global.DebouncingMsChanged += (_, _) =>
-                {
-                    debouncer.SetDuration(TimeSpan.FromMilliseconds(Global.DebouncingMs));
-                };
+                var debouncer = SetupDebouncer();
 
                 firstActive = DateTime.UtcNow;
                 NativeMethods.HidD_SetNumInputBuffers(hDevice.safeReadHandle.DangerousGetHandle(), 3);
@@ -1252,6 +1233,7 @@ namespace DS4Windows
                     // with 8 meaning centered and 0 meaning DpadUp.
                     byte dpad_state = (byte)(tempByte & 0x0F);
 
+                    // TODO add debouncer for d-pad
                     switch (dpad_state)
                     {
                         case 0: cState.DpadUp = true; cState.DpadDown = false; cState.DpadLeft = false; cState.DpadRight = false; break;
@@ -1559,6 +1541,31 @@ namespace DS4Windows
             }
 
             timeoutExecuted = true;
+        }
+
+        protected Debouncer SetupDebouncer()
+        {
+            var debouncingMs = TimeSpan.FromMilliseconds(Global.DebouncingMs);
+            Debouncer debouncer = new(debouncingMs);
+            debouncer.AddDebouncer(nameof(DS4State.Cross));
+            debouncer.AddDebouncer(nameof(DS4State.Triangle));
+            debouncer.AddDebouncer(nameof(DS4State.Circle));
+            debouncer.AddDebouncer(nameof(DS4State.Square));
+            debouncer.AddDebouncer(nameof(DS4State.R3));
+            debouncer.AddDebouncer(nameof(DS4State.L3));
+            debouncer.AddDebouncer(nameof(DS4State.Options));
+            debouncer.AddDebouncer(nameof(DS4State.Share));
+            debouncer.AddDebouncer(nameof(DS4State.R2Btn));
+            debouncer.AddDebouncer(nameof(DS4State.L2Btn));
+            debouncer.AddDebouncer(nameof(DS4State.R1));
+            debouncer.AddDebouncer(nameof(DS4State.L1));
+            debouncer.AddDebouncer(nameof(DS4State.PS));
+            debouncer.AddDebouncer(nameof(DS4State.TouchButton));
+            Global.DebouncingMsChanged += (_, _) =>
+            {
+                debouncer.SetDuration(TimeSpan.FromMilliseconds(Global.DebouncingMs));
+            };
+            return debouncer;
         }
 
         private unsafe void PrepareOutputReportInner(ref bool change, ref bool haptime)
