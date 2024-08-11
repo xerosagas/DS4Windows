@@ -12,6 +12,15 @@ This project is a fork of the work of Jays2Kings and Ryochan7. It adds button
 
 ![DS4Windows Preview](https://raw.githubusercontent.com/Ryochan7/DS4Windows/jay/ds4winwpf_screen_20200412.png)
 
+## About this fork
+
+I've made this fork because some of the buttons on my controller started bouncing. Normally I would just add a
+feature that would fix my problem, make a pull request to the original repo and forget about the project. 
+The issue here is that Ryochan7 stopped maintaining the original project, so I decided to make slight 
+modifications to the code that detects if the installed version is up-to-date, so it now pulls version info from my 
+repo. This way if you install my version, you don't get the annoying popup saying your version is outdated. If there 
+are any feature requests, I'm more than happy to at least look at them and assess whether I could add them.
+
 ## License
 
 DS4Windows is licensed under the terms of the GNU General Public License version 3.
