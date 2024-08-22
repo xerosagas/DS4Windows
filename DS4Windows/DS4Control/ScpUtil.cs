@@ -1888,6 +1888,12 @@ namespace DS4Windows
 
         public static event EventHandler DebouncingMsChanged;
 
+        public static bool UseDs3PitchRollSim
+        {
+            get => m_Config.useDs3PitchRollSim;
+            set => m_Config.useDs3PitchRollSim = value;
+        }
+
         // controller/profile specfic values
         public static ButtonMouseInfo[] ButtonMouseInfos => m_Config.buttonMouseInfos;
         public static ButtonAbsMouseInfo[] ButtonAbsMouseInfos => m_Config.buttonAbsMouseInfos;
@@ -3696,6 +3702,7 @@ namespace DS4Windows
         public string absDisplayEDID = string.Empty;
 
         public int debouncingMs = 0;
+        public bool useDs3PitchRollSim = false;
 
         public ControlServiceDeviceOptions deviceOptions =
             new ControlServiceDeviceOptions();
