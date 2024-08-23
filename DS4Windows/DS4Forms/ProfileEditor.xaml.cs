@@ -13,11 +13,17 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
-using Microsoft.Win32;
 using NonFormTimer = System.Timers.Timer;
 using DS4WinWPF.DS4Forms.ViewModels;
 using DS4Windows;
 using System.ComponentModel;
+using System.Windows.Forms;
+using Application = System.Windows.Application;
+using Button = System.Windows.Controls.Button;
+using MessageBox = System.Windows.MessageBox;
+using MouseEventArgs = System.Windows.Input.MouseEventArgs;
+using OpenFileDialog = Microsoft.Win32.OpenFileDialog;
+using UserControl = System.Windows.Controls.UserControl;
 
 namespace DS4WinWPF.DS4Forms
 {
@@ -896,6 +902,28 @@ namespace DS4WinWPF.DS4Forms
 
         private void SaveBtn_Click(object sender, RoutedEventArgs e)
         {
+            if (profileSettingsVM.UseDs3PitchRollSim)
+            {
+                // change controller type to DS4 if the DS3 pitch and roll sim is on
+                profileSettingsVM.TempControllerIndex = 1;
+            }
+
+            if (profileSettingsVM.HasUseDs3PitchRollSimChanged)
+            {
+                var mainWindow = (MainWindow)Application.Current.MainWindow;
+                if (mainWindow is not null)
+                {
+                    var changeServiceTask = Task.Run(() => Dispatcher.InvokeAsync(mainWindow.ChangeService));
+                    changeServiceTask.ContinueWith(_ => Dispatcher.InvokeAsync(() => mainWindow.ChangeService()));
+
+                }
+                else
+                {
+                    MessageBox.Show("The app has to be restarted for DS3 gyro simulation to work.",
+                        "DS4Windows", MessageBoxButton.OK, MessageBoxImage.Information);
+                }
+            }
+
             bool saved = ApplyProfileStep(false);
             if (saved)
             {

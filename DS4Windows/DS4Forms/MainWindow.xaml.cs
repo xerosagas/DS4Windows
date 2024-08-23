@@ -787,7 +787,7 @@ Suspend support not enabled.", true);
             ChangeService();
         }
 
-        private async void ChangeService()
+        public async void ChangeService()
         {
             StartStopBtn.IsEnabled = false;
             App root = Application.Current as App;
