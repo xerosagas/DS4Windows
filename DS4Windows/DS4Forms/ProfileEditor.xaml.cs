@@ -1696,6 +1696,13 @@ namespace DS4WinWPF.DS4Forms
             mpControl.UpdateMappingName();
             Global.CacheProfileCustomsFlags(profileSettingsVM.Device);
         }
+
+        private void CalibrateStick_OnClick(object sender, RoutedEventArgs e)
+        {
+            // TODO check if any device is connected
+            StickCalibrationWindow window = new();
+            window.ShowDialog();
+        }
     }
 
     public class ResourcePaths
