@@ -17,7 +17,7 @@
     <ServerGarbageCollection>true</ServerGarbageCollection>
     <AssemblyVersion>3.6.0</AssemblyVersion>
     <FileVersion>3.6.0</FileVersion>
-    <Version>3.6.0-beta.2</Version>
+    <Version>3.6.0-beta.3</Version>
     <Configuration Condition="'$(Configuration)' == ''">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">x64</Platform>
     <Copyright>Copyright © Scarlet.Crush Productions 2012, 2013; InhexSTER, HecticSeptic, electrobrains 2013, 2014; Jays2Kings 2013, 2014, 2015, 2016; Ryochan7 2017-2023, schmaldeo 2024</Copyright>
@@ -41,7 +41,7 @@
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    <DefineConstants>WIN64</DefineConstants>
+    <DefineConstants>WIN64;BETA_VERSION</DefineConstants>
     <ErrorReport>none</ErrorReport>
     <DebugType>none</DebugType>
     <DebugSymbols>false</DebugSymbols>
@@ -51,7 +51,7 @@
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x86'">
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    <DefineConstants></DefineConstants>
+    <DefineConstants>BETA_VERSION</DefineConstants>
     <ErrorReport>none</ErrorReport>
     <DebugType>none</DebugType>
     <DebugSymbols>false</DebugSymbols>
@@ -375,7 +375,6 @@
   <ItemGroup>
     <Folder Remove="extras\" />
   </ItemGroup>
-<!--TODO automatise the python lang script-->
   <Target Name="PostBuild" AfterTargets="PostBuildEvent">
     <Exec Command="rem Copy compiled l18n assemblies to alt folder&#xA;if not exist $(TargetDir)Lang mkdir $(TargetDir)Lang&#xA;set langs=ar cs de el es fi fr he hu-HU idn it ja ms nl pl pt pt-BR ru se tr uk-UA vi zh-Hans zh-Hant zh-CN&#xA;&#xA;for %25%25l in (%25langs%25) do (&#xA;  xcopy $(TargetDir)%25%25l $(TargetDir)Lang\%25%25l\ /s /y&#xA;  rd /s /q &quot;$(TargetDir)%%l&quot;&#xA;)&#xA;&#xA;echo $(Version)&gt; $(ProjectDir)\newest.txt" />
   </Target>

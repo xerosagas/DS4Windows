@@ -19,6 +19,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using DS4WinWPF;
 
 namespace DS4Windows
 {
@@ -272,9 +273,7 @@ namespace DS4Windows
             }
         }
 
-        private SimulatePitchRoll simulatePitchRoll = new SimulatePitchRoll();
-
-
+        private SimulatePitchRoll _simulatePitchRoll = new();
 
         public long CntCalibrating
         {
@@ -436,7 +435,7 @@ namespace DS4Windows
         }
 
         public unsafe void handleDS3Sixaxis(byte* gyro, byte* accel, DS4State state,
-            double elapsedDelta)
+            double elapsedDelta, int device)
         {
             unchecked
             {
@@ -458,10 +457,11 @@ namespace DS4Windows
                 if (calibrationDone)
                     applyCalibs(ref currentYaw, ref currentPitch, ref currentRoll, ref AccelX, ref AccelY, ref AccelZ);
 
-                if (Global.UseDs3PitchRollSim)
+                var triggerActive = App.rootHub.touchPad[device].IsGyroTriggerActive(GyroOutMode.Controls);
+                if (Global.UseDs3PitchRollSim && triggerActive)
                 {
-                    simulatePitchRoll.PushSample(AccelX, AccelY, AccelZ, state.totalMicroSec);
-                    simulatePitchRoll.GetPitchRoll(ref currentPitch, ref currentRoll);
+                    _simulatePitchRoll.PushSample(AccelX, AccelY, AccelZ, state.totalMicroSec);
+                    _simulatePitchRoll.GetPitchRoll(ref currentPitch, ref currentRoll);
                 }
 
                 if (gyroAverageTimer.IsRunning)
