@@ -22,6 +22,7 @@
                 <CheckBox Content="{lex:Loc ControllerSupportSwitchPro}" IsChecked="{Binding SwitchProDeviceOpts.Enabled}" />
                 <CheckBox Content="{lex:Loc ControllerSupportJoyCon}" IsChecked="{Binding JoyConDeviceOpts.Enabled}" />
                 <CheckBox Content="{lex:Loc ControllerSupportDS3}" IsChecked="{Binding DS3DeviceOpts.Enabled}" />
+                <CheckBox Content="{lex:Loc ControllerSupportMoonlight}" IsChecked="{Binding UseMoonlight}" />
             </StackPanel>
 
             <StackPanel DockPanel.Dock="Top" Margin="0,16,0,0">

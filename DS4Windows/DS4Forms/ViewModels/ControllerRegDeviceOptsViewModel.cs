@@ -50,6 +50,21 @@ namespace DS4WinWPF.DS4Forms.ViewModels
         public SwitchProDeviceOptions SwitchProDeviceOpts { get => serviceDeviceOpts.SwitchProDeviceOpts; }
         public JoyConDeviceOptions JoyConDeviceOpts { get => serviceDeviceOpts.JoyConDeviceOpts; }
 
+        public bool UseMoonlightChanged
+        {
+            get;
+            private set;
+        }
+        public bool UseMoonlight
+        {
+            get => Global.UseMoonlight;
+            set
+            {
+                UseMoonlightChanged = value != Global.UseMoonlight;
+                Global.UseMoonlight = value;
+            }
+        }
+
         public bool VerboseLogMessages { get => serviceDeviceOpts.VerboseLogMessages; set => serviceDeviceOpts.VerboseLogMessages = value; }
 
         private List<DeviceListItem> currentInputDevices = new List<DeviceListItem>();

@@ -1409,4 +1409,7 @@ Please click OK to confirm that you have read the message. Press Cancel to be re
   <data name="Custom" xml:space="preserve">
     <value>Custom</value>
   </data>
+  <data name="ControllerSupportMoonlight" xml:space="preserve">
+    <value>Moonlight Support</value>
+  </data>
 </root>
