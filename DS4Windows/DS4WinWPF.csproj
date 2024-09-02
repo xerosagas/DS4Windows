@@ -15,9 +15,9 @@
     <RunAnalyzersDuringBuild>true</RunAnalyzersDuringBuild>
     <EnableNETAnalyzers>false</EnableNETAnalyzers>
     <ServerGarbageCollection>true</ServerGarbageCollection>
-    <AssemblyVersion>3.6.0</AssemblyVersion>
-    <FileVersion>3.6.0</FileVersion>
-    <Version>3.6.0</Version>
+    <AssemblyVersion>3.6.1</AssemblyVersion>
+    <FileVersion>3.6.1</FileVersion>
+    <Version>3.6.1</Version>
     <Configuration Condition="'$(Configuration)' == ''">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">x64</Platform>
     <Copyright>Copyright © Scarlet.Crush Productions 2012, 2013; InhexSTER, HecticSeptic, electrobrains 2013, 2014; Jays2Kings 2013, 2014, 2015, 2016; Ryochan7 2017-2023, schmaldeo 2024</Copyright>
@@ -376,6 +376,6 @@
     <Folder Remove="extras\" />
   </ItemGroup>
   <Target Name="PostBuild" AfterTargets="PostBuildEvent">
-    <Exec Command="GOTO END&#xA;python $(SolutionDir)utils\post-build.py $(TargetDir) $(ProjectDir) $(Version)&#xA;:END" />
+    <Exec Command="&#xA;python $(SolutionDir)utils\post-build.py $(TargetDir) $(ProjectDir) $(Version)&#xA;" />
   </Target>
 </Project>
