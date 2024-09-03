@@ -2028,6 +2028,12 @@
                             </TabItem>
 
                         </TabControl>
+                        <StackPanel Orientation="Horizontal" Margin="0, 8, 0, 8">
+                            <CheckBox Content="[EXPERIMENTAL] Use DS3 pitch and roll simulation"
+                                      IsChecked="{Binding UseDs3PitchRollSim}"
+                                      ToolTip="Simulates pitch and roll based on accelerometer values
+                                                  from DS3."/>
+                        </StackPanel>
                     </StackPanel>
                 </ScrollViewer>
             </TabItem>

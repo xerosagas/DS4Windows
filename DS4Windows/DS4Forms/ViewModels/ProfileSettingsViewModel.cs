@@ -469,6 +469,34 @@ namespace DS4WinWPF.DS4Forms.ViewModels
 
         public event EventHandler DebouncingMsChanged;
 
+        public bool HasUseDs3PitchRollSimChanged
+        {
+            get;
+            private set;
+        }
+
+        public bool UseDs3PitchRollSim
+        {
+            get => Global.UseDs3PitchRollSim;
+            set
+            {
+                if (Global.UseDs3PitchRollSim != value)
+                {
+                    HasUseDs3PitchRollSimChanged = true;
+                }
+                else
+                {
+                    HasUseDs3PitchRollSimChanged = false;
+                }
+                Global.UseDs3PitchRollSim = value;
+            }
+        }
+
+        // public bool HasUseDs3PitchRollSimChanged()
+        // {
+        //     return UseDs3PitchRollSim != Global.UseDs3PitchRollSim;
+        // }
+
         public int RumbleBoost
         {
             get => Global.RumbleBoost[device];
