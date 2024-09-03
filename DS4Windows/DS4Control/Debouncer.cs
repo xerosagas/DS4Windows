@@ -54,7 +54,6 @@ public class Debouncer(TimeSpan duration)
         /// <returns>Processed input with debouncing applied</returns>
         public bool ProcessInput(bool input, DateTime timestamp)
         {
-            Console.WriteLine("processing");
             if (_currentlyDebouncing)
             {
                 return Debounce(input, timestamp);
