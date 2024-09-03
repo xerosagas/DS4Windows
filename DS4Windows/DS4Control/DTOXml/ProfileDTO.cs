@@ -1983,13 +1983,12 @@ namespace DS4WinWPF.DS4Control.DTOXml
             lightInfo.m_Led = _ledColor;
 
             destination.useDs3PitchRollSim = UseDs3PitchRollSim;
-            destination.debouncingMs = DebouncingMs;
+            destination.debouncingMs[deviceIndex] = DebouncingMs;
             destination.leftStickDriftXAxis[deviceIndex] = LeftStickDriftXAxis;
             destination.leftStickDriftYAxis[deviceIndex] = LeftStickDriftYAxis;
             destination.rightStickDriftXAxis[deviceIndex] = RightStickDriftXAxis;
             destination.rightStickDriftYAxis[deviceIndex] = RightStickDriftYAxis;
 
-            destination.debouncingMs[deviceIndex] = DebouncingMs;
             destination.rumble[deviceIndex] = RumbleBoost;
             destination.rumbleAutostopTime[deviceIndex] = RumbleAutostopTime;
             lightInfo.ledAsBattery = LedAsBatteryIndicator;
