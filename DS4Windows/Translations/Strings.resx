@@ -1409,4 +1409,22 @@ Please click OK to confirm that you have read the message. Press Cancel to be re
   <data name="Custom" xml:space="preserve">
     <value>Custom</value>
   </data>
+  <data name="UseDs3PitchRollSim" xml:space="preserve">
+    <value>[EXPERIMENTAL] Use DS3 pitch and roll simulation</value>
+  </data>
+  <data name="UseDs3PitchRollSimTooltip" xml:space="preserve">
+    <value>Simulates pitch and roll based on accelerometer values from DS3.</value>
+  </data>
+  <data name="StickCalibration" xml:space="preserve">
+    <value>Stick calibration</value>
+  </data>
+  <data name="XAxisOffset" xml:space="preserve">
+    <value>X Axis offset</value>
+  </data>
+  <data name="YAxisOffset" xml:space="preserve">
+    <value>Y Axis offset</value>
+  </data>
+  <data name="AutomaticallyRecalibrateStick" xml:space="preserve">
+    <value>Automatically recalibrate stick</value>
+  </data>
 </root>
