@@ -55,6 +55,7 @@ namespace DS4WinWPF.DS4Forms.ViewModels
             get;
             private set;
         }
+
         public bool UseMoonlight
         {
             get => Global.UseMoonlight;
@@ -62,6 +63,16 @@ namespace DS4WinWPF.DS4Forms.ViewModels
             {
                 UseMoonlightChanged = value != Global.UseMoonlight;
                 Global.UseMoonlight = value;
+            }
+        }
+
+        public bool UseAdvancedMoonlight
+        {
+            get => Global.UseAdvancedMoonlight;
+            set
+            {
+                UseMoonlightChanged = value != Global.UseAdvancedMoonlight;
+                Global.UseAdvancedMoonlight = value;
             }
         }
 

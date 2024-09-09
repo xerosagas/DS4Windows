@@ -1412,4 +1412,7 @@ Please click OK to confirm that you have read the message. Press Cancel to be re
   <data name="ControllerSupportMoonlight" xml:space="preserve">
     <value>Moonlight Support</value>
   </data>
+  <data name="AdvancedSupport" xml:space="preserve">
+    <value>Advanced Support</value>
+  </data>
 </root>
