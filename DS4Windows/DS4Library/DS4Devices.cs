@@ -201,11 +201,10 @@ namespace DS4Windows
         }
         private static bool IsRealDS4(HidDevice hDevice)
         {
-            // TODO add doc explaining how each option works
             if (!Global.UseMoonlight) return !Global.CheckIfVirtualDevice(hDevice.DevicePath);
             if (!Global.UseAdvancedMoonlight)
             {
-                // this approach works on most devices, but not on my pc for some reason :/
+                // this approach should work on most devices, but not on my pc for some reason
                 if (hDevice.Attributes.VendorId == 1356 && hDevice.Attributes.ProductId == 1476) return true;
             }
             else
