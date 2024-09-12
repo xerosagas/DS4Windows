@@ -1427,4 +1427,22 @@ Please click OK to confirm that you have read the message. Press Cancel to be re
   <data name="AutomaticallyRecalibrateStick" xml:space="preserve">
     <value>Automatically recalibrate stick</value>
   </data>
+  <data name="CreateLightbarMacro" xml:space="preserve">
+    <value>Create lightbar macro</value>
+  </data>
+  <data name="LightbarMode" xml:space="preserve">
+    <value>Lightbar Mode</value>
+  </data>
+  <data name="SolidColor" xml:space="preserve">
+    <value>Solid Colour</value>
+  </data>
+  <data name="Macro" xml:space="preserve">
+    <value>Macro</value>
+  </data>
+  <data name="Add" xml:space="preserve">
+    <value>Add</value>
+  </data>
+  <data name="ColorAndLength" xml:space="preserve">
+    <value>Colour and length</value>
+  </data>
 </root>

@@ -114,6 +114,15 @@ namespace DS4WinWPF.Translations {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Add.
+        /// </summary>
+        public static string Add {
+            get {
+                return ResourceManager.GetString("Add", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Add Directory.
         /// </summary>
         public static string AddDirectory {
@@ -555,6 +564,15 @@ namespace DS4WinWPF.Translations {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Colour and length.
+        /// </summary>
+        public static string ColorAndLength {
+            get {
+                return ResourceManager.GetString("ColorAndLength", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Colored.
         /// </summary>
         public static string Colored {
@@ -794,6 +812,15 @@ namespace DS4WinWPF.Translations {
         public static string CRC32Fail {
             get {
                 return ResourceManager.GetString("CRC32Fail", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Create lightbar macro.
+        /// </summary>
+        public static string CreateLightbarMacro {
+            get {
+                return ResourceManager.GetString("CreateLightbarMacro", resourceCulture);
             }
         }
         
@@ -1846,6 +1873,15 @@ namespace DS4WinWPF.Translations {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Lightbar Mode.
+        /// </summary>
+        public static string LightbarMode {
+            get {
+                return ResourceManager.GetString("LightbarMode", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Linear.
         /// </summary>
         public static string Linear {
@@ -1869,6 +1905,15 @@ namespace DS4WinWPF.Translations {
         public static string Log {
             get {
                 return ResourceManager.GetString("Log", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Macro.
+        /// </summary>
+        public static string Macro {
+            get {
+                return ResourceManager.GetString("Macro", resourceCulture);
             }
         }
         
@@ -2980,6 +3025,15 @@ namespace DS4WinWPF.Translations {
         public static string SnapToCenter {
             get {
                 return ResourceManager.GetString("SnapToCenter", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Solid Colour.
+        /// </summary>
+        public static string SolidColor {
+            get {
+                return ResourceManager.GetString("SolidColor", resourceCulture);
             }
         }
         
