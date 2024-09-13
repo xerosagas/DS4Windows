@@ -54,8 +54,6 @@ namespace DS4WinWPF.DS4Forms.ViewModels
             }
         }
 
-        public int LightbarModeIndex { get; set; }
-
         public bool ShowShift { get => showShift; set => showShift = value; }
         public bool RumbleActive { get => rumbleActive; set => rumbleActive = value; }
         public DS4ControlSettings Settings { get => settings; }
