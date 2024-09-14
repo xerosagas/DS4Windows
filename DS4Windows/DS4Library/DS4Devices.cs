@@ -201,27 +201,34 @@ namespace DS4Windows
         }
         private static bool IsRealDS4(HidDevice hDevice)
         {
-            // all of this basically tries to add a 5 seconds cooldown when a new device is connected and moonlight
-            // support is on to avoid getting 8 virtual connected devices from one physical one
-            if (!DetectNewControllers)
+            if (!Global.UseMoonlight) return !Global.CheckIfVirtualDevice(hDevice.DevicePath);
+            if (!Global.UseAdvancedMoonlight)
             {
-                var curTimestamp = Stopwatch.GetTimestamp();
-                if (curTimestamp - timestamp > 5 * TimeSpan.TicksPerSecond) DetectNewControllers = true;
+                // this approach should work on most devices, but not on my pc for some reason
+                if (hDevice.Attributes.VendorId == 1356 && hDevice.Attributes.ProductId == 1476) return true;
             }
-
-            // Moonlight detection
-            if (Global.UseMoonlight && hDevice.Attributes.VendorId == 1356 && hDevice.Attributes.ProductId == 1476)
+            else
             {
-                if (DetectNewControllers)
+                // all of this basically tries to add a 5 seconds cooldown when a new device is connected and moonlight
+                // support is on to avoid getting 8 virtual connected devices from one physical one
+                if (!DetectNewControllers)
                 {
-                    DetectNewControllers = false;
-                    return true;
+                    var curTimestamp = Stopwatch.GetTimestamp();
+                    if (curTimestamp - timestamp > 5 * TimeSpan.TicksPerSecond) DetectNewControllers = true;
                 }
-                return DetectNewControllers;
-            }
 
-            bool result = !Global.CheckIfVirtualDevice(hDevice.DevicePath);
-            return result;
+                // Moonlight detection
+                if (hDevice.Attributes.VendorId == 1356 && hDevice.Attributes.ProductId == 1476)
+                {
+                    if (DetectNewControllers)
+                    {
+                        DetectNewControllers = false;
+                        return true;
+                    }
+                    return DetectNewControllers;
+                }
+            }
+            return !Global.CheckIfVirtualDevice(hDevice.DevicePath);
         }
 
         // Enumerates ds4 controllers in the system

@@ -1617,6 +1617,12 @@ namespace DS4Windows
             set => m_Config.useMoonlight = value;
         }
 
+        public static bool UseAdvancedMoonlight
+        {
+            get => m_Config.useAdvancedMoonlight;
+            set => m_Config.useAdvancedMoonlight = value;
+        }
+
         public static bool getQuickCharge()
         {
             return m_Config.quickCharge;
@@ -3653,6 +3659,7 @@ namespace DS4Windows
         public bool ds4Mapping = false;
         public bool quickCharge = false;
         public bool useMoonlight = false;
+        public bool useAdvancedMoonlight = false;
         public bool closeMini = false;
         public List<SpecialAction> actions = new List<SpecialAction>();
         public List<DS4ControlSettings>[] ds4settings = new List<DS4ControlSettings>[Global.TEST_PROFILE_ITEM_COUNT]

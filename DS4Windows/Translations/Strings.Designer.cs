@@ -150,6 +150,15 @@ namespace DS4WinWPF.Translations {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Advanced Support.
+        /// </summary>
+        public static string AdvancedSupport {
+            get {
+                return ResourceManager.GetString("AdvancedSupport", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to All.
         /// </summary>
         public static string All {
