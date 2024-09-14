@@ -28,6 +28,7 @@ using static DS4Windows.Global;
 using System.Drawing; // Point struct
 using Sensorit.Base;
 using DS4WinWPF.DS4Control;
+using DS4WinWPF.DS4Forms.ViewModels;
 
 namespace DS4Windows
 {
@@ -3426,6 +3427,8 @@ namespace DS4Windows
         //private static double FlickThreshold = 0.9;
         //private static double FlickTime = 0.1;
 
+        private static CancellationTokenSource threadCts = new();
+
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private static void ProcessControlSettingAction(DS4ControlSettings dcs, int device, DS4State cState, DS4State MappedState, DS4StateExposed eState,
             Mouse tp, DS4StateFieldMapping fieldMapping, DS4StateFieldMapping outputfieldMapping, SyntheticState deviceState, ref double tempMouseDeltaX, ref double tempMouseDeltaY,
@@ -3527,6 +3530,21 @@ namespace DS4Windows
                     held[device] = DS4Controls.None;
                     usingExtra = DS4Controls.None;
                 }
+            }
+
+            // TODO for the macro:
+            // when press/release is detected: start a macro by spawning a new thread that changes the
+            // colour and sleeps between changes. will have to have a field for it, if it's null just put
+            // the thread there and put it back to null after its done executing, if the button is
+            // pressed/released again, invalidate that thread
+            dcs.useLightbarMacro = true;
+            if (dcs.useLightbarMacro && GetBoolActionMapping(device, dcs.control, cState, eState, tp, fieldMapping))
+            {
+                // threadCts.Cancel();
+                // threadCts.Dispose();
+                // threadCts = new CancellationTokenSource();
+                if (dcs.control == DS4Controls.Cross)
+                    ThreadPool.QueueUserWorkItem(RunLightbarMacro, new Tuple<DS4ControlSettings, int, CancellationToken>(dcs, device, threadCts.Token));
             }
 
             if (actionType != DS4ControlSettings.ActionType.Default)
@@ -3833,6 +3851,26 @@ namespace DS4Windows
                     customMapQueue[device].Enqueue(new ControlToXInput(dcs.control, dcs.control));
                 }
             }
+        }
+
+        // private static void RunLightbarMacro(DS4ControlSettings controlSettings, int device, CancellationToken token)
+        // this method needs to have the signature of function(object) because we run it using the Thread class
+        private static void RunLightbarMacro(object data)
+        {
+            if (data is not Tuple<DS4ControlSettings, int, CancellationToken>(var controlSettings, var device, var token))
+            {
+                throw new ArgumentException(
+                    "RunLightbarMacro() requires a Tuple<DS4ControlSettings, int, CancellationToken> passed to it.");
+            }
+
+            DS4LightBar.forcelight[device] = true;
+            foreach (var element in controlSettings.lightbarMacro)
+            {
+                if (token.IsCancellationRequested) break;
+                DS4LightBar.forcedColor[device] = element.Color;
+                Thread.Sleep(element.Length);
+            }
+            DS4LightBar.forcelight[device] = false;
         }
 
         private static bool IfAxisIsNotModified(int device, bool shift, DS4Controls dc)

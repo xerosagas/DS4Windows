@@ -1,6 +1,7 @@
 using System;
 using System.Collections.ObjectModel;
 using System.Windows.Media;
+using DS4Windows;
 
 namespace DS4WinWPF.DS4Forms.ViewModels;
 
@@ -42,9 +43,9 @@ public class LightbarMacroViewModel
     }
 }
 
-public class LightbarMacroElement(Color color, int length)
+public class LightbarMacroElement(DS4Color color, int length)
 {
-    public Color Color { get; init; } = color;
+    public DS4Color Color { get; init; } = color;
     public int Length { get; init; } = length;
 
     public override string ToString()
