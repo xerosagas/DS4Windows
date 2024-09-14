@@ -744,6 +744,15 @@ namespace DS4WinWPF.Translations {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Moonlight Support.
+        /// </summary>
+        public static string ControllerSupportMoonlight {
+            get {
+                return ResourceManager.GetString("ControllerSupportMoonlight", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Switch Pro Controller Support.
         /// </summary>
         public static string ControllerSupportSwitchPro {

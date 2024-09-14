@@ -74,6 +74,13 @@ namespace DS4WinWPF.DS4Forms
         {
             deviceOptsVM.SaveControllerConfigs();
 
+            // if moonlight support enabled
+            if (deviceOptsVM.UseMoonlightChanged && deviceOptsVM.UseMoonlight)
+            {
+                MessageBox.Show("Please note that Moonlight support is experimental and has some tradeoffs." +
+                                "You can read about them on https://github.com/schmaldeo/DS4Windows/issues/4#issuecomment-2326108768",
+                    "DS4Windows", MessageBoxButton.OK, MessageBoxImage.Information);
+            }
             devOptionsDockPanel.DataContext = null;
         }
     }
