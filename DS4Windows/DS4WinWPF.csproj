@@ -15,22 +15,16 @@
     <RunAnalyzersDuringBuild>true</RunAnalyzersDuringBuild>
     <EnableNETAnalyzers>false</EnableNETAnalyzers>
     <ServerGarbageCollection>true</ServerGarbageCollection>
-<<<<<<< HEAD
-    <AssemblyVersion>3.6.3</AssemblyVersion>
-    <FileVersion>3.6.3</FileVersion>
-    <Version>3.6.3</Version>
-=======
     <AssemblyVersion>3.7.0</AssemblyVersion>
     <FileVersion>3.7.0</FileVersion>
-    <Version>3.7.0-beta.1</Version>
->>>>>>> refs/heads/moonlight
+    <Version>3.7.0</Version>
     <Configuration Condition="'$(Configuration)' == ''">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">x64</Platform>
     <Copyright>Copyright © Scarlet.Crush Productions 2012, 2013; InhexSTER, HecticSeptic, electrobrains 2013, 2014; Jays2Kings 2013, 2014, 2015, 2016; Ryochan7 2017-2023, schmaldeo 2024</Copyright>
     <Description>Sony DualShock 4 to Microsoft Xinput controller mapper</Description>
     <Authors>schmaldeo</Authors>
     <Company>schmaldeo</Company>
-    <PackageProjectUrl>https://ds4-windows.com/</PackageProjectUrl>
+    <PackageProjectUrl>https://schmaldeo.github.io/DS4WindowsDocs</PackageProjectUrl>
     <PackageLicenseUrl>https://www.gnu.org/licenses/gpl-3.0.txt</PackageLicenseUrl>
     <RepositoryUrl>https://github.com/schmaldeo/DS4Windows</RepositoryUrl>
   </PropertyGroup>
@@ -47,7 +41,7 @@
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    <DefineConstants>WIN64;BETA_VERSION</DefineConstants>
+    <DefineConstants>WIN64</DefineConstants>
     <ErrorReport>none</ErrorReport>
     <DebugType>none</DebugType>
     <DebugSymbols>false</DebugSymbols>
@@ -57,7 +51,7 @@
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x86'">
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    <DefineConstants>BETA_VERSION</DefineConstants>
+    <DefineConstants></DefineConstants>
     <ErrorReport>none</ErrorReport>
     <DebugType>none</DebugType>
     <DebugSymbols>false</DebugSymbols>
@@ -382,9 +376,6 @@
     <Folder Remove="extras\" />
   </ItemGroup>
   <Target Name="PostBuild" AfterTargets="PostBuildEvent">
-    <Exec Command="GOTO END&#xA;python $(SolutionDir)utils\post-build.py $(TargetDir) $(ProjectDir) $(Version)&#xA;:END" />
-    <AssemblyVersion>3.6.3</AssemblyVersion>
-    <FileVersion>3.6.3</FileVersion>
-    <Version>3.6.3</Version>
+    <Exec Command="python $(SolutionDir)utils\post-build.py $(TargetDir) $(ProjectDir) $(Version)" />
   </Target>
 </Project>
