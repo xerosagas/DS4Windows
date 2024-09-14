@@ -44,6 +44,7 @@ using System.Windows;
 using static DS4Windows.Util;
 using WpfScreenHelper;
 using DS4Windows.InputDevices;
+using DS4WinWPF.DS4Forms.ViewModels;
 
 namespace DS4Windows
 {
@@ -136,6 +137,9 @@ namespace DS4Windows
         public string shiftExtras = null;
         public DS4KeyType shiftKeyType = DS4KeyType.None;
 
+        public bool useLightbarMacro;
+        public LightbarMacroElement[] lightbarMacro;
+
         public bool IsDefault { get => actionType == ActionType.Default; }
         public bool IsShiftDefault { get => shiftActionType == ActionType.Default; }
 
@@ -152,6 +156,8 @@ namespace DS4Windows
             action = new ControlActionData();
             action.actionAlias = 0;
             //actionAlias = 0;
+            useLightbarMacro = false;
+            lightbarMacro = [];
 
             shiftActionType = ActionType.Default;
             shiftAction = new ControlActionData();

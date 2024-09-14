@@ -1,5 +1,6 @@
 using System;
 using System.Collections.ObjectModel;
+using System.Linq;
 using System.Windows;
 using System.Windows.Media;
 using DS4WinWPF.DS4Forms.ViewModels;
@@ -9,6 +10,8 @@ namespace DS4WinWPF.DS4Forms;
 public partial class LightbarMacroCreator : Window
 {
     private LightbarMacroViewModel _lightbarMacroVM;
+
+    public event EventHandler<LightbarMacroSaveEventArgs> Save;
 
     public LightbarMacroCreator()
     {
@@ -30,12 +33,12 @@ public partial class LightbarMacroCreator : Window
 
     private void AddColor_OnClick(object sender, RoutedEventArgs e)
     {
-        _lightbarMacroVM.MacroList.Add(new MacroColor(_lightbarMacroVM.CurrentColor, _lightbarMacroVM.CurrentInterval));
+        _lightbarMacroVM.MacroList.Add(new LightbarMacroElement(_lightbarMacroVM.CurrentColor, _lightbarMacroVM.CurrentInterval));
     }
 
     private void DeleteColor_OnClick(object sender, RoutedEventArgs e)
     {
-        _lightbarMacroVM.MacroList.Remove((MacroColor)MacroListBox.SelectedItems[0]);
+        _lightbarMacroVM.MacroList.Remove((LightbarMacroElement)MacroListBox.SelectedItems[0]);
     }
 
     private void Clear_OnClick(object sender, RoutedEventArgs e)
@@ -45,6 +48,11 @@ public partial class LightbarMacroCreator : Window
 
     private void Save_OnClick(object sender, RoutedEventArgs e)
     {
-        throw new NotImplementedException();
+        Save?.Invoke(this, new LightbarMacroSaveEventArgs(_lightbarMacroVM.MacroList.ToArray()));
     }
+}
+
+public class LightbarMacroSaveEventArgs(LightbarMacroElement[] macro) : EventArgs
+{
+    public LightbarMacroElement[] Macro { get; init; } = macro;
 }

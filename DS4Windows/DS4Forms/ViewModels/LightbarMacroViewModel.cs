@@ -6,7 +6,7 @@ namespace DS4WinWPF.DS4Forms.ViewModels;
 
 public class LightbarMacroViewModel
 {
-    public ObservableCollection<MacroColor> MacroList { get; set; }
+    public ObservableCollection<LightbarMacroElement> MacroList { get; set; }
 
     private Color _currentColor;
     public Color CurrentColor
@@ -42,7 +42,7 @@ public class LightbarMacroViewModel
     }
 }
 
-public class MacroColor(Color color, int length)
+public class LightbarMacroElement(Color color, int length)
 {
     public Color Color { get; init; } = color;
     public int Length { get; init; } = length;

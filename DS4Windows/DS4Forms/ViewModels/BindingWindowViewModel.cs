@@ -146,6 +146,13 @@ namespace DS4WinWPF.DS4Forms.ViewModels
             }
         }
 
+        public void PrepareSaveLightbarMacro(LightbarMacroElement[] macro, OutBinding bind, bool shiftBind = false)
+        {
+            bind.UseLightbarMacro = settings.useLightbarMacro;
+            bind.LightbarMacro = macro;
+            // bind.LightbarMacro = settings.lightbarMacro;
+        }
+
         public void PrepareSaveMacro(OutBinding bind, bool shiftBind=false)
         {
             DS4ControlSettings setting = settings;
@@ -254,6 +261,8 @@ namespace DS4WinWPF.DS4Forms.ViewModels
         private int mouseSens = 25;
         private DS4Color extrasColor = new DS4Color(255,255,255);
 
+        public bool UseLightbarMacro { get; set; }
+        public LightbarMacroElement[] LightbarMacro { get; set; }
         public bool HasScanCode { get => hasScanCode; set => hasScanCode = value; }
         public bool Toggle { get => toggle; set => toggle = value; }
         public int ShiftTrigger
@@ -649,6 +658,9 @@ namespace DS4WinWPF.DS4Forms.ViewModels
                     settings.extras = string.Empty;
                 }
 
+                settings.useLightbarMacro = UseLightbarMacro;
+                settings.lightbarMacro = LightbarMacro;
+
                 Global.RefreshActionAlias(settings, shiftBind);
             }
             else
@@ -712,6 +724,9 @@ namespace DS4WinWPF.DS4Forms.ViewModels
                 {
                     settings.shiftExtras = string.Empty;
                 }
+
+                settings.useLightbarMacro = UseLightbarMacro;
+                settings.lightbarMacro = LightbarMacro;
 
                 Global.RefreshActionAlias(settings, shiftBind);
             }
