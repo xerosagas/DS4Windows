@@ -3537,8 +3537,7 @@ namespace DS4Windows
             // colour and sleeps between changes. will have to have a field for it, if it's null just put
             // the thread there and put it back to null after its done executing, if the button is
             // pressed/released again, invalidate that thread
-            dcs.useLightbarMacro = true;
-            if (dcs.useLightbarMacro && GetBoolActionMapping(device, dcs.control, cState, eState, tp, fieldMapping))
+            if (GetBoolActionMapping(device, dcs.control, cState, eState, tp, fieldMapping))
             {
                 // threadCts.Cancel();
                 // threadCts.Dispose();
@@ -3864,7 +3863,7 @@ namespace DS4Windows
             }
 
             DS4LightBar.forcelight[device] = true;
-            foreach (var element in controlSettings.lightbarMacro)
+            foreach (var element in controlSettings.lightbarMacro.Elements)
             {
                 if (token.IsCancellationRequested) break;
                 DS4LightBar.forcedColor[device] = element.Color;

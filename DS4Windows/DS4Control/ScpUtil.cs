@@ -137,8 +137,7 @@ namespace DS4Windows
         public string shiftExtras = null;
         public DS4KeyType shiftKeyType = DS4KeyType.None;
 
-        public bool useLightbarMacro;
-        public LightbarMacroElement[] lightbarMacro;
+        public LightbarMacro lightbarMacro;
 
         public bool IsDefault { get => actionType == ActionType.Default; }
         public bool IsShiftDefault { get => shiftActionType == ActionType.Default; }
@@ -156,8 +155,7 @@ namespace DS4Windows
             action = new ControlActionData();
             action.actionAlias = 0;
             //actionAlias = 0;
-            useLightbarMacro = false;
-            lightbarMacro = [];
+            lightbarMacro = new LightbarMacro([], false);
 
             shiftActionType = ActionType.Default;
             shiftAction = new ControlActionData();
@@ -198,6 +196,10 @@ namespace DS4Windows
                 {
                     actionType = ActionType.Macro;
                     action.actionMacro = (int[])act;
+                }
+                else if (act is LightbarMacro macro)
+                {
+                    lightbarMacro = macro;
                 }
                 else
                 {

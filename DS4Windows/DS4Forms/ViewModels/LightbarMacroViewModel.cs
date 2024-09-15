@@ -43,6 +43,12 @@ public class LightbarMacroViewModel
     }
 }
 
+public class LightbarMacro(LightbarMacroElement[] elements, bool active)
+{
+    public LightbarMacroElement[] Elements = elements;
+    public bool Active = active;
+}
+
 public class LightbarMacroElement(DS4Color color, int length)
 {
     public DS4Color Color { get; init; } = color;

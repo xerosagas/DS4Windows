@@ -61,7 +61,7 @@ public partial class LightbarMacroCreator : Window
     }
 }
 
-public class LightbarMacroSaveEventArgs(LightbarMacroElement[] macro) : EventArgs
+public class LightbarMacroSaveEventArgs(LightbarMacroElement[] macroElements) : EventArgs
 {
-    public LightbarMacroElement[] Macro { get; init; } = macro;
+    public LightbarMacroElement[] MacroElements { get; init; } = macroElements;
 }
