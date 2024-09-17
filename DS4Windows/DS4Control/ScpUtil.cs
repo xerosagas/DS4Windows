@@ -2646,6 +2646,12 @@ namespace DS4Windows
             Mapping.actionDone.Add(new Mapping.ActionState());
         }
 
+        public static void SaveLightbarMacro(int device, DS4Controls control, LightbarMacro macro)
+        {
+            var found = m_Config.ds4settings[device].First(x => x.control == control);
+            found.lightbarMacro = macro;
+        }
+
         public static void SaveActions()
         {
             m_Config.SaveActions();

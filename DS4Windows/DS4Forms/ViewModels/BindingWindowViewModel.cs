@@ -34,7 +34,6 @@ namespace DS4WinWPF.DS4Forms.ViewModels
         private DS4ControlSettings settings;
         private OutBinding currentOutBind;
         private OutBinding shiftOutBind;
-        private OutBinding actionBinding;
         private bool showShift;
         private bool rumbleActive;
 
@@ -45,14 +44,7 @@ namespace DS4WinWPF.DS4Forms.ViewModels
         public int DeviceNum { get => deviceNum; }
         public OutBinding CurrentOutBind { get => currentOutBind; }
         public OutBinding ShiftOutBind { get => shiftOutBind; }
-        public OutBinding ActionBinding
-        {
-            get => actionBinding;
-            set
-            {
-                actionBinding = value;
-            }
-        }
+        public OutBinding ActionBinding { get; set; }
 
         public bool ShowShift { get => showShift; set => showShift = value; }
         public bool RumbleActive { get => rumbleActive; set => rumbleActive = value; }
@@ -149,6 +141,7 @@ namespace DS4WinWPF.DS4Forms.ViewModels
         public void PrepareSaveLightbarMacro(LightbarMacro macro, OutBinding bind, bool shiftBind = false)
         {
             bind.LightbarMacro = macro;
+            Settings.lightbarMacro = macro;
             // bind.LightbarMacro = settings.lightbarMacro;
         }
 

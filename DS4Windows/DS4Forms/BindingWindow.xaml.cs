@@ -29,6 +29,7 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
+using DS4Windows;
 using DS4WinWPF.DS4Forms.ViewModels;
 
 namespace DS4WinWPF.DS4Forms
@@ -947,14 +948,15 @@ namespace DS4WinWPF.DS4Forms
         {
             LightbarMacroCreator dialog = new();
             dialog.Owner = Application.Current.MainWindow;
-            dialog.ShowDialog();
             dialog.Save += (_, eventArgs) =>
             {
                 // TODO assign active boolean based on the dropdown
                 var macro = new LightbarMacro(eventArgs.MacroElements, true);
-                bindingVM.PrepareSaveLightbarMacro(macro, bindingVM.ActionBinding,
-                    bindingVM.ActionBinding.IsShift());
+                Global.SaveLightbarMacro(bindingVM.DeviceNum, bindingVM.Settings.control, macro);
+                // bindingVM.PrepareSaveLightbarMacro(macro, bindingVM.ActionBinding,
+                //     bindingVM.ActionBinding.IsShift());
             };
+            dialog.ShowDialog();
         }
 
         private void UnregisterDataContext()

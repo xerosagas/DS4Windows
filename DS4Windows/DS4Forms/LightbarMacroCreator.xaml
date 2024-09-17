@@ -27,7 +27,7 @@
         <StackPanel Grid.Column="1">
             <Label Content="{lex:Loc ColorAndLength}" />
             <StackPanel Orientation="Horizontal">
-                <Button Click="SelectColor_Click" Background="{Binding CurrentColorString}" Height="10" Width="10" />
+                <Button Click="SelectColor_Click" Background="{Binding CurrentColorString}" Height="25" Width="25" />
                 <xctk:IntegerUpDown Value="{Binding CurrentInterval}" HorizontalAlignment="Stretch" />
             </StackPanel>
             <Button Content="{lex:Loc Add}" Click="AddColor_OnClick" />
