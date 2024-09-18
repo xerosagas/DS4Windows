@@ -951,10 +951,9 @@ namespace DS4WinWPF.DS4Forms
             dialog.Save += (_, eventArgs) =>
             {
                 // TODO assign active boolean based on the dropdown
-                var macro = new LightbarMacro(eventArgs.MacroElements, true);
-                Global.SaveLightbarMacro(bindingVM.DeviceNum, bindingVM.Settings.control, macro);
-                // bindingVM.PrepareSaveLightbarMacro(macro, bindingVM.ActionBinding,
-                //     bindingVM.ActionBinding.IsShift());
+                var macro = new LightbarMacro(eventArgs.MacroElements, true, LightbarMacroTrigger.Press);
+                bindingVM.PrepareSaveLightbarMacro(macro, bindingVM.ActionBinding,
+                    bindingVM.ActionBinding.IsShift());
             };
             dialog.ShowDialog();
         }

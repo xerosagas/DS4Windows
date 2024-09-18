@@ -130,6 +130,7 @@ namespace DS4Windows
         public enum ActionType : byte { Default, Key, Button, Macro };
         public ActionType actionType = ActionType.Default;
         public ControlActionData action = new ControlActionData();
+        public string lightbarString;
 
         public ActionType shiftActionType = ActionType.Default;
         public ControlActionData shiftAction = new ControlActionData();
@@ -155,7 +156,7 @@ namespace DS4Windows
             action = new ControlActionData();
             action.actionAlias = 0;
             //actionAlias = 0;
-            lightbarMacro = new LightbarMacro([], false);
+            // lightbarMacro = new LightbarMacro([], false);
 
             shiftActionType = ActionType.Default;
             shiftAction = new ControlActionData();
@@ -9126,6 +9127,28 @@ namespace DS4Windows
                     dcs.shiftKeyType = keyType;
                 else
                     dcs.keyType = keyType;
+            }
+        }
+
+        public void UpdateDS4CLightbarMacro(int deviceNum, string buttonName, bool shift, string macro)
+        {
+            DS4Controls dc;
+            if (buttonName.StartsWith("bn"))
+                dc = getDS4ControlsByName(buttonName);
+            else
+                dc = (DS4Controls)Enum.Parse(typeof(DS4Controls), buttonName, true);
+
+            int temp = (int)dc;
+            if (temp > 0)
+            {
+                int index = temp - 1;
+                DS4ControlSettings dcs = ds4settings[deviceNum][index];
+                // TODO shift
+                // if (shift)
+                //     dcs.shiftExtras = exts;
+                // else
+                //     dcs.extras = exts;
+                dcs.lightbarString = macro;
             }
         }
 

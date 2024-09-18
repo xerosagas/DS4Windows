@@ -140,8 +140,9 @@ namespace DS4WinWPF.DS4Forms.ViewModels
 
         public void PrepareSaveLightbarMacro(LightbarMacro macro, OutBinding bind, bool shiftBind = false)
         {
-            bind.LightbarMacro = macro;
-            Settings.lightbarMacro = macro;
+            bind.UseLightbarMacro = macro.Active;
+            bind.LightbarMacro = macro.Elements;
+            bind.LightbarMacroTrigger = macro.Trigger;
             // bind.LightbarMacro = settings.lightbarMacro;
         }
 
@@ -252,9 +253,22 @@ namespace DS4WinWPF.DS4Forms.ViewModels
         private int flashRate;
         private int mouseSens = 25;
         private DS4Color extrasColor = new DS4Color(255,255,255);
+        private bool _useLightbarMacro;
+        private LightbarMacroTrigger _lightbarMacroTrigger;
 
-        public bool UseLightbarMacro { get; set; }
-        public LightbarMacro LightbarMacro { get; set; }
+        public bool UseLightbarMacro
+        {
+            get => _useLightbarMacro;
+            set => _useLightbarMacro = value;
+        }
+        public LightbarMacroElement[] LightbarMacro { get; set; }
+
+        public LightbarMacroTrigger LightbarMacroTrigger
+        {
+            get => _lightbarMacroTrigger;
+            set => _lightbarMacroTrigger = value;
+        }
+
         public bool HasScanCode { get => hasScanCode; set => hasScanCode = value; }
         public bool Toggle { get => toggle; set => toggle = value; }
         public int ShiftTrigger
@@ -572,6 +586,70 @@ namespace DS4WinWPF.DS4Forms.ViewModels
             return result;
         }
 
+        public void ParseLightbarMacro(string macro)
+        {
+            // parsing the string in general + active flag
+            var fieldSplit = macro.Split('/');
+            if (fieldSplit.Length != 3) throw new ArgumentException("Provided string doesn't comply with the format.");
+            if (!bool.TryParse(fieldSplit[0], out _useLightbarMacro)) throw new ArgumentException("Provided string doesn't comply with the format.");
+
+            var macroSplit = fieldSplit[1].Split(';');
+            List<LightbarMacroElement> macroList = [];
+            foreach (var macroElement in macroSplit)
+            {
+                var elementSplit = macroElement.Split(':');
+                var color = elementSplit[0];
+                var length = elementSplit[1];
+                DS4Color parsedColor = new();
+                if (!DS4Color.TryParse(color, ref parsedColor)
+                    || !int.TryParse(length, out var parsedLength))
+                    throw new ArgumentException("Provided string doesn't comply with the format.");
+                macroList.Add(new LightbarMacroElement(parsedColor, parsedLength));
+            }
+
+            LightbarMacro = macroList.ToArray();
+
+            Enum.TryParse(fieldSplit[2], out _lightbarMacroTrigger);
+        }
+
+        public string CompileLightbarMacro()
+        {
+            var sb = new StringBuilder();
+
+            sb.Append(UseLightbarMacro.ToString());
+            // / between Active flag, macro and trigger
+            sb.Append('/');
+            var firstAppended = false;
+            foreach (var element in LightbarMacro)
+            {
+                if (firstAppended)
+                {
+                    // ; after each part (element) of a macro
+                    sb.Append(';');
+                }
+                else
+                {
+                    firstAppended = true;
+                }
+
+                // r,g,b to comply with TryParse method on DS4Color class
+                sb.Append(element.Color.red);
+                sb.Append(',');
+                sb.Append(element.Color.green);
+                sb.Append(',');
+                sb.Append(element.Color.blue);
+                // : between the colour and the timespan
+                sb.Append(':');
+                sb.Append(element.Length);
+            }
+
+            // trigger separated with /
+            sb.Append('/');
+            sb.Append(LightbarMacroTrigger.ToString());
+
+            return sb.ToString();
+        }
+
         public bool IsUsingExtras()
         {
             bool result = false;
@@ -650,7 +728,8 @@ namespace DS4WinWPF.DS4Forms.ViewModels
                     settings.extras = string.Empty;
                 }
 
-                settings.lightbarMacro = LightbarMacro;
+                if (LightbarMacro is not null)
+                    settings.lightbarString = CompileLightbarMacro();
 
                 Global.RefreshActionAlias(settings, shiftBind);
             }
@@ -716,7 +795,8 @@ namespace DS4WinWPF.DS4Forms.ViewModels
                     settings.shiftExtras = string.Empty;
                 }
 
-                settings.lightbarMacro = LightbarMacro;
+                if (LightbarMacro is not null)
+                    settings.lightbarString = CompileLightbarMacro();
 
                 Global.RefreshActionAlias(settings, shiftBind);
             }

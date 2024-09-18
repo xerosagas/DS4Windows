@@ -1859,8 +1859,11 @@ namespace DS4WinWPF.DS4Control.DTOXml
                     extrasSerializer.CustomMapExtras.Add(dcs.control, dcs.extras);
                 }
 
-                if (dcs.lightbarMacro is not null && dcs.lightbarMacro.Elements.Length > 0)
-                    lightbarMacroSerializer.CustomMapLightbarMacros.Add(dcs.control, dcs.lightbarMacro);
+                // TODO lightbar macro
+                if (dcs.lightbarString is not null && dcs.lightbarString != string.Empty)
+                {
+                    lightbarMacroSerializer.CustomMapMacro.Add(dcs.control, dcs.lightbarString);
+                }
 
                 if (dcs.shiftActionType != DS4ControlSettings.ActionType.Default && dcs.shiftTrigger > 0)
                 {
@@ -1942,7 +1945,7 @@ namespace DS4WinWPF.DS4Control.DTOXml
                 Control.Extras = extrasSerializer;
             }
 
-            if (lightbarMacroSerializer.CustomMapLightbarMacros.Count > 0)
+            if (lightbarMacroSerializer.CustomMapMacro.Count > 0)
             {
                 Control.LightbarMacro = lightbarMacroSerializer;
             }
@@ -2470,12 +2473,11 @@ namespace DS4WinWPF.DS4Control.DTOXml
                     }
                 }
 
-                if (Control.LightbarMacro is not null && Control.LightbarMacro.CustomMapLightbarMacros.Count > 0)
+                if (Control.LightbarMacro is not null && Control.LightbarMacro.CustomMapMacro.Count > 0)
                 {
-                    foreach (var pair in Control.LightbarMacro.CustomMapLightbarMacros)
+                    foreach (var pair in Control.LightbarMacro.CustomMapMacro)
                     {
-                        destination.UpdateDS4CSetting(deviceIndex, pair.Key.ToString(), false, pair.Value, "",
-                            DS4KeyType.None);
+                        destination.UpdateDS4CLightbarMacro(deviceIndex, pair.Key.ToString(), false, pair.Value);
                     }
                 }
             }
@@ -2546,6 +2548,7 @@ namespace DS4WinWPF.DS4Control.DTOXml
                     }
                 }
 
+                // TODO add shift lightbar macro
                 if (ShiftControl.KeyType != null && ShiftControl.KeyType.CustomMapKeyTypes.Count > 0)
                 {
                     foreach (KeyValuePair<DS4Controls, DS4KeyType> pair in ShiftControl.KeyType.CustomMapKeyTypes)
@@ -3411,7 +3414,7 @@ namespace DS4WinWPF.DS4Control.DTOXml
         }
         public bool ShouldSerializeLightbarMacro()
         {
-            return LightbarMacro != null && LightbarMacro.CustomMapLightbarMacros.Count > 0;
+            return LightbarMacro != null && LightbarMacro.CustomMapMacro.Count > 0;
         }
 
         public DS4ControlAssignementSerializer()
@@ -3769,9 +3772,10 @@ namespace DS4WinWPF.DS4Control.DTOXml
 
     public class DS4ControlLightbarMacroAssignmentSerializer : DS4ControlAssignmentSerializerBase, IXmlSerializable
     {
-        private Dictionary<DS4Controls, LightbarMacro> customMapLightbarMacros = new();
+        private Dictionary<DS4Controls, string> customMapMacro
+            = new Dictionary<DS4Controls, string>();
         [XmlIgnore]
-        public Dictionary<DS4Controls, LightbarMacro> CustomMapLightbarMacros => customMapLightbarMacros;
+        public Dictionary<DS4Controls, string> CustomMapMacro => customMapMacro;
 
         public XmlSchema GetSchema()
         {
@@ -3789,62 +3793,24 @@ namespace DS4WinWPF.DS4Control.DTOXml
             {
                 foreach (XmlNode item in parentNode.ChildNodes)
                 {
-                    if (Enum.TryParse(item.Name, out DS4Controls currentControl))
+                    if (item.InnerText != string.Empty &&
+                        Enum.TryParse(item.Name, out DS4Controls currentControl))
                     {
-                        if (item.Attributes?["Trigger"] != null)
+                        if (item.Attributes["Trigger"] != null)
                         {
                             int.TryParse(item.Attributes["Trigger"].Value, out int shiftT);
                             shiftTriggers.TryAdd(currentControl, shiftT);
                         }
 
-                        customMapLightbarMacros.Add(Global.getDS4ControlsByName(item.Name), ParseMacro(item.InnerText));
+                        customMapMacro.Add(Global.getDS4ControlsByName(item.Name), item.InnerText);
                     }
                 }
             }
         }
 
-        private LightbarMacro ParseMacro(string str)
-        {
-            List<LightbarMacroElement> list = new();
-
-            // getting Active bool and macro elements separated with ;
-            var split = str.Split('.');
-
-            if (!bool.TryParse(split[0], out var active))
-            {
-                return new LightbarMacro([], false);
-            }
-
-            // getting elements
-            var elementSplit = split[1].Split(';');
-
-            foreach (var el in elementSplit)
-            {
-                if (el == string.Empty) break;
-                var splitEl = el.Split(":");
-                if (splitEl.Length != 2) break;
-                var color = splitEl[0];
-                var length = splitEl[1];
-                DS4Color parsedColor = new();
-                if (!DS4Color.TryParse(color, ref parsedColor))
-                {
-                    return new LightbarMacro([], false);;
-                }
-
-                if (!int.TryParse(length, out var parsedLength))
-                {
-                    return new LightbarMacro([], false);;
-                }
-
-                list.Add(new LightbarMacroElement(parsedColor, parsedLength));
-            }
-
-            return new LightbarMacro(list.ToArray(), active);
-        }
-
         public void WriteXml(XmlWriter writer)
         {
-            foreach (var pair in CustomMapLightbarMacros)
+            foreach (KeyValuePair<DS4Controls, string> pair in customMapMacro)
             {
                 writer.WriteStartElement(pair.Key.ToString());
                 if (shiftTriggers.TryGetValue(pair.Key, out int shiftTrigger) &&
@@ -3853,30 +3819,122 @@ namespace DS4WinWPF.DS4Control.DTOXml
                     writer.WriteAttributeString("Trigger", shiftTrigger.ToString());
                 }
 
-                var stringBuilder = new StringBuilder();
-                // active indication to the beginning
-                stringBuilder.Append(pair.Value.Active.ToString());
-                // . to split Active and the actual macro
-                stringBuilder.Append('.');
-                foreach (var element in pair.Value.Elements)
-                {
-                    // ; after each part (element) of a macro
-                    stringBuilder.Append(';');
-                    // r,g,b to comply with TryParse method on DS4Color class
-                    stringBuilder.Append(element.Color.red);
-                    stringBuilder.Append(',');
-                    stringBuilder.Append(element.Color.green);
-                    stringBuilder.Append(',');
-                    stringBuilder.Append(element.Color.blue);
-                    // : between the colour and the timespan
-                    stringBuilder.Append(':');
-                    stringBuilder.Append(element.Length);
-                }
-
-                writer.WriteValue(stringBuilder.ToString());
-
+                writer.WriteValue(pair.Value.ToString());
                 writer.WriteEndElement();
             }
         }
     }
+
+    // public class DS4ControlLightbarMacroAssignmentSerializer : DS4ControlAssignmentSerializerBase, IXmlSerializable
+    // {
+    //     private Dictionary<DS4Controls, LightbarMacro> customMapLightbarMacros = new();
+    //     [XmlIgnore]
+    //     public Dictionary<DS4Controls, LightbarMacro> CustomMapLightbarMacros => customMapLightbarMacros;
+    //
+    //     public XmlSchema GetSchema()
+    //     {
+    //         return null;
+    //     }
+    //
+    //     public void ReadXml(XmlReader reader)
+    //     {
+    //         XmlDocument tempDoc = new XmlDocument();
+    //         string tempXml = reader.ReadOuterXml();
+    //         XmlReader tempXmlReader = XmlReader.Create(new StringReader(tempXml));
+    //         tempDoc.Load(tempXmlReader);
+    //         XmlNode parentNode = tempDoc.SelectSingleNode("LightbarMacro");
+    //         if (parentNode != null)
+    //         {
+    //             foreach (XmlNode item in parentNode.ChildNodes)
+    //             {
+    //                 if (Enum.TryParse(item.Name, out DS4Controls currentControl))
+    //                 {
+    //                     if (item.Attributes?["Trigger"] != null)
+    //                     {
+    //                         int.TryParse(item.Attributes["Trigger"].Value, out int shiftT);
+    //                         shiftTriggers.TryAdd(currentControl, shiftT);
+    //                     }
+    //
+    //                     customMapLightbarMacros.Add(Global.getDS4ControlsByName(item.Name), ParseMacro(item.InnerText));
+    //                 }
+    //             }
+    //         }
+    //     }
+    //
+    //     private LightbarMacro ParseMacro(string str)
+    //     {
+    //         List<LightbarMacroElement> list = new();
+    //
+    //         // getting Active bool and macro elements separated with ;
+    //         var split = str.Split('.');
+    //
+    //         if (!bool.TryParse(split[0], out var active))
+    //         {
+    //             return new LightbarMacro([], false);
+    //         }
+    //
+    //         // getting elements
+    //         var elementSplit = split[1].Split(';');
+    //
+    //         foreach (var el in elementSplit)
+    //         {
+    //             if (el == string.Empty) break;
+    //             var splitEl = el.Split(":");
+    //             if (splitEl.Length != 2) break;
+    //             var color = splitEl[0];
+    //             var length = splitEl[1];
+    //             DS4Color parsedColor = new();
+    //             if (!DS4Color.TryParse(color, ref parsedColor))
+    //             {
+    //                 return new LightbarMacro([], false);;
+    //             }
+    //
+    //             if (!int.TryParse(length, out var parsedLength))
+    //             {
+    //                 return new LightbarMacro([], false);;
+    //             }
+    //
+    //             list.Add(new LightbarMacroElement(parsedColor, parsedLength));
+    //         }
+    //
+    //         return new LightbarMacro(list.ToArray(), active);
+    //     }
+    //
+    //     public void WriteXml(XmlWriter writer)
+    //     {
+    //         foreach (var pair in CustomMapLightbarMacros)
+    //         {
+    //             writer.WriteStartElement(pair.Key.ToString());
+    //             if (shiftTriggers.TryGetValue(pair.Key, out int shiftTrigger) &&
+    //                 shiftTrigger > 0)
+    //             {
+    //                 writer.WriteAttributeString("Trigger", shiftTrigger.ToString());
+    //             }
+    //
+    //             var stringBuilder = new StringBuilder();
+    //             // active indication to the beginning
+    //             stringBuilder.Append(pair.Value.Active.ToString());
+    //             // . to split Active and the actual macro
+    //             stringBuilder.Append('.');
+    //             foreach (var element in pair.Value.Elements)
+    //             {
+    //                 // ; after each part (element) of a macro
+    //                 stringBuilder.Append(';');
+    //                 // r,g,b to comply with TryParse method on DS4Color class
+    //                 stringBuilder.Append(element.Color.red);
+    //                 stringBuilder.Append(',');
+    //                 stringBuilder.Append(element.Color.green);
+    //                 stringBuilder.Append(',');
+    //                 stringBuilder.Append(element.Color.blue);
+    //                 // : between the colour and the timespan
+    //                 stringBuilder.Append(':');
+    //                 stringBuilder.Append(element.Length);
+    //             }
+    //
+    //             writer.WriteValue(stringBuilder.ToString());
+    //
+    //             writer.WriteEndElement();
+    //         }
+    //     }
+    // }
 }
