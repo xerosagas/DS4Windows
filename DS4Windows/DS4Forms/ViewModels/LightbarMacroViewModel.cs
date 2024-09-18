@@ -24,8 +24,8 @@ public class LightbarMacroViewModel
 
     public event EventHandler CurrentColorStringChanged;
 
-    private int _currentInterval;
-    public int CurrentInterval
+    private uint _currentInterval;
+    public uint CurrentInterval
     {
         get => _currentInterval;
         set
@@ -56,17 +56,10 @@ public class LightbarMacroViewModel
     }
 }
 
-public class LightbarMacro(LightbarMacroElement[] elements, bool active, LightbarMacroTrigger trigger)
-{
-    public LightbarMacroElement[] Elements = elements;
-    public bool Active = active;
-    public LightbarMacroTrigger Trigger = trigger;
-}
-
-public class LightbarMacroElement(DS4Color color, int length)
+public class LightbarMacroElement(DS4Color color, uint length)
 {
     public DS4Color Color { get; init; } = color;
-    public int Length { get; init; } = length;
+    public uint Length { get; init; } = length;
 
     public override string ToString()
     {

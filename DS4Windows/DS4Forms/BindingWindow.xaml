@@ -14,6 +14,7 @@
         Style="{DynamicResource WindowStyle}">
     <Window.Resources>
         <local:BindingWinResourcePaths x:Key="resourcePaths" />
+        <local:IntToBoolConverter x:Key="IntToBoolConverter" />
     </Window.Resources>
     <DockPanel x:Name="fullPanel" Margin="4">
         <StackPanel x:Name="extrasSidePanel" Width="160" Orientation="Vertical" DockPanel.Dock="Right">
@@ -43,11 +44,11 @@
                     <StackPanel Orientation="Vertical">
                         <StackPanel Margin="{StaticResource spaceMargin}">
                             <Label Content="{lex:Loc LightbarMode}" />
-                            <ComboBox MinWidth="160" x:Name="LightbarCombo">
+                            <ComboBox x:Name="LightbarModeCombo" MinWidth="160" SelectedIndex="{Binding Path=UseLightbarMacro, Converter={StaticResource IntToBoolConverter}}">
                                 <ComboBoxItem Content="{lex:Loc SolidColor}" />
                                 <ComboBoxItem Content="{lex:Loc Macro}" />
                             </ComboBox>
-                            <TabControl SelectedIndex="{Binding ElementName=LightbarCombo, Path=SelectedIndex}">
+                            <TabControl SelectedIndex="{Binding ElementName=LightbarModeCombo, Path=SelectedIndex}">
                                 <TabItem Header="{lex:Loc SolidColor}" Visibility="Collapsed">
                                     <StackPanel>
                                         <CheckBox Content="{lex:Loc BindingWin.ChangeLight}" IsChecked="{Binding UseExtrasColor}" Margin="{StaticResource spaceMargin}" />

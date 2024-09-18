@@ -144,12 +144,10 @@ namespace DS4WinWPF.DS4Forms.ViewModels
             }
         }
 
-        public void PrepareSaveLightbarMacro(LightbarMacro macro, OutBinding bind, bool shiftBind = false)
+        public void PrepareSaveLightbarMacro(OutBinding bind, LightbarMacroElement[] macro, LightbarMacroTrigger trigger, bool shiftBind = false)
         {
-            bind.UseLightbarMacro = macro.Active;
-            bind.LightbarMacro = macro.Elements;
-            bind.LightbarMacroTrigger = macro.Trigger;
-            // bind.LightbarMacro = settings.lightbarMacro;
+            bind.LightbarMacro = macro;
+            bind.LightbarMacroTrigger = trigger;
         }
 
         public void PrepareSaveMacro(OutBinding bind, bool shiftBind=false)
@@ -608,7 +606,7 @@ namespace DS4WinWPF.DS4Forms.ViewModels
                 var length = elementSplit[1];
                 DS4Color parsedColor = new();
                 if (!DS4Color.TryParse(color, ref parsedColor)
-                    || !int.TryParse(length, out var parsedLength))
+                    || !uint.TryParse(length, out var parsedLength))
                     throw new ArgumentException("Provided string doesn't comply with the format.");
                 macroList.Add(new LightbarMacroElement(parsedColor, parsedLength));
             }
