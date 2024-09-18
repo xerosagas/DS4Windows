@@ -27,13 +27,15 @@
         <StackPanel Grid.Column="1">
             <Label Content="{lex:Loc ColorAndLength}" />
             <StackPanel Orientation="Horizontal">
-                <Button Click="SelectColor_Click" Background="{Binding CurrentColorString}" Height="25" Width="25" />
-                <xctk:IntegerUpDown Value="{Binding CurrentInterval}" HorizontalAlignment="Stretch" />
+                <Button Click="SelectColor_Click" Background="{Binding CurrentColorString}" Height="25" Width="25" Margin="3 0" />
+                <xctk:IntegerUpDown Value="{Binding CurrentInterval}" HorizontalAlignment="Stretch" Margin="0 0 3 0" />
             </StackPanel>
-            <Button Content="{lex:Loc Add}" Click="AddColor_OnClick" />
-            <Button Content="{lex:Loc Delete}" Click="DeleteColor_OnClick" />
-            <Button Content="{lex:Loc Clear}" Click="Clear_OnClick" />
-            <Button Content="{lex:Loc Save}" Click="Save_OnClick" />
+            <Label Content="{lex:Loc Trigger}" />
+            <ComboBox x:Name="TriggerCombo" SelectedItem="{Binding MacroTrigger}" HorizontalAlignment="Stretch" Margin="3 0" />
+            <Button Content="{lex:Loc Add}" Click="AddColor_OnClick" Margin="3" />
+            <Button Content="{lex:Loc Delete}" Click="DeleteColor_OnClick" Margin="3" />
+            <Button Content="{lex:Loc Clear}" Click="Clear_OnClick" Margin="3" />
+            <Button Content="{lex:Loc Save}" Click="Save_OnClick" Margin="3" />
         </StackPanel>
     </Grid>
 </Window>

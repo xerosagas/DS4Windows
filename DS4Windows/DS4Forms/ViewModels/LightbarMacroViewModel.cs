@@ -37,6 +37,19 @@ public class LightbarMacroViewModel
 
     public event EventHandler CurrentIntervalChanged;
 
+    private LightbarMacroTrigger _macroTrigger;
+
+    public LightbarMacroTrigger MacroTrigger
+    {
+        get => _macroTrigger;
+        set
+        {
+            _macroTrigger = value;
+            MacroTriggerChanged?.Invoke(this, EventArgs.Empty);
+        }
+    }
+    public event EventHandler MacroTriggerChanged;
+
     public LightbarMacroViewModel()
     {
         CurrentColor = Color.FromRgb(255, 255, 255);

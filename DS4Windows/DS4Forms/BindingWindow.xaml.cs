@@ -946,12 +946,12 @@ namespace DS4WinWPF.DS4Forms
 
         private void CreateLightbarMacro_Click(object sender, RoutedEventArgs e)
         {
-            LightbarMacroCreator dialog = new();
+            LightbarMacroCreator dialog = new(bindingVM.ActionBinding.LightbarMacro, bindingVM.ActionBinding.LightbarMacroTrigger);
             dialog.Owner = Application.Current.MainWindow;
             dialog.Save += (_, eventArgs) =>
             {
                 // TODO assign active boolean based on the dropdown
-                var macro = new LightbarMacro(eventArgs.MacroElements, true, LightbarMacroTrigger.Press);
+                var macro = new LightbarMacro(eventArgs.MacroElements, true, eventArgs.Trigger);
                 bindingVM.PrepareSaveLightbarMacro(macro, bindingVM.ActionBinding,
                     bindingVM.ActionBinding.IsShift());
             };

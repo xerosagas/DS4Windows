@@ -15,12 +15,23 @@ public partial class LightbarMacroCreator : Window
 
     public event EventHandler<LightbarMacroSaveEventArgs> Save;
 
-    public LightbarMacroCreator()
+    public LightbarMacroCreator(LightbarMacroElement[] macro = null, LightbarMacroTrigger trigger = LightbarMacroTrigger.Press)
     {
         InitializeComponent();
         _lightbarMacroVM = new LightbarMacroViewModel();
         DataContext = _lightbarMacroVM;
-        _lightbarMacroVM.MacroList = new();
+        if (macro is null)
+        {
+            _lightbarMacroVM.MacroList = new();
+        }
+        else
+        {
+            _lightbarMacroVM.MacroList = new(macro);
+        }
+
+        _lightbarMacroVM.MacroTrigger = trigger;
+
+        TriggerCombo.ItemsSource = Enum.GetValues<LightbarMacroTrigger>();
     }
 
     private void SelectColor_Click(object sender, RoutedEventArgs e)
@@ -57,11 +68,13 @@ public partial class LightbarMacroCreator : Window
 
     private void Save_OnClick(object sender, RoutedEventArgs e)
     {
-        Save?.Invoke(this, new LightbarMacroSaveEventArgs(_lightbarMacroVM.MacroList.ToArray()));
+        Save?.Invoke(this, new LightbarMacroSaveEventArgs(_lightbarMacroVM.MacroList.ToArray(), _lightbarMacroVM.MacroTrigger));
+        Close();
     }
 }
 
-public class LightbarMacroSaveEventArgs(LightbarMacroElement[] macroElements) : EventArgs
+public class LightbarMacroSaveEventArgs(LightbarMacroElement[] macroElements, LightbarMacroTrigger trigger) : EventArgs
 {
-    public LightbarMacroElement[] MacroElements { get; init; } = macroElements;
+    public LightbarMacroElement[] MacroElements { get; } = macroElements;
+    public LightbarMacroTrigger Trigger { get; } = trigger;
 }

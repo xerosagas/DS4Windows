@@ -136,6 +136,12 @@ namespace DS4WinWPF.DS4Forms.ViewModels
             {
                 shiftOutBind.ParseExtras(setting.shiftExtras);
             }
+
+            // TODO shift
+            if (!string.IsNullOrEmpty(settings.lightbarString))
+            {
+                currentOutBind.ParseLightbarMacro(setting.lightbarString);
+            }
         }
 
         public void PrepareSaveLightbarMacro(LightbarMacro macro, OutBinding bind, bool shiftBind = false)

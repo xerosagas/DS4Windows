@@ -138,8 +138,6 @@ namespace DS4Windows
         public string shiftExtras = null;
         public DS4KeyType shiftKeyType = DS4KeyType.None;
 
-        public LightbarMacro lightbarMacro;
-
         public bool IsDefault { get => actionType == ActionType.Default; }
         public bool IsShiftDefault { get => shiftActionType == ActionType.Default; }
 
@@ -197,10 +195,6 @@ namespace DS4Windows
                 {
                     actionType = ActionType.Macro;
                     action.actionMacro = (int[])act;
-                }
-                else if (act is LightbarMacro macro)
-                {
-                    lightbarMacro = macro;
                 }
                 else
                 {
@@ -2645,12 +2639,6 @@ namespace DS4Windows
             //m_Config.SaveActions();
             Mapping.actionDone.Clear();
             Mapping.actionDone.Add(new Mapping.ActionState());
-        }
-
-        public static void SaveLightbarMacro(int device, DS4Controls control, LightbarMacro macro)
-        {
-            var found = m_Config.ds4settings[device].First(x => x.control == control);
-            found.lightbarMacro = macro;
         }
 
         public static void SaveActions()

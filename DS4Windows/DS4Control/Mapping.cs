@@ -3863,12 +3863,12 @@ namespace DS4Windows
             }
 
             DS4LightBar.forcelight[device] = true;
-            foreach (var element in controlSettings.lightbarMacro.Elements)
-            {
-                if (token.IsCancellationRequested) break;
-                DS4LightBar.forcedColor[device] = element.Color;
-                Thread.Sleep(element.Length);
-            }
+            // foreach (var element in controlSettings.lightbarMacro.Elements)
+            // {
+            //     if (token.IsCancellationRequested) break;
+            //     DS4LightBar.forcedColor[device] = element.Color;
+            //     Thread.Sleep(element.Length);
+            // }
             DS4LightBar.forcelight[device] = false;
         }
 

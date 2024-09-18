@@ -41,7 +41,6 @@
                     </StackPanel>
 
                     <StackPanel Orientation="Vertical">
-                        <CheckBox Content="{lex:Loc BindingWin.ChangeLight}" IsChecked="{Binding UseExtrasColor}" Margin="{StaticResource spaceMargin}" />
                         <StackPanel Margin="{StaticResource spaceMargin}">
                             <Label Content="{lex:Loc LightbarMode}" />
                             <ComboBox MinWidth="160" x:Name="LightbarCombo">
@@ -51,6 +50,7 @@
                             <TabControl SelectedIndex="{Binding ElementName=LightbarCombo, Path=SelectedIndex}">
                                 <TabItem Header="{lex:Loc SolidColor}" Visibility="Collapsed">
                                     <StackPanel>
+                                        <CheckBox Content="{lex:Loc BindingWin.ChangeLight}" IsChecked="{Binding UseExtrasColor}" Margin="{StaticResource spaceMargin}" />
                                         <StackPanel Orientation="Horizontal">
                                             <Label Content="R" />
                                             <Slider Value="{Binding ExtrasColorR}" Minimum="0" Maximum="255" ToolTip="{Binding ExtrasColorR}" MinWidth="100" Background="{Binding ExtrasColorRString, FallbackValue=Red}"/>
