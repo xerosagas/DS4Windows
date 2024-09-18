@@ -643,4 +643,16 @@
   <data name="UsingAutoTempProfile" xml:space="preserve">
     <value>Controller {0} is using temp Profile "{1}"</value>
   </data>
+  <data name="DinputOnly" xml:space="preserve">
+    <value />
+  </data>
+  <data name="OutContNotice" xml:space="preserve">
+    <value />
+  </data>
+  <data name="TouchStarted" xml:space="preserve">
+    <value>Touch Started</value>
+  </data>
+  <data name="TouchEnded" xml:space="preserve">
+    <value>Touch Ended</value>
+  </data>
 </root>

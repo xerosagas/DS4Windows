@@ -184,6 +184,12 @@
                     <ListViewItem>
                         <CheckBox x:Name="tiltRightTrigCk" Content="Tilt Right" Tag="Tilt Right" Click="ControlTriggerCheckBox_Click" />
                     </ListViewItem>
+                    <ListViewItem>
+                        <CheckBox x:Name="touchStartedTrigCk" Content="Touch Started" Tag="Touch Started" Click="ControlTriggerCheckBox_Click" />
+                    </ListViewItem>
+                    <ListViewItem>
+                        <CheckBox x:Name="touchEndedTrigCk" Content="Touch Ended" Tag="Touch Ended" Click="ControlTriggerCheckBox_Click" />
+                    </ListViewItem>
                 </ListView>
 
                 <ListView x:Name="unloadTriggersListView" Width="200" Visibility="Collapsed">
@@ -346,6 +352,12 @@
                     </ListViewItem>
                     <ListViewItem>
                         <CheckBox x:Name="unloadTiltRightTrigCk" Content="Tilt Right" Tag="Tilt Right" Click="ControlUnloadTriggerCheckBox_Click" />
+                    </ListViewItem>
+                    <ListViewItem>
+                        <CheckBox x:Name="unloadTouchStartedTrigCk" Content="Touch Started" Tag="Touch Started" Click="ControlUnloadTriggerCheckBox_Click" />
+                    </ListViewItem>
+                    <ListViewItem>
+                        <CheckBox x:Name="unloadTouchEndedTrigCk" Content="Touch Ended" Tag="Touch Ended" Click="ControlUnloadTriggerCheckBox_Click" />
                     </ListViewItem>
                 </ListView>
             </DockPanel>

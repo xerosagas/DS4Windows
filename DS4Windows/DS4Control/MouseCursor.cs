@@ -281,7 +281,7 @@ namespace DS4Windows
 
         public void touchesBegan(TouchpadEventArgs arg)
         {
-            if (arg.touches.Length == 1)
+            if (arg.Touches.Length == 1)
             {
                 horizontalRemainder = verticalRemainder = 0.0;
                 horizontalDirection = verticalDirection = Direction.Neutral;
@@ -292,29 +292,29 @@ namespace DS4Windows
         private byte lastTouchID;
         public void touchesMoved(TouchpadEventArgs arg, bool dragging, bool disableInvert = false)
         {
-            int touchesLen = arg.touches.Length;
+            int touchesLen = arg.Touches.Length;
             if ((!dragging && touchesLen != 1) || (dragging && touchesLen < 1))
                 return;
 
             int deltaX = 0, deltaY = 0;
-            if (arg.touches[0].touchID != lastTouchID)
+            if (arg.Touches[0].TouchID != lastTouchID)
             {
                 deltaX = deltaY = 0;
                 horizontalRemainder = verticalRemainder = 0.0;
                 horizontalDirection = verticalDirection = Direction.Neutral;
-                lastTouchID = arg.touches[0].touchID;
+                lastTouchID = arg.Touches[0].TouchID;
             }
             else
             {
                 if (dragging && touchesLen > 1)
                 {
-                    deltaX = arg.touches[1].deltaX;
-                    deltaY = arg.touches[1].deltaY;
+                    deltaX = arg.Touches[1].DeltaX;
+                    deltaY = arg.Touches[1].DeltaY;
                 }
                 else
                 {
-                    deltaX = arg.touches[0].deltaX;
-                    deltaY = arg.touches[0].deltaY;
+                    deltaX = arg.Touches[0].DeltaX;
+                    deltaY = arg.Touches[0].DeltaY;
                 }
             }
 
@@ -323,20 +323,20 @@ namespace DS4Windows
 
         public void TouchesMovedAbsolute(TouchpadEventArgs arg)
         {
-            int touchesLen = arg.touches.Length;
+            int touchesLen = arg.Touches.Length;
             if (touchesLen != 1)
                 return;
 
             int currentX = 0, currentY = 0;
             if (touchesLen > 1)
             {
-                currentX = arg.touches[1].hwX;
-                currentY = arg.touches[1].hwY;
+                currentX = arg.Touches[1].HwX;
+                currentY = arg.Touches[1].HwY;
             }
             else
             {
-                currentX = arg.touches[0].hwX;
-                currentY = arg.touches[0].hwY;
+                currentX = arg.Touches[0].HwX;
+                currentY = arg.Touches[0].HwY;
             }
 
             TouchpadAbsMouseSettings absSettings = Global.TouchAbsMouse[deviceNumber];
