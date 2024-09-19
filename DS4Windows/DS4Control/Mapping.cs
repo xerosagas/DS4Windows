@@ -29,6 +29,7 @@ using System.Drawing; // Point struct
 using Sensorit.Base;
 using DS4WinWPF.DS4Control;
 using DS4WinWPF.DS4Forms.ViewModels;
+using ThreadState = System.Threading.ThreadState;
 
 namespace DS4Windows
 {
@@ -3427,7 +3428,18 @@ namespace DS4Windows
         //private static double FlickThreshold = 0.9;
         //private static double FlickTime = 0.1;
 
+        // array of DS4Controls that can be mapped to a bool (through DS4State) and used for lightbar macro press/release function
+        private static DS4Controls[] BoolDS4Controls =
+        [
+            DS4Controls.Square, DS4Controls.Triangle, DS4Controls.Circle, DS4Controls.Cross, DS4Controls.DpadUp,
+            DS4Controls.DpadDown, DS4Controls.DpadLeft, DS4Controls.DpadRight, DS4Controls.L1, DS4Controls.L3,
+            DS4Controls.R1, DS4Controls.R3, DS4Controls.Share, DS4Controls.Options, DS4Controls.Mute,
+            DS4Controls.TouchRight, DS4Controls.TouchLeft, DS4Controls.Capture, DS4Controls.SideL, DS4Controls.SideR,
+            DS4Controls.FnL, DS4Controls.FnR, DS4Controls.BLP, DS4Controls.BRP
+        ];
+
         private static CancellationTokenSource threadCts = new();
+        private static Task lightbarMacroTask;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private static void ProcessControlSettingAction(DS4ControlSettings dcs, int device, DS4State cState, DS4State MappedState, DS4StateExposed eState,
@@ -3457,6 +3469,10 @@ namespace DS4Windows
                 actionAlias = dcs.action.actionAlias;
                 keyType = dcs.keyType;
             }
+
+            var lightbarMacro = new LightbarMacro(false, [], LightbarMacroTrigger.Press);
+            if (!string.IsNullOrEmpty(dcs.lightbarString))
+                lightbarMacro = OutBinding.GetLightbarMacroFromString(dcs.lightbarString);
 
             if (usingExtra == DS4Controls.None || usingExtra == dcs.control)
             {
@@ -3490,7 +3506,8 @@ namespace DS4Windows
                             extrasRumbleActive[device] = true;
                         }
 
-                        if (extras[2] == 1)
+                        // lightbar macro takes precedence
+                        if (extras[2] == 1 && !lightbarMacro.Active)
                         {
                             DS4Color color = new DS4Color { red = (byte)extras[3], green = (byte)extras[4], blue = (byte)extras[5] };
                             DS4LightBar.forcedColor[device] = color;
@@ -3532,18 +3549,48 @@ namespace DS4Windows
                 }
             }
 
-            // TODO for the macro:
-            // when press/release is detected: start a macro by spawning a new thread that changes the
-            // colour and sleeps between changes. will have to have a field for it, if it's null just put
-            // the thread there and put it back to null after its done executing, if the button is
-            // pressed/released again, invalidate that thread
-            if (GetBoolActionMapping(device, dcs.control, cState, eState, tp, fieldMapping))
+
+            if (lightbarMacro.Active)
             {
-                // threadCts.Cancel();
-                // threadCts.Dispose();
-                // threadCts = new CancellationTokenSource();
-                if (dcs.control == DS4Controls.Cross)
-                    ThreadPool.QueueUserWorkItem(RunLightbarMacro, new Tuple<DS4ControlSettings, int, CancellationToken>(dcs, device, threadCts.Token));
+                if (BoolDS4Controls.Contains(dcs.control))
+                {
+                    var dev = ctrl.DS4Controllers[device];
+                    var prev = dev.GetRawPreviousStateRef();
+                    var curr = dev.GetRawCurrentStateRef();
+
+                    var field = typeof(DS4State).GetField(dcs.control.ToString());
+                    // using cState can lead to some duplicate input issues
+                    var currButtonState = (bool)field.GetValue(curr);
+                    var prevButtonState = (bool)field.GetValue(prev);
+
+                    if (prevButtonState != currButtonState)
+                    {
+                        if ((lightbarMacro.Trigger == LightbarMacroTrigger.Press && !prevButtonState && currButtonState)
+                            || (lightbarMacro.Trigger == LightbarMacroTrigger.Release && prevButtonState &&
+                                !currButtonState))
+                        {
+                            if (lightbarMacroTask != null && !lightbarMacroTask.IsCompleted)
+                            {
+                                threadCts.Cancel();
+
+                                try
+                                {
+                                    lightbarMacroTask.Wait();
+                                }
+                                catch (OperationCanceledException)
+                                {
+                                }
+                                finally
+                                {
+                                    threadCts.Dispose();
+                                    threadCts = new CancellationTokenSource();
+                                }
+                            }
+
+                            lightbarMacroTask = Task.Run(() => RunLightbarMacro(lightbarMacro.Macro, device, threadCts.Token));
+                        }
+                    }
+                }
             }
 
             if (actionType != DS4ControlSettings.ActionType.Default)
@@ -3852,24 +3899,45 @@ namespace DS4Windows
             }
         }
 
-        // private static void RunLightbarMacro(DS4ControlSettings controlSettings, int device, CancellationToken token)
-        // this method needs to have the signature of function(object) because we run it using the Thread class
-        private static void RunLightbarMacro(object data)
+        private static void RunLightbarMacro(LightbarMacroElement[] macro, int device, CancellationToken token)
         {
-            if (data is not Tuple<DS4ControlSettings, int, CancellationToken>(var controlSettings, var device, var token))
+            lock (DS4LightBar.forcedColor)
             {
-                throw new ArgumentException(
-                    "RunLightbarMacro() requires a Tuple<DS4ControlSettings, int, CancellationToken> passed to it.");
-            }
+                DS4LightBar.forcelight[device] = true;
 
-            DS4LightBar.forcelight[device] = true;
-            // foreach (var element in controlSettings.lightbarMacro.Elements)
-            // {
-            //     if (token.IsCancellationRequested) break;
-            //     DS4LightBar.forcedColor[device] = element.Color;
-            //     Thread.Sleep(element.Length);
-            // }
-            DS4LightBar.forcelight[device] = false;
+                var timestamp = DateTime.UtcNow.Ticks;
+                var i = 0;
+
+                while (i < macro.Length)
+                {
+                    if (token.IsCancellationRequested)
+                    {
+                        break;
+                    }
+
+                    DS4LightBar.forcedColor[device] = macro[i].Color;
+
+                    try
+                    {
+                        Task.Delay(10, token).Wait();
+                    }
+                    catch (AggregateException ex)
+                    {
+                        if (ex.InnerExceptions.All(e => e is OperationCanceledException))
+                        { }
+                        else
+                        { throw; }
+                    }
+
+                    if (DateTime.UtcNow.Ticks - timestamp >= macro[i].Length * TimeSpan.TicksPerMillisecond)
+                    {
+                        i++;
+                        timestamp = DateTime.UtcNow.Ticks;
+                    }
+                }
+
+                DS4LightBar.forcelight[device] = false;
+            }
         }
 
         private static bool IfAxisIsNotModified(int device, bool shift, DS4Controls dc)
