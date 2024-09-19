@@ -590,12 +590,20 @@ namespace DS4WinWPF.DS4Forms.ViewModels
             return result;
         }
 
-        public void ParseLightbarMacro(string macro)
+        public void ParseLightbarMacro(string m)
+        {
+            var parsed = GetLightbarMacroFromString(m);
+            UseLightbarMacro = parsed.Active;
+            LightbarMacro = parsed.Macro;
+            LightbarMacroTrigger = parsed.Trigger;
+        }
+
+        public static LightbarMacro GetLightbarMacroFromString(string m)
         {
             // parsing the string in general + active flag
-            var fieldSplit = macro.Split('/');
+            var fieldSplit = m.Split('/');
             if (fieldSplit.Length != 3) throw new ArgumentException("Provided string doesn't comply with the format.");
-            if (!bool.TryParse(fieldSplit[0], out _useLightbarMacro)) throw new ArgumentException("Provided string doesn't comply with the format.");
+            if (!bool.TryParse(fieldSplit[0], out var active)) throw new ArgumentException("Provided string doesn't comply with the format.");
 
             var macroSplit = fieldSplit[1].Split(';');
             List<LightbarMacroElement> macroList = [];
@@ -611,9 +619,9 @@ namespace DS4WinWPF.DS4Forms.ViewModels
                 macroList.Add(new LightbarMacroElement(parsedColor, parsedLength));
             }
 
-            LightbarMacro = macroList.ToArray();
+            Enum.TryParse<LightbarMacroTrigger>(fieldSplit[2], out var lightbarMacroTrigger);
 
-            Enum.TryParse(fieldSplit[2], out _lightbarMacroTrigger);
+            return new LightbarMacro(active, macroList.ToArray(), lightbarMacroTrigger);
         }
 
         public string CompileLightbarMacro()
@@ -812,5 +820,12 @@ namespace DS4WinWPF.DS4Forms.ViewModels
             ExtrasColorG = color.G;
             ExtrasColorB = color.B;
         }
+    }
+
+    public class LightbarMacro(bool active, LightbarMacroElement[] macro, LightbarMacroTrigger trigger)
+    {
+        public bool Active { get; } = active;
+        public LightbarMacroElement[] Macro { get; } = macro;
+        public LightbarMacroTrigger Trigger { get; } = trigger;
     }
 }
