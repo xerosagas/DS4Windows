@@ -22,10 +22,18 @@ namespace DS4Windows
 {
     public class TouchpadEventArgs : EventArgs
     {
-        public readonly Touch[] touches = null;
-        public readonly DateTime timeStamp;
-        public readonly bool touchButtonPressed;
-        public readonly bool touchActive;
+        private readonly Touch[] touches = null;
+        private readonly DateTime timeStamp;
+        private readonly bool touchButtonPressed;
+        private readonly bool touchActive;
+
+        public Touch[] Touches => touches;
+
+        public DateTime TimeStamp => timeStamp;
+
+        public bool TouchButtonPressed => touchButtonPressed;
+
+        public bool TouchActive => touchActive;
 
         public TouchpadEventArgs(DateTime utcTimestamp, bool tButtonDown, bool touchActive, Touch t0, Touch t1 = null)
         {
@@ -49,24 +57,35 @@ namespace DS4Windows
 
     public class Touch
     {
-        public int hwX, hwY, deltaX, deltaY;
-        public byte touchID;
-        public Touch previousTouch;
+        private int deltaY;
+        private byte touchID;
+        private Touch previousTouch;
+        private int hwX;
+        private int hwY;
+        private int deltaX;
+
         internal Touch(int X, int Y, byte tID, Touch prevTouch = null)
         {
             populate(X, Y, tID, prevTouch);
         }
 
+        public int HwX { get => hwX; set => hwX = value; }
+        public int HwY { get => hwY; set => hwY = value; }
+        public int DeltaX { get => deltaX; set => deltaX = value; }
+        public int DeltaY { get => deltaY; set => deltaY = value; }
+        public byte TouchID { get => touchID; set => touchID = value; }
+        public Touch PreviousTouch { get => previousTouch; set => previousTouch = value; }
+
         internal void populate(int X, int Y, byte tID, Touch prevTouch = null)
         {
-            hwX = X;
-            hwY = Y;
-            touchID = tID;
-            previousTouch = prevTouch;
-            if (previousTouch != null)
+            HwX = X;
+            HwY = Y;
+            TouchID = tID;
+            PreviousTouch = prevTouch;
+            if (PreviousTouch != null)
             {
-                deltaX = X - previousTouch.hwX;
-                deltaY = Y - previousTouch.hwY;
+                DeltaX = X - PreviousTouch.HwX;
+                DeltaY = Y - PreviousTouch.HwY;
             }
         }
     }

@@ -16,10 +16,10 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-using System;
 using DS4Windows.StickModifiers;
 //using System.Diagnostics;
 using DS4WinWPF.DS4Control;
+using System;
 
 namespace DS4Windows
 {
@@ -42,6 +42,8 @@ namespace DS4Windows
         // touch area stuff
         public bool leftDown, rightDown, upperDown, multiDown;
         public bool priorLeftDown, priorRightDown, priorUpperDown, priorMultiDown;
+        private bool touchStarted = false;
+        private bool touchEnded = false;
         protected DS4Controls pushed = DS4Controls.None;
         protected Mapping.Click clicked = Mapping.Click.None;
         public int CursorGyroDead { get => cursor.GyroCursorDeadZone; set => cursor.GyroCursorDeadZone = value; }
@@ -66,6 +68,8 @@ namespace DS4Windows
         private double trackballDYRemain = 0.0;
 
         private bool trackballTouchStickActive = false;
+
+
 
         public struct GyroSwipeData
         {
@@ -187,6 +191,27 @@ namespace DS4Windows
         }
 
         public MouseCursor Cursor => cursor;
+
+        public bool TouchStarted
+        {
+            get
+            {
+                var temp = touchStarted;
+                touchStarted = false;
+                return temp;
+            }
+            private set => touchStarted = value;
+        }
+        public bool TouchEnded
+        {
+            get
+            {
+                var temp = touchEnded;
+                touchEnded = false;
+                return temp;
+            }
+            private set => touchEnded = value;
+        }
 
         bool currentToggleGyroControls = false;
         bool currentToggleGyroMouse = false;
@@ -1092,8 +1117,8 @@ namespace DS4Windows
                     {
                         int iIndex = trackballBufferTail;
                         // Establish 4 ms as the base
-                        trackballXBuffer[iIndex] = (arg.touches[0].deltaX * TRACKBALL_SCALE) / 0.004; // dev.getCurrentStateRef().elapsedTime;
-                        trackballYBuffer[iIndex] = (arg.touches[0].deltaY * TRACKBALL_SCALE) / 0.004; // dev.getCurrentStateRef().elapsedTime;
+                        trackballXBuffer[iIndex] = (arg.Touches[0].DeltaX * TRACKBALL_SCALE) / 0.004; // dev.getCurrentStateRef().elapsedTime;
+                        trackballYBuffer[iIndex] = (arg.Touches[0].DeltaY * TRACKBALL_SCALE) / 0.004; // dev.getCurrentStateRef().elapsedTime;
                         trackballBufferTail = (iIndex + 1) % TRACKBALL_BUFFER_LEN;
                         if (trackballBufferHead == trackballBufferTail)
                             trackballBufferHead = (trackballBufferHead + 1) % TRACKBALL_BUFFER_LEN;
@@ -1117,18 +1142,18 @@ namespace DS4Windows
             }
             else if (tempMode == TouchpadOutMode.Controls)
             {
-                if (!(swipeUp || swipeDown || swipeLeft || swipeRight) && arg.touches.Length == 1)
+                if (!(swipeUp || swipeDown || swipeLeft || swipeRight) && arg.Touches.Length == 1)
                 {
-                    if (arg.touches[0].hwX - firstTouch.hwX > 300) swipeRight = true;
-                    if (arg.touches[0].hwX - firstTouch.hwX < -300) swipeLeft = true;
-                    if (arg.touches[0].hwY - firstTouch.hwY > 300) swipeDown = true;
-                    if (arg.touches[0].hwY - firstTouch.hwY < -300) swipeUp = true;
+                    if (arg.Touches[0].HwX - firstTouch.HwX > 300) swipeRight = true;
+                    if (arg.Touches[0].HwX - firstTouch.HwX < -300) swipeLeft = true;
+                    if (arg.Touches[0].HwY - firstTouch.HwY > 300) swipeDown = true;
+                    if (arg.Touches[0].HwY - firstTouch.HwY < -300) swipeUp = true;
                 }
 
-                swipeUpB = (byte)Math.Min(255, Math.Max(0, (firstTouch.hwY - arg.touches[0].hwY) * 1.5f));
-                swipeDownB = (byte)Math.Min(255, Math.Max(0, (arg.touches[0].hwY - firstTouch.hwY) * 1.5f));
-                swipeLeftB = (byte)Math.Min(255, Math.Max(0, firstTouch.hwX - arg.touches[0].hwX));
-                swipeRightB = (byte)Math.Min(255, Math.Max(0, arg.touches[0].hwX - firstTouch.hwX));
+                swipeUpB = (byte)Math.Min(255, Math.Max(0, (firstTouch.HwY - arg.Touches[0].HwY) * 1.5f));
+                swipeDownB = (byte)Math.Min(255, Math.Max(0, (arg.Touches[0].HwY - firstTouch.HwY) * 1.5f));
+                swipeLeftB = (byte)Math.Min(255, Math.Max(0, firstTouch.HwX - arg.Touches[0].HwX));
+                swipeRightB = (byte)Math.Min(255, Math.Max(0, arg.Touches[0].HwX - firstTouch.HwX));
             }
             else if (tempMode == TouchpadOutMode.AbsoluteMouse)
             {
@@ -1155,12 +1180,12 @@ namespace DS4Windows
                         //if (trackballBufferHead == trackballBufferTail)
                         //    trackballBufferHead = (trackballBufferHead + 1) % TRACKBALL_BUFFER_LEN;
 
-                        touchStickTrackball.AddData(arg.touches[0].deltaX, arg.touches[0].deltaY);
+                        touchStickTrackball.AddData(arg.Touches[0].DeltaX, arg.Touches[0].DeltaY);
                     }
 
-                    TouchpadMouseStick(arg.touches[0].deltaX, arg.touches[0].deltaY);
-                    previousTouchDX = arg.touches[0].deltaX;
-                    previousTouchDY = arg.touches[0].deltaY;
+                    TouchpadMouseStick(arg.Touches[0].DeltaX, arg.Touches[0].DeltaY);
+                    previousTouchDX = arg.Touches[0].DeltaX;
+                    previousTouchDY = arg.Touches[0].DeltaY;
                 }
                 else
                 {
@@ -1175,11 +1200,11 @@ namespace DS4Windows
             }
 
             // Slide flags needed for possible profile switching from Touchpad swipes
-            if (Math.Abs(firstTouch.hwY - arg.touches[0].hwY) < 50 && arg.touches.Length == 2)
+            if (Math.Abs(firstTouch.HwY - arg.Touches[0].HwY) < 50 && arg.Touches.Length == 2)
             {
-                if (arg.touches[0].hwX - firstTouch.hwX > 200 && !slideleft)
+                if (arg.Touches[0].HwX - firstTouch.HwX > 200 && !slideleft)
                     slideright = true;
-                else if (firstTouch.hwX - arg.touches[0].hwX > 200 && !slideright)
+                else if (firstTouch.HwX - arg.Touches[0].HwX > 200 && !slideright)
                     slideleft = true;
             }
 
@@ -1214,14 +1239,14 @@ namespace DS4Windows
 
             previousTouchDX = previousTouchDY = 0;
             previousUnchangedTouchJoyFrame = false;
-            pastTime = arg.timeStamp;
-            firstTouch.populate(arg.touches[0].hwX, arg.touches[0].hwY, arg.touches[0].touchID,
-                arg.touches[0].previousTouch);
+            pastTime = arg.TimeStamp;
+            firstTouch.populate(arg.Touches[0].HwX, arg.Touches[0].HwY, arg.Touches[0].TouchID,
+                arg.Touches[0].PreviousTouch);
 
             if (mouseMode && Global.getDoubleTap(deviceNum))
             {
-                DateTime test = arg.timeStamp;
-                if (test <= (firstTap + TimeSpan.FromMilliseconds((double)Global.TapSensitivity[deviceNum] * 1.5)) && !arg.touchButtonPressed)
+                DateTime test = arg.TimeStamp;
+                if (test <= (firstTap + TimeSpan.FromMilliseconds((double)Global.TapSensitivity[deviceNum] * 1.5)) && !arg.TouchButtonPressed)
                     secondtouchbegin = true;
             }
 
@@ -1256,15 +1281,15 @@ namespace DS4Windows
                     secondtouchbegin = false;
                 }
 
-                DateTime test = arg.timeStamp;
-                if (test <= (pastTime + TimeSpan.FromMilliseconds((double)tapSensitivity * 2)) && !arg.touchButtonPressed && !tappedOnce)
+                DateTime test = arg.TimeStamp;
+                if (test <= (pastTime + TimeSpan.FromMilliseconds((double)tapSensitivity * 2)) && !arg.TouchButtonPressed && !tappedOnce)
                 {
-                    if (Math.Abs(firstTouch.hwX - arg.touches[0].hwX) < 10 && Math.Abs(firstTouch.hwY - arg.touches[0].hwY) < 10)
+                    if (Math.Abs(firstTouch.HwX - arg.Touches[0].HwX) < 10 && Math.Abs(firstTouch.HwY - arg.Touches[0].HwY) < 10)
                     {
                         if (Global.getDoubleTap(deviceNum))
                         {
                             tappedOnce = true;
-                            firstTap = arg.timeStamp;
+                            firstTap = arg.TimeStamp;
                             TimeofEnd = DateTime.Now; //since arg can't be used in synthesizeMouseButtons
                         }
                         else
@@ -1315,7 +1340,7 @@ namespace DS4Windows
                         double normY = Math.Abs(Math.Sin(tempAngle));
                         int signX = Math.Sign(trackballXVel);
                         int signY = Math.Sign(trackballYVel);
-                        
+
                         double trackXvDecay = Math.Min(Math.Abs(trackballXVel), trackballAccel * s.elapsedTime * normX);
                         double trackYvDecay = Math.Min(Math.Abs(trackballYVel), trackballAccel * s.elapsedTime * normY);
                         double xVNew = trackballXVel - (trackXvDecay * signX);
@@ -1464,15 +1489,30 @@ namespace DS4Windows
             TouchButtonCheckProcess(arg);
             synthesizeMouseButtons();
         }
+        public void TouchStartedOrEnded(DS4Touchpad sender, TouchpadEventArgs arg)
+        {
+            if (arg.Touches.Length < 2)
+            {
+
+                if (arg.TouchActive)
+                {
+                    touchStarted = true;
+                }
+                else
+                {
+                    touchEnded = true;
+                }
+            }
+        }
 
         private bool isLeft(Touch t)
         {
-            return t.hwX < 1920 * 2 / 5;
+            return t.HwX < 1920 * 2 / 5;
         }
 
         private bool isRight(Touch t)
         {
-            return t.hwX >= 1920 * 2 / 5;
+            return t.HwX >= 1920 * 2 / 5;
         }
 
         private void AddEmptyTrackballEntry()
@@ -1629,23 +1669,23 @@ namespace DS4Windows
             TouchButtonActivationMode touchButtonMode = Global.TouchpadButtonMode[deviceNum];
             //TouchButtonActivationMode touchButtonMode = TouchButtonActivationMode.Release;
             if (touchButtonMode == TouchButtonActivationMode.Click &&
-                arg.touchButtonPressed)
+                arg.TouchButtonPressed)
             {
-                if (arg.touches == null)
+                if (arg.Touches == null)
                 {
                     touchButtonCurrentCandidate = TouchButtonModeCandidate.Upper;
                 }
-                else if (arg.touches.Length > 1)
+                else if (arg.Touches.Length > 1)
                 {
                     touchButtonCurrentCandidate = TouchButtonModeCandidate.Multi;
                 }
                 else
                 {
-                    if (isLeft(arg.touches[0]))
+                    if (isLeft(arg.Touches[0]))
                     {
                         touchButtonCurrentCandidate = TouchButtonModeCandidate.Left;
                     }
-                    else if (isRight(arg.touches[0]))
+                    else if (isRight(arg.Touches[0]))
                     {
                         touchButtonCurrentCandidate = TouchButtonModeCandidate.Right;
                     }
@@ -1655,23 +1695,23 @@ namespace DS4Windows
             }
             else if (touchButtonMode == TouchButtonActivationMode.Touch)
             {
-                if (arg.touchActive || arg.touchButtonPressed)
+                if (arg.TouchActive || arg.TouchButtonPressed)
                 {
-                    if (arg.touches == null)
+                    if (arg.Touches == null)
                     {
                         touchButtonCurrentCandidate = TouchButtonModeCandidate.Upper;
                     }
-                    else if (arg.touches.Length > 1)
+                    else if (arg.Touches.Length > 1)
                     {
                         touchButtonCurrentCandidate = TouchButtonModeCandidate.Multi;
                     }
                     else
                     {
-                        if (isLeft(arg.touches[0]))
+                        if (isLeft(arg.Touches[0]))
                         {
                             touchButtonCurrentCandidate = TouchButtonModeCandidate.Left;
                         }
-                        else if (isRight(arg.touches[0]))
+                        else if (isRight(arg.Touches[0]))
                         {
                             touchButtonCurrentCandidate = TouchButtonModeCandidate.Right;
                         }
@@ -1689,24 +1729,24 @@ namespace DS4Windows
                 if (touchButtonCurrentCandidate == TouchButtonModeCandidate.None)
                 {
                     // Top region of Touchpad was clicked. Out of range of Touchpad sensors
-                    if (!arg.touchActive && !arg.touchButtonPressed && wasTouchButtonClicked)
+                    if (!arg.TouchActive && !arg.TouchButtonPressed && wasTouchButtonClicked)
                     {
                         touchButtonCurrentCandidate = TouchButtonModeCandidate.Upper;
                     }
-                    else if (arg.touchActive)
+                    else if (arg.TouchActive)
                     {
-                        if (arg.touches.Length > 1)
+                        if (arg.Touches.Length > 1)
                         {
                             touchButtonCurrentCandidate = TouchButtonModeCandidate.Multi;
                         }
                     }
-                    else if (!arg.touchActive && arg.touches != null)
+                    else if (!arg.TouchActive && arg.Touches != null)
                     {
-                        if (isLeft(arg.touches[0]))
+                        if (isLeft(arg.Touches[0]))
                         {
                             touchButtonCurrentCandidate = TouchButtonModeCandidate.Left;
                         }
-                        else if (isRight(arg.touches[0]))
+                        else if (isRight(arg.Touches[0]))
                         {
                             touchButtonCurrentCandidate = TouchButtonModeCandidate.Right;
                         }
@@ -1718,15 +1758,15 @@ namespace DS4Windows
                     if (touchButtonCurrentCandidate == TouchButtonModeCandidate.Multi)
                     {
                         // Check that no finger is touching Touchpad
-                        if (wasTouched && !arg.touchActive)
+                        if (wasTouched && !arg.TouchActive)
                         {
                             activateTouchButton = true;
                             releaseButtonActive = true;
                             onReleaseTime = DateTime.UtcNow;
                         }
                     }
-                    else if ((wasTouched && !arg.touchActive) ||
-                        (wasTouchButtonClicked && !arg.touchButtonPressed && !arg.touchActive))
+                    else if ((wasTouched && !arg.TouchActive) ||
+                        (wasTouchButtonClicked && !arg.TouchButtonPressed && !arg.TouchActive))
                     {
                         activateTouchButton = true;
                         releaseButtonActive = true;
@@ -1737,7 +1777,7 @@ namespace DS4Windows
 
             if (activateTouchButton)
             {
-                switch(touchButtonCurrentCandidate)
+                switch (touchButtonCurrentCandidate)
                 {
                     case TouchButtonModeCandidate.Left:
                         leftDown = true;
@@ -1846,13 +1886,13 @@ namespace DS4Windows
 
         public virtual void touchButtonDown(DS4Touchpad sender, TouchpadEventArgs arg)
         {
-            if (arg.touches != null &&
-                arg.touches.Length == 1 &&
-                (Global.LowerRCOn[deviceNum] && arg.touches[0].hwX > (1920 * 3) / 4 && arg.touches[0].hwY > (960 * 3) / 4))
+            if (arg.Touches != null &&
+                arg.Touches.Length == 1 &&
+                (Global.LowerRCOn[deviceNum] && arg.Touches[0].HwX > (1920 * 3) / 4 && arg.Touches[0].HwY > (960 * 3) / 4))
             {
                 Mapping.MapClick(deviceNum, Mapping.Click.Right);
             }
-            else if (arg.touches == null)
+            else if (arg.Touches == null)
             {
                 if (touchButtonCurrentCandidate != TouchButtonModeCandidate.None)
                 {

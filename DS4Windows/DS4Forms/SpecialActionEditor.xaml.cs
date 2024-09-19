@@ -16,23 +16,14 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 using DS4WinWPF.DS4Forms.ViewModels;
 using DS4WinWPF.DS4Forms.ViewModels.SpecialActions;
 using Microsoft.Win32;
+using System;
+using System.Collections.Generic;
+using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Media;
 
 namespace DS4WinWPF.DS4Forms
 {
@@ -75,7 +66,7 @@ namespace DS4WinWPF.DS4Forms
                 lsrTrigCk, rsuTrigCk, rsdTrigCk, rslTrigCk,
                 rsrTrigCk, swipeUpTrigCk, swipeDownTrigCk, swipeLeftTrigCk,
                 swipeRightTrigCk, tiltUpTrigCk, tiltDownTrigCk, tiltLeftTrigCk,
-                tiltRightTrigCk,
+                tiltRightTrigCk,touchStartedTrigCk,touchEndedTrigCk
             };
 
             unloadTriggerBoxes = new List<CheckBox>()
@@ -90,7 +81,7 @@ namespace DS4WinWPF.DS4Forms
                 unloadLsrTrigCk, unloadRsuTrigCk, unloadRsdTrigCk, unloadRslTrigCk,
                 unloadRsrTrigCk, unloadSwipeUpTrigCk, unloadSwipeDownTrigCk, unloadSwipeLeftTrigCk,
                 unloadSwipeRightTrigCk, unloadTiltUpTrigCk, unloadTiltDownTrigCk, unloadTiltLeftTrigCk,
-                unloadTiltRightTrigCk,
+                unloadTiltRightTrigCk,unloadTouchStartedTrigCk, unloadTouchEndedTrigCk,
             };
 
             specialActVM = new SpecialActEditorViewModel(deviceNum, specialAction);
