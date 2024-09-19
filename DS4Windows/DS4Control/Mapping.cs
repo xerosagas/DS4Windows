@@ -3901,7 +3901,7 @@ namespace DS4Windows
 
         private static void RunLightbarMacro(LightbarMacroElement[] macro, int device, CancellationToken token)
         {
-            lock (DS4LightBar.forcedColor)
+            lock (DS4LightBar.forcedColor) lock (DS4LightBar.forcelight)
             {
                 DS4LightBar.forcelight[device] = true;
 
