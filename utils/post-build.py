@@ -44,7 +44,7 @@ renamed_dir = target_dir.parent / "DS4Windows"
 if renamed_dir.exists():
     shutil.rmtree(renamed_dir)
 
-shutil.copytree(target_dir, renamed_dir)
+os.rename(target_dir, renamed_dir)
 
 # create a zip
 arch = target_dir.parents[1].name
