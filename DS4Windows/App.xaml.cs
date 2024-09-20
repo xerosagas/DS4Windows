@@ -16,15 +16,13 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
+using NLog;
 using System;
 using System.Collections.Generic;
-using System.Configuration;
-using System.Data;
 using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.IO.MemoryMappedFiles;
-using System.Linq;
 using System.Net.Http;
 using System.Runtime.InteropServices;
 using System.Text;
@@ -32,12 +30,8 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Interop;
-using WPFLocalizeExtension.Engine;
-using NLog;
 using System.Windows.Media;
-using System.Net;
-using Microsoft.Win32.SafeHandles;
-using DS4Windows.DS4Control;
+using WPFLocalizeExtension.Engine;
 
 namespace DS4WinWPF
 {
@@ -484,11 +478,13 @@ namespace DS4WinWPF
 
         private void CreateControlService(ArgumentParser parser)
         {
-            controlThread = new Thread(() => {
+            controlThread = new Thread(() =>
+            {
                 rootHub = new DS4Windows.ControlService(parser);
 
                 DS4Windows.Program.rootHub = rootHub;
                 requestClient = new HttpClient();
+                requestClient.DefaultRequestHeaders.Add("User-Agent", "DS4Windows");
                 collectTimer = new Timer(GarbageTask, null, 30000, 30000);
 
             });
@@ -501,9 +497,11 @@ namespace DS4WinWPF
 
         private void CreateBaseThread()
         {
-            controlThread = new Thread(() => {
+            controlThread = new Thread(() =>
+            {
                 DS4Windows.Program.rootHub = rootHub;
                 requestClient = new HttpClient();
+                requestClient.DefaultRequestHeaders.Add("User-Agent", "DS4Windows");
                 collectTimer = new Timer(GarbageTask, null, 30000, 30000);
             });
             controlThread.Priority = ThreadPriority.Normal;
@@ -650,7 +648,7 @@ namespace DS4WinWPF
             MemoryMappedFile mmf = null;
             MemoryMappedViewAccessor mma = null;
             EventWaitHandle ipcNotifyEvent = null;
-          
+
             try
             {
                 ipcNotifyEvent = EventWaitHandle.OpenExisting("DS4Windows_IPCResultData_ReadyEvent");
@@ -692,7 +690,7 @@ namespace DS4WinWPF
         }
 
         public void ChangeTheme(DS4Windows.AppThemeChoice themeChoice,
-            bool fireChanged=true)
+            bool fireChanged = true)
         {
             if (themeChoice == DS4Windows.AppThemeChoice.Default)
             {
