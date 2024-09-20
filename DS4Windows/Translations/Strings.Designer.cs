@@ -3281,7 +3281,7 @@ namespace DS4WinWPF.Translations {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Stick calibration.
+        ///   Looks up a localized string similar to Stick Calibration.
         /// </summary>
         public static string StickCalibration {
             get {
@@ -3634,20 +3634,11 @@ namespace DS4WinWPF.Translations {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to [EXPERIMENTAL] Use DS3 pitch and roll simulation.
+        ///   Looks up a localized string similar to [EXPERIMENTAL] Use DS3 gyro simulation.
         /// </summary>
         public static string UseDs3PitchRollSim {
             get {
                 return ResourceManager.GetString("UseDs3PitchRollSim", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Simulates pitch and roll based on accelerometer values from DS3..
-        /// </summary>
-        public static string UseDs3PitchRollSimTooltip {
-            get {
-                return ResourceManager.GetString("UseDs3PitchRollSimTooltip", resourceCulture);
             }
         }
         
@@ -3863,7 +3854,7 @@ namespace DS4WinWPF.Translations {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to X Axis offset.
+        ///   Looks up a localized string similar to X Axis Offset.
         /// </summary>
         public static string XAxisOffset {
             get {
@@ -3899,7 +3890,7 @@ namespace DS4WinWPF.Translations {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Y Axis offset.
+        ///   Looks up a localized string similar to Y Axis Offset.
         /// </summary>
         public static string YAxisOffset {
             get {

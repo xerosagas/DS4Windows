@@ -1415,4 +1415,19 @@ Please click OK to confirm that you have read the message. Press Cancel to be re
   <data name="AdvancedSupport" xml:space="preserve">
     <value>Advanced Support</value>
   </data>
+  <data name="UseDs3PitchRollSim" xml:space="preserve">
+    <value>[EXPERIMENTAL] Use DS3 gyro simulation</value>
+  </data>
+  <data name="StickCalibration" xml:space="preserve">
+    <value>Stick Calibration</value>
+  </data>
+  <data name="XAxisOffset" xml:space="preserve">
+    <value>X Axis Offset</value>
+  </data>
+  <data name="YAxisOffset" xml:space="preserve">
+    <value>Y Axis Offset</value>
+  </data>
+  <data name="AutomaticallyRecalibrateStick" xml:space="preserve">
+    <value>Automatically recalibrate stick</value>
+  </data>
 </root>
