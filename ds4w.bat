@@ -1,26 +1,35 @@
 @echo off
-setlocal
+setlocal enabledelayedexpansion
 
-:: Check for admin privileges
-net session >nul 2>&1
-if %errorLevel% neq 0 (
-    echo This script requires administrative privileges. Please run as administrator.
-    pause
-    exit /b
+:: Define the installation path in AppData local folder
+set INSTALL_PATH=%LOCALAPPDATA%\DS4Windows
+
+:: Prompt for version choice
+set /p VERSION_CHOICE="Do you want to install the latest version? (y/n): "
+if /i "%VERSION_CHOICE%"=="y" (
+    :: Get the latest version using GitHub API
+    for /f "delims=" %%A in ('powershell -Command "(Invoke-WebRequest -Uri 'https://api.github.com/repos/schmaldeo/DS4Windows/releases/latest' -Headers @{ 'User-Agent' = 'Mozilla/5.0' }).Content | ConvertFrom-Json | Select-Object -ExpandProperty tag_name"') do (
+        set LATEST_VERSION=%%A
+    )
+    
+    :: Ensure the version starts with 'v' and remove only the leading 'v'
+    if "!LATEST_VERSION:~0,1!"=="v" (
+        set LATEST_VERSION=!LATEST_VERSION:~1!
+    )
+
+    echo Latest version is !LATEST_VERSION!.
+    set VERSION=!LATEST_VERSION!
+) else (
+    :: Prompt for specific version
+    :prompt_version
+    set /p VERSION="Enter the version (e.g., x.x.x): "
+    if "!VERSION!"=="" (
+        echo Version cannot be empty. Please try again.
+        goto prompt_version
+    )
 )
 
-:: Define the installation path
-set INSTALL_PATH=C:\Program Files\DS4Windows
-
-:: Function to prompt for version
-:prompt_version
-set /p VERSION="Enter the version (e.g., x.x.x): "
-if "%VERSION%"=="" (
-    echo Version cannot be empty. Please try again.
-    goto prompt_version
-)
-
-:: Function to prompt for architecture
+:: Prompt for architecture
 :prompt_arch
 set /p ARCH="Enter the architecture (x64 or x86, default is x64): "
 if "%ARCH%"=="" (
@@ -28,11 +37,11 @@ if "%ARCH%"=="" (
 )
 
 set BASE_URL=https://github.com/schmaldeo/DS4Windows/releases/download
-set DOWNLOAD_URL=%BASE_URL%/v%VERSION%/DS4Windows_%VERSION%_%ARCH%.zip
+set DOWNLOAD_URL=%BASE_URL%/v!VERSION!/DS4Windows_!VERSION!_!ARCH!.zip
 
 :: Download the file
-echo Downloading %DOWNLOAD_URL% ...
-powershell -Command "Invoke-WebRequest -Uri '%DOWNLOAD_URL%' -OutFile 'DS4Windows_%VERSION%_%ARCH%.zip'"
+echo Downloading !DOWNLOAD_URL! ...
+powershell -Command "Invoke-WebRequest -Uri '!DOWNLOAD_URL!' -OutFile 'DS4Windows_!VERSION!_!ARCH!.zip'"
 
 if %errorLevel% neq 0 (
     echo Download failed. Please check the version and architecture.
@@ -49,9 +58,9 @@ if exist "%INSTALL_PATH%" (
 
 :: Unpack the ZIP file
 echo Unpacking the ZIP file...
-powershell -Command "Expand-Archive -Path 'DS4Windows_%VERSION%_%ARCH%.zip' -DestinationPath 'DS4Windows'"
+powershell -Command "Expand-Archive -Path 'DS4Windows_!VERSION!_!ARCH!.zip' -DestinationPath 'DS4Windows'"
 
-:: Move the folder to Program Files
+:: Move the folder to AppData local
 echo Moving DS4Windows folder to %INSTALL_PATH%...
 move /Y "DS4Windows\DS4Windows" "%INSTALL_PATH%"
 
@@ -61,7 +70,7 @@ powershell -Command "$s = New-Object -COMObject WScript.Shell; $shortcut = $s.Cr
 
 :: Clean up downloaded and unpacked files
 echo Cleaning up...
-del /Q "DS4Windows_%VERSION%_%ARCH%.zip"
+del /Q "DS4Windows_!VERSION!_!ARCH!.zip"
 rmdir /S /Q "DS4Windows"
 
 echo Installation completed.
