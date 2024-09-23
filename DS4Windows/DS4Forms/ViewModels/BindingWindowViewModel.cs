@@ -137,10 +137,9 @@ namespace DS4WinWPF.DS4Forms.ViewModels
                 shiftOutBind.ParseExtras(setting.shiftExtras);
             }
 
-            // TODO shift
-            if (!string.IsNullOrEmpty(settings.lightbarString))
+            if (!string.IsNullOrEmpty(settings.lightbarMacro))
             {
-                currentOutBind.ParseLightbarMacro(setting.lightbarString);
+                currentOutBind.ParseLightbarMacro(setting.lightbarMacro);
             }
         }
 
@@ -741,7 +740,7 @@ namespace DS4WinWPF.DS4Forms.ViewModels
                 }
 
                 if (LightbarMacro is not null)
-                    settings.lightbarString = CompileLightbarMacro();
+                    settings.lightbarMacro = CompileLightbarMacro();
 
                 Global.RefreshActionAlias(settings, shiftBind);
             }
@@ -808,7 +807,7 @@ namespace DS4WinWPF.DS4Forms.ViewModels
                 }
 
                 if (LightbarMacro is not null)
-                    settings.lightbarString = CompileLightbarMacro();
+                    settings.lightbarMacro = CompileLightbarMacro();
 
                 Global.RefreshActionAlias(settings, shiftBind);
             }

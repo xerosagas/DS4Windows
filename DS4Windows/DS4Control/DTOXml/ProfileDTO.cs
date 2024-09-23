@@ -1859,10 +1859,9 @@ namespace DS4WinWPF.DS4Control.DTOXml
                     extrasSerializer.CustomMapExtras.Add(dcs.control, dcs.extras);
                 }
 
-                // TODO lightbar macro
-                if (dcs.lightbarString is not null && dcs.lightbarString != string.Empty)
+                if (dcs.lightbarMacro is not null && dcs.lightbarMacro != string.Empty)
                 {
-                    lightbarMacroSerializer.CustomMapMacro.Add(dcs.control, dcs.lightbarString);
+                    lightbarMacroSerializer.CustomMapMacro.Add(dcs.control, dcs.lightbarMacro);
                 }
 
                 if (dcs.shiftActionType != DS4ControlSettings.ActionType.Default && dcs.shiftTrigger > 0)
@@ -2548,7 +2547,6 @@ namespace DS4WinWPF.DS4Control.DTOXml
                     }
                 }
 
-                // TODO add shift lightbar macro
                 if (ShiftControl.KeyType != null && ShiftControl.KeyType.CustomMapKeyTypes.Count > 0)
                 {
                     foreach (KeyValuePair<DS4Controls, DS4KeyType> pair in ShiftControl.KeyType.CustomMapKeyTypes)
