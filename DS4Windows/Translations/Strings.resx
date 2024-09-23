@@ -1436,4 +1436,7 @@ Please click OK to confirm that you have read the message. Press Cancel to be re
   <data name="RealTimeNoAdmin" xml:space="preserve">
     <value>Selecting real-time priority requires running the application in admin mode.</value>
   </data>
+  <data name="ProfileSwitchNotification" xml:space="preserve">
+    <value>Display profile switch notification</value>
+  </data>
 </root>

@@ -2470,6 +2470,15 @@ namespace DS4WinWPF.Translations {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Display profile switch notification.
+        /// </summary>
+        public static string ProfileSwitchNotification {
+            get {
+                return ResourceManager.GetString("ProfileSwitchNotification", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Program.
         /// </summary>
         public static string Program {
