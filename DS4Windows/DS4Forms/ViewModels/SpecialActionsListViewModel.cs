@@ -152,6 +152,9 @@ namespace DS4WinWPF.DS4Forms.ViewModels
                 case SpecialAction.ActionTypeId.SASteeringWheelEmulationCalibrate:
                     displayName = Properties.Resources.SASteeringWheelEmulationCalibrate;
                     break;
+                case SpecialAction.ActionTypeId.GyroCalibrate:
+                    displayName = Translations.Strings.SpecialActionEdit_CalibrateGyro;
+                    break;
                 default: break;
             }
 

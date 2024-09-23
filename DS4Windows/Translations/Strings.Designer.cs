@@ -1747,6 +1747,15 @@ namespace DS4WinWPF.Translations {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Hold for.
+        /// </summary>
+        public static string HoldFor {
+            get {
+                return ResourceManager.GetString("HoldFor", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Hotkeys/About.
         /// </summary>
         public static string HotkeysAbout {
@@ -3079,6 +3088,15 @@ namespace DS4WinWPF.Translations {
         public static string SolidColor {
             get {
                 return ResourceManager.GetString("SolidColor", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Calibrate gyro.
+        /// </summary>
+        public static string SpecialActionEdit_CalibrateGyro {
+            get {
+                return ResourceManager.GetString("SpecialActionEdit.CalibrateGyro", resourceCulture);
             }
         }
         

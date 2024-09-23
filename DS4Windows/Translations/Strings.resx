@@ -1457,4 +1457,10 @@ Please click OK to confirm that you have read the message. Press Cancel to be re
   <data name="ColorAndLength" xml:space="preserve">
     <value>Colour and length</value>
   </data>
+  <data name="SpecialActionEdit.CalibrateGyro" xml:space="preserve">
+    <value>Calibrate gyro</value>
+  </data>
+  <data name="HoldFor" xml:space="preserve">
+    <value>Hold for</value>
+  </data>
 </root>

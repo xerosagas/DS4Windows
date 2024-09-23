@@ -4386,6 +4386,24 @@ namespace DS4Windows
 
                                 actionDone[index].dev[device] = true;
                             }
+                            else if (action.typeID == SpecialAction.ActionTypeId.GyroCalibrate)
+                            {
+                                actionFound = true;
+
+                                if (!actionDone[index].dev[device])
+                                {
+                                    var d = ctrl.DS4Controllers[device];
+
+                                    d.SixAxis.ResetContinuousCalibration();
+                                    if (d.JointDeviceSlotNumber != DS4Device.DEFAULT_JOINT_SLOT_NUMBER)
+                                    {
+                                        DS4Device tempDev = ctrl.DS4Controllers[d.JointDeviceSlotNumber];
+                                        tempDev?.SixAxis.ResetContinuousCalibration();
+                                    }
+
+                                    actionDone[index].dev[device] = true;
+                                }
+                            }
                         }
                         else
                         {

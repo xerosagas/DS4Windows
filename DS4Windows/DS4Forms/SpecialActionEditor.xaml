@@ -376,6 +376,7 @@
                         <ComboBoxItem Content="{lex:Loc SpecialActionEdit.CheckBattery}" />
                         <ComboBoxItem Content="{lex:Loc SpecialActionEdit.MultiAction}" />
                         <ComboBoxItem Content="{lex:Loc SpecialActionEdit.SixAxisWheelCalib}" />
+                        <ComboBoxItem Content="{lex:Loc SpecialActionEdit.CalibrateGyro}" />
                     </ComboBox>
 
                     <TabControl x:Name="actionTypeTabControl" SelectedIndex="{Binding ActionTypeIndex}" BorderBrush="{x:Null}">
@@ -518,6 +519,13 @@
                             </StackPanel>
                         </TabItem>
                         <TabItem x:Name="sixaxisWheelCalibrateTab" Header="Sixaxis Wheel">
+                            <StackPanel Orientation="Horizontal" Margin="{StaticResource spaceMargin}">
+                                <Label Content="{lex:Loc HoldFor}" ContentStringFormat="{}{0} "></Label>
+                                <xctk:DecimalUpDown Value="{Binding Delay}" Width="60" Minimum="0" Maximum="60" FormatString= "F2" Increment="0.5" />
+                                <Label Content="secs" />
+                            </StackPanel>
+                        </TabItem>
+                        <TabItem x:Name="gyroCalibrateTab" Header="{lex:Loc SpecialActionEdit.CalibrateGyro}">
                             <StackPanel Orientation="Horizontal" Margin="{StaticResource spaceMargin}">
                                 <Label Content="{lex:Loc HoldFor}" ContentStringFormat="{}{0} "></Label>
                                 <xctk:DecimalUpDown Value="{Binding Delay}" Width="60" Minimum="0" Maximum="60" FormatString= "F2" Increment="0.5" />

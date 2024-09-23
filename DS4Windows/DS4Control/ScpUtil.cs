@@ -8504,6 +8504,9 @@ namespace DS4Windows
                     tempAction = new SpecialAction(name, controls, "SASteeringWheelEmulationCalibrate",
                         details, delayTime);
                     break;
+                case 9:
+                    tempAction = new SpecialAction(name, controls, "GyroCalibration", details, delayTime);
+                    break;
                 default:
                     break;
             }
@@ -10182,7 +10185,7 @@ namespace DS4Windows
 
     public class SpecialAction
     {
-        public enum ActionTypeId { None, Key, Program, Profile, Macro, DisconnectBT, BatteryCheck, MultiAction, XboxGameDVR, SASteeringWheelEmulationCalibrate }
+        public enum ActionTypeId { None, Key, Program, Profile, Macro, DisconnectBT, BatteryCheck, MultiAction, XboxGameDVR, SASteeringWheelEmulationCalibrate, GyroCalibrate }
 
         public string name;
         public List<DS4Controls> trigger = new List<DS4Controls>();
@@ -10340,6 +10343,10 @@ namespace DS4Windows
             else if (type == "SASteeringWheelEmulationCalibrate")
             {
                 typeID = ActionTypeId.SASteeringWheelEmulationCalibrate;
+            }
+            else if (type == "GyroCalibration")
+            {
+                typeID = ActionTypeId.GyroCalibrate;
             }
             else
                 this.details = details;

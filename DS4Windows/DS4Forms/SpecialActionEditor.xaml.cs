@@ -44,6 +44,7 @@ namespace DS4WinWPF.DS4Forms
         private CheckBatteryViewModel checkBatteryVM;
         private MultiActButtonViewModel multiActButtonVM;
         private SASteeringWheelViewModel saSteeringWheelVM;
+        private CalibrateGyroViewModel calibrateGyroVM;
 
         public event EventHandler Cancel;
         public delegate void SaveHandler(object sender, string actionName);
@@ -93,6 +94,7 @@ namespace DS4WinWPF.DS4Forms
             checkBatteryVM = new CheckBatteryViewModel();
             multiActButtonVM = new MultiActButtonViewModel();
             saSteeringWheelVM = new SASteeringWheelViewModel();
+            calibrateGyroVM = new CalibrateGyroViewModel();
 
             // Hide tab headers. Tab content will still be visible
             blankActTab.Visibility = Visibility.Collapsed;
@@ -104,6 +106,7 @@ namespace DS4WinWPF.DS4Forms
             checkBatteryTab.Visibility = Visibility.Collapsed;
             multiActTab.Visibility = Visibility.Collapsed;
             sixaxisWheelCalibrateTab.Visibility = Visibility.Collapsed;
+            gyroCalibrateTab.Visibility = Visibility.Collapsed;
 
             if (specialAction != null)
             {
@@ -123,6 +126,7 @@ namespace DS4WinWPF.DS4Forms
             checkBatteryTab.DataContext = checkBatteryVM;
             multiActTab.DataContext = multiActButtonVM;
             sixaxisWheelCalibrateTab.DataContext = saSteeringWheelVM;
+            gyroCalibrateTab.DataContext = calibrateGyroVM;
 
             SetupLateEvents();
         }
@@ -147,6 +151,7 @@ namespace DS4WinWPF.DS4Forms
             checkBatteryTab.DataContext = null;
             multiActTab.DataContext = null;
             sixaxisWheelCalibrateTab.DataContext = null;
+            gyroCalibrateTab.DataContext = null;
         }
 
         private void LoadAction(DS4Windows.SpecialAction specialAction)
@@ -217,6 +222,9 @@ namespace DS4WinWPF.DS4Forms
                     break;
                 case DS4Windows.SpecialAction.ActionTypeId.SASteeringWheelEmulationCalibrate:
                     saSteeringWheelVM.LoadAction(specialAction);
+                    break;
+                case DS4Windows.SpecialAction.ActionTypeId.GyroCalibrate:
+                    calibrateGyroVM.LoadAction(specialAction);
                     break;
             }
         }
@@ -294,6 +302,9 @@ namespace DS4WinWPF.DS4Forms
                     case DS4Windows.SpecialAction.ActionTypeId.SASteeringWheelEmulationCalibrate:
                         saSteeringWheelVM.SaveAction(tempAct, editMode);
                         break;
+                    case DS4Windows.SpecialAction.ActionTypeId.GyroCalibrate:
+                        calibrateGyroVM.SaveAction(tempAct, editMode);
+                        break;
                 }
 
                 Saved?.Invoke(this, tempAct.name);
@@ -329,6 +340,9 @@ namespace DS4WinWPF.DS4Forms
                     break;
                 case DS4Windows.SpecialAction.ActionTypeId.SASteeringWheelEmulationCalibrate:
                     valid = saSteeringWheelVM.IsValid(action);
+                    break;
+                case DS4Windows.SpecialAction.ActionTypeId.GyroCalibrate:
+                    valid = calibrateGyroVM.IsValid(action);
                     break;
             }
 
