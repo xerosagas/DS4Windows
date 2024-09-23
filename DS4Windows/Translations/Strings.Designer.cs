@@ -2425,6 +2425,15 @@ namespace DS4WinWPF.Translations {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Process priority.
+        /// </summary>
+        public static string ProcessPriority {
+            get {
+                return ResourceManager.GetString("ProcessPriority", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Profile.
         /// </summary>
         public static string Profile {
@@ -2529,6 +2538,15 @@ namespace DS4WinWPF.Translations {
         public static string ReadingsControl_SixAxisXText {
             get {
                 return ResourceManager.GetString("ReadingsControl.SixAxisXText", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Selecting real-time priority requires running the application in admin mode..
+        /// </summary>
+        public static string RealTimeNoAdmin {
+            get {
+                return ResourceManager.GetString("RealTimeNoAdmin", resourceCulture);
             }
         }
         

@@ -2008,6 +2008,12 @@ namespace DS4Windows
             return m_Config.dinputOnly[index];
         }
 
+        public static int ProcessPriority
+        {
+            get => m_Config.processPriority;
+            set => m_Config.processPriority = value;
+        }
+
         public static bool[] StartTouchpadOff => m_Config.startTouchpadOff;
 
         public static bool IsUsingTouchpadForControls(int index)
@@ -3583,6 +3589,7 @@ namespace DS4Windows
             new LightbarSettingInfo(),
         };
 
+        public int processPriority;
         public string[] launchProgram = new string[Global.TEST_PROFILE_ITEM_COUNT] { string.Empty, string.Empty, string.Empty, string.Empty, string.Empty, string.Empty, string.Empty, string.Empty, string.Empty };
         public bool[] dinputOnly = new bool[Global.TEST_PROFILE_ITEM_COUNT]
         { DEFAULT_DINPUT_ONLY, DEFAULT_DINPUT_ONLY, DEFAULT_DINPUT_ONLY,

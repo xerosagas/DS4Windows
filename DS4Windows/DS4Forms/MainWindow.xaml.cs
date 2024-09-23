@@ -82,6 +82,12 @@ namespace DS4WinWPF.DS4Forms
 
         public bool IsInitialShow { get; set; }
 
+        public static List<ProcessPriorityClass> ProcessPriorityClasses =
+        [
+            ProcessPriorityClass.Normal, ProcessPriorityClass.AboveNormal,
+            ProcessPriorityClass.High, ProcessPriorityClass.RealTime
+        ];
+
         public MainWindow(ArgumentParser parser)
         {
             InitializeComponent();
@@ -96,6 +102,7 @@ namespace DS4WinWPF.DS4Forms
             //logListView.ItemsSource = logvm.LogItems;
             logListView.DataContext = logvm;
             lastMsgLb.DataContext = lastLogMsg;
+            ProcessPriorityComboBox.ItemsSource = ProcessPriorityClasses;
 
             profileListHolder.Refresh();
             profilesListBox.ItemsSource = profileListHolder.ProfileListCol;
@@ -1758,6 +1765,20 @@ Suspend support not enabled.", true);
                     }
                 }
             }
+        }
+
+        private void ProcessPriorityComboBox_OnSelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            using var process = Process.GetCurrentProcess();
+            var s = (ComboBox)sender;
+            var selectedPriority = (ProcessPriorityClass)s.SelectedItem;
+            if (!Global.IsAdministrator() && selectedPriority == ProcessPriorityClass.RealTime)
+            {
+                MessageBox.Show(Strings.RealTimeNoAdmin);
+                selectedPriority = ProcessPriorityClass.High;
+                settingsWrapVM.ProcessPriorityIndex = ProcessPriorityClasses.IndexOf(ProcessPriorityClass.High);
+            }
+            process.PriorityClass = selectedPriority;
         }
     }
 

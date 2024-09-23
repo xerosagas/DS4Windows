@@ -19,6 +19,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.Design;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -140,6 +141,9 @@ namespace DS4WinWPF.DS4Control.DTOXml
             get => _formLocationY;
             set => _formLocationY = value;
         }
+
+        [XmlElement("ProcessPriority")]
+        public int ProcessPriority { get; set; }
 
         [XmlElement("Controller1")]
         public string Controller1CurrentProfile
@@ -805,6 +809,7 @@ namespace DS4WinWPF.DS4Control.DTOXml
             UseExclusiveMode = source.useExclusiveMode;
             StartMinimized = source.startMinimized;
             MinimizeToTaskbar = source.minToTaskbar;
+            ProcessPriority = source.processPriority;
             FormWidth = source.formWidth;
             FormHeight = source.formHeight;
             FormLocationX = source.formLocationX;
@@ -900,6 +905,7 @@ namespace DS4WinWPF.DS4Control.DTOXml
             destination.useExclusiveMode = UseExclusiveMode;
             destination.startMinimized = StartMinimized;
             destination.minToTaskbar = MinimizeToTaskbar;
+            destination.processPriority = ProcessPriority;
             destination.formWidth = FormWidth;
             destination.formHeight = FormHeight;
             destination.formLocationX = FormLocationX;

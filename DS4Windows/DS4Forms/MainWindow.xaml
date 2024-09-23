@@ -408,6 +408,11 @@
                         </DockPanel>
 
                         <StackPanel Orientation="Horizontal" Margin="{StaticResource spaceMargin}">
+                            <Label Content="{lex:Loc ProcessPriority}" ContentStringFormat="{}{0}:"/>
+                            <ComboBox x:Name="ProcessPriorityComboBox" Margin="10,0,0,0" SelectedIndex="{Binding ProcessPriorityIndex}" SelectionChanged="ProcessPriorityComboBox_OnSelectionChanged" />
+                        </StackPanel>
+
+                        <StackPanel Orientation="Horizontal" Margin="{StaticResource spaceMargin}">
                             <Label Content="{lex:Loc MainWin.AbsDisplayMonitor}" ContentStringFormat="{}{0}:" />
                             <ComboBox ItemsSource="{Binding AbsMonitorChoices}" DisplayMemberPath="DisplayItemString" SelectedValuePath="EDID"
                                       SelectedValue="{Binding AbsMonitorSettingEDID}" Margin="10,0,0,0">

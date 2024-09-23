@@ -1430,4 +1430,10 @@ Please click OK to confirm that you have read the message. Press Cancel to be re
   <data name="AutomaticallyRecalibrateStick" xml:space="preserve">
     <value>Automatically recalibrate stick</value>
   </data>
+  <data name="ProcessPriority" xml:space="preserve">
+    <value>Process priority</value>
+  </data>
+  <data name="RealTimeNoAdmin" xml:space="preserve">
+    <value>Selecting real-time priority requires running the application in admin mode.</value>
+  </data>
 </root>

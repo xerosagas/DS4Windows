@@ -31,6 +31,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Threading;
+using DS4WinWPF.DS4Forms;
 using static DS4Windows.Global;
 
 namespace DS4Windows
@@ -1723,6 +1724,8 @@ namespace DS4Windows
             runHotPlug = true;
             ServiceStarted?.Invoke(this, EventArgs.Empty);
             RunningChanged?.Invoke(this, EventArgs.Empty);
+            using var process = Process.GetCurrentProcess();
+            process.PriorityClass = MainWindow.ProcessPriorityClasses[Global.ProcessPriority];
             return true;
         }
 

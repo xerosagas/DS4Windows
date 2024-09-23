@@ -18,6 +18,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -376,6 +377,19 @@ namespace DS4WinWPF.DS4Forms.ViewModels
             get => Global.AbsoluteDisplayEDID;
             set => Global.AbsoluteDisplayEDID = value;
         }
+
+        public int ProcessPriorityIndex
+        {
+            get => Global.ProcessPriority;
+            set
+            {
+                Global.ProcessPriority = value;
+                ProcessPriorityIndexChanged?.Invoke(this, EventArgs.Empty);
+            }
+
+        }
+
+        public event EventHandler ProcessPriorityIndexChanged;
 
         public SettingsViewModel()
         {
