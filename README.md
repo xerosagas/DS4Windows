@@ -35,11 +35,9 @@ available in this source code from the COPYING file.
 
 ## Install
 
-You can install DS4Windows by downloading it from [releases](https://github.com/schmaldeo/DS4Windows/releases) and place it to your preferred place
+You can install DS4Windows by downloading it from [releases](https://github.com/schmaldeo/DS4Windows/releases) and place it to your preferred place.
 
-<sup><sub>or</sub></sup>
-
-You download `ds4w.bat` file and execute it. It will open an window where you fetch the latest or you can enter any version that will downloaded and placed in `%LOCALAPPDATA%\DS4Windows` and creates you a desktop link to the executable.
+Alternatively, you can download [`ds4w.bat`](https://raw.githubusercontent.com/schmaldeo/DS4Windows/refs/heads/master/ds4w.bat) file and execute it. It will open a window that downloads and places the program in `%LOCALAPPDATA%\DS4Windows` and creates a desktop shortcut to the executable.
 
 ## Requirements
 
