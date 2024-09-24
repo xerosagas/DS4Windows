@@ -2642,6 +2642,7 @@ namespace DS4Windows
                 //device.getPreviousState(PreviousState[ind]);
                 //DS4State pState = PreviousState[ind];
 
+
                 if (device.firstReport && device.isSynced())
                 {
                     // Only send Log message when device is considered a primary device
@@ -2662,6 +2663,11 @@ namespace DS4Windows
                     }
 
                     device.firstReport = false;
+                }
+
+                if (device.PrimaryDevice && Global.UseIconChoice == TrayIconChoice.Battery)
+                {
+                    InvokeBatteryChanged(cState.Battery);
                 }
 
                 if (!device.PrimaryDevice)

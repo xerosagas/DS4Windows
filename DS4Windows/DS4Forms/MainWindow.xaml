@@ -313,6 +313,7 @@
                                 <ComboBoxItem Content="{lex:Loc Colored}"/>
                                 <ComboBoxItem Content="{lex:Loc White}"/>
                                 <ComboBoxItem Content="{lex:Loc Black}"/>
+                                <ComboBoxItem Content="{lex:Loc Battery}"/>
                             </ComboBox>
                         </StackPanel>
                         <StackPanel Orientation="Horizontal" Margin="{StaticResource spaceMargin}">

@@ -79,6 +79,7 @@ namespace DS4Windows
         Colored,
         White,
         Black,
+        Battery
     }
 
     public enum AppThemeChoice : uint
@@ -908,6 +909,7 @@ namespace DS4Windows
             [TrayIconChoice.Colored] = $"{Global.RESOURCES_PREFIX}/DS4W.ico",
             [TrayIconChoice.White] = $"{Global.RESOURCES_PREFIX}/DS4W - White.ico",
             [TrayIconChoice.Black] = $"{Global.RESOURCES_PREFIX}/DS4W - Black.ico",
+            [TrayIconChoice.Battery] = $"{RESOURCES_PREFIX}/DS4W.ico"
         };
 
         public static void SaveWhere(string path)
@@ -1861,6 +1863,13 @@ namespace DS4Windows
         {
             get => m_Config.useIconChoice;
             set => m_Config.useIconChoice = value;
+        }
+
+        public static event EventHandler<byte> BatteryChanged;
+
+        public static void InvokeBatteryChanged(byte percentage)
+        {
+            BatteryChanged?.Invoke(typeof(Global), percentage);
         }
 
         public static AppThemeChoice UseCurrentTheme

@@ -158,6 +158,18 @@
 		<None Include="Resources\Pairmode.png" />
 		<None Include="Resources\USB.png" />
 
+		<None Include="Resources\0.ico" />
+		<None Include="Resources\10.ico" />
+		<None Include="Resources\20.ico" />
+		<None Include="Resources\30.ico" />
+		<None Include="Resources\40.ico" />
+		<None Include="Resources\50.ico" />
+		<None Include="Resources\60.ico" />
+		<None Include="Resources\70.ico" />
+		<None Include="Resources\80.ico" />
+		<None Include="Resources\90.ico" />
+		<None Include="Resources\100.ico" />
+
 		<None Include="Resources\newprofile.png" />
 		<None Include="Resources\BT.png" />
 		<None Include="Resources\cancel.png" />
@@ -228,6 +240,18 @@
 		<Resource Include="Resources\DS4 Config.png" />
 		<Resource Include="Resources\Pairmode.png" />
 		<Resource Include="Resources\USB.png" />
+
+		<Resource Include="Resources\0.ico" />
+		<Resource Include="Resources\10.ico" />
+		<Resource Include="Resources\20.ico" />
+		<Resource Include="Resources\30.ico" />
+		<Resource Include="Resources\40.ico" />
+		<Resource Include="Resources\50.ico" />
+		<Resource Include="Resources\60.ico" />
+		<Resource Include="Resources\70.ico" />
+		<Resource Include="Resources\80.ico" />
+		<Resource Include="Resources\90.ico" />
+		<Resource Include="Resources\100.ico" />
 
 		<Resource Include="Resources\newprofile.png" />
 		<Resource Include="Resources\BT.png" />
