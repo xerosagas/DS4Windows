@@ -19,13 +19,14 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
+using System.Text;
 using System.Xml;
 using System.Xml.Schema;
 using System.Xml.Serialization;
 using DS4Windows;
 using DS4Windows.InputDevices;
 using DS4Windows.StickModifiers;
+using DS4WinWPF.DS4Forms.ViewModels;
 using static DS4Windows.Mouse;
 
 namespace DS4WinWPF.DS4Control.DTOXml
@@ -1792,6 +1793,7 @@ namespace DS4WinWPF.DS4Control.DTOXml
             DS4ControlKeyTypeAssignmentSerializer keyTypeSerializer = new DS4ControlKeyTypeAssignmentSerializer();
             DS4ControlMacroAssignmentSerializer macroSerializer = new DS4ControlMacroAssignmentSerializer();
             DS4ControlExtrasAssignmentSerializer extrasSerializer = new DS4ControlExtrasAssignmentSerializer();
+            DS4ControlLightbarMacroAssignmentSerializer lightbarMacroSerializer = new();
 
             DS4ControlButtonAssignmentSerializer shiftButtonSerializer = new DS4ControlButtonAssignmentSerializer();
             DS4ControlKeyAssignmentSerializer shiftKeySerializer = new DS4ControlKeyAssignmentSerializer();
@@ -1855,6 +1857,11 @@ namespace DS4WinWPF.DS4Control.DTOXml
                 if (hasExtrasValue)
                 {
                     extrasSerializer.CustomMapExtras.Add(dcs.control, dcs.extras);
+                }
+
+                if (dcs.lightbarMacro is not null && dcs.lightbarMacro != string.Empty)
+                {
+                    lightbarMacroSerializer.CustomMapMacro.Add(dcs.control, dcs.lightbarMacro);
                 }
 
                 if (dcs.shiftActionType != DS4ControlSettings.ActionType.Default && dcs.shiftTrigger > 0)
@@ -1935,6 +1942,11 @@ namespace DS4WinWPF.DS4Control.DTOXml
             if (extrasSerializer.CustomMapExtras.Count > 0)
             {
                 Control.Extras = extrasSerializer;
+            }
+
+            if (lightbarMacroSerializer.CustomMapMacro.Count > 0)
+            {
+                Control.LightbarMacro = lightbarMacroSerializer;
             }
 
 
@@ -2457,6 +2469,14 @@ namespace DS4WinWPF.DS4Control.DTOXml
                     foreach (KeyValuePair<DS4Controls, DS4KeyType> pair in Control.KeyType.CustomMapKeyTypes)
                     {
                         destination.UpdateDS4CKeyType(deviceIndex, pair.Key.ToString(), false, pair.Value);
+                    }
+                }
+
+                if (Control.LightbarMacro is not null && Control.LightbarMacro.CustomMapMacro.Count > 0)
+                {
+                    foreach (var pair in Control.LightbarMacro.CustomMapMacro)
+                    {
+                        destination.UpdateDS4CLightbarMacro(deviceIndex, pair.Key.ToString(), false, pair.Value);
                     }
                 }
             }
@@ -3385,6 +3405,16 @@ namespace DS4WinWPF.DS4Control.DTOXml
             return KeyType != null && KeyType.CustomMapKeyTypes.Count > 0;
         }
 
+        [XmlElement("LightbarMacro")]
+        public DS4ControlLightbarMacroAssignmentSerializer LightbarMacro
+        {
+            get; set;
+        }
+        public bool ShouldSerializeLightbarMacro()
+        {
+            return LightbarMacro != null && LightbarMacro.CustomMapMacro.Count > 0;
+        }
+
         public DS4ControlAssignementSerializer()
         {
         }
@@ -3724,6 +3754,61 @@ namespace DS4WinWPF.DS4Control.DTOXml
         public void WriteXml(XmlWriter writer)
         {
             foreach (KeyValuePair<DS4Controls, string> pair in customMapExtras)
+            {
+                writer.WriteStartElement(pair.Key.ToString());
+                if (shiftTriggers.TryGetValue(pair.Key, out int shiftTrigger) &&
+                    shiftTrigger > 0)
+                {
+                    writer.WriteAttributeString("Trigger", shiftTrigger.ToString());
+                }
+
+                writer.WriteValue(pair.Value.ToString());
+                writer.WriteEndElement();
+            }
+        }
+    }
+
+    public class DS4ControlLightbarMacroAssignmentSerializer : DS4ControlAssignmentSerializerBase, IXmlSerializable
+    {
+        private Dictionary<DS4Controls, string> customMapMacro
+            = new Dictionary<DS4Controls, string>();
+        [XmlIgnore]
+        public Dictionary<DS4Controls, string> CustomMapMacro => customMapMacro;
+
+        public XmlSchema GetSchema()
+        {
+            return null;
+        }
+
+        public void ReadXml(XmlReader reader)
+        {
+            XmlDocument tempDoc = new XmlDocument();
+            string tempXml = reader.ReadOuterXml();
+            XmlReader tempXmlReader = XmlReader.Create(new StringReader(tempXml));
+            tempDoc.Load(tempXmlReader);
+            XmlNode parentNode = tempDoc.SelectSingleNode("LightbarMacro");
+            if (parentNode != null)
+            {
+                foreach (XmlNode item in parentNode.ChildNodes)
+                {
+                    if (item.InnerText != string.Empty &&
+                        Enum.TryParse(item.Name, out DS4Controls currentControl))
+                    {
+                        if (item.Attributes["Trigger"] != null)
+                        {
+                            int.TryParse(item.Attributes["Trigger"].Value, out int shiftT);
+                            shiftTriggers.TryAdd(currentControl, shiftT);
+                        }
+
+                        customMapMacro.Add(Global.getDS4ControlsByName(item.Name), item.InnerText);
+                    }
+                }
+            }
+        }
+
+        public void WriteXml(XmlWriter writer)
+        {
+            foreach (KeyValuePair<DS4Controls, string> pair in customMapMacro)
             {
                 writer.WriteStartElement(pair.Key.ToString());
                 if (shiftTriggers.TryGetValue(pair.Key, out int shiftTrigger) &&

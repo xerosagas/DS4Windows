@@ -28,6 +28,8 @@ using static DS4Windows.Global;
 using System.Drawing; // Point struct
 using Sensorit.Base;
 using DS4WinWPF.DS4Control;
+using DS4WinWPF.DS4Forms.ViewModels;
+using ThreadState = System.Threading.ThreadState;
 
 namespace DS4Windows
 {
@@ -3426,6 +3428,19 @@ namespace DS4Windows
         //private static double FlickThreshold = 0.9;
         //private static double FlickTime = 0.1;
 
+        // array of DS4Controls that can be mapped to a bool (through DS4State) and used for lightbar macro press/release function
+        private static DS4Controls[] BoolDS4Controls =
+        [
+            DS4Controls.Square, DS4Controls.Triangle, DS4Controls.Circle, DS4Controls.Cross, DS4Controls.DpadUp,
+            DS4Controls.DpadDown, DS4Controls.DpadLeft, DS4Controls.DpadRight, DS4Controls.L1, DS4Controls.L3,
+            DS4Controls.R1, DS4Controls.R3, DS4Controls.Share, DS4Controls.Options, DS4Controls.Mute,
+            DS4Controls.TouchRight, DS4Controls.TouchLeft, DS4Controls.Capture, DS4Controls.SideL, DS4Controls.SideR,
+            DS4Controls.FnL, DS4Controls.FnR, DS4Controls.BLP, DS4Controls.BRP
+        ];
+
+        private static CancellationTokenSource threadCts = new();
+        private static Task lightbarMacroTask;
+
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private static void ProcessControlSettingAction(DS4ControlSettings dcs, int device, DS4State cState, DS4State MappedState, DS4StateExposed eState,
             Mouse tp, DS4StateFieldMapping fieldMapping, DS4StateFieldMapping outputfieldMapping, SyntheticState deviceState, ref double tempMouseDeltaX, ref double tempMouseDeltaY,
@@ -3454,6 +3469,10 @@ namespace DS4Windows
                 actionAlias = dcs.action.actionAlias;
                 keyType = dcs.keyType;
             }
+
+            var lightbarMacro = new LightbarMacro(false, [], LightbarMacroTrigger.Press);
+            if (!string.IsNullOrEmpty(dcs.lightbarMacro))
+                lightbarMacro = OutBinding.GetLightbarMacroFromString(dcs.lightbarMacro);
 
             if (usingExtra == DS4Controls.None || usingExtra == dcs.control)
             {
@@ -3487,7 +3506,8 @@ namespace DS4Windows
                             extrasRumbleActive[device] = true;
                         }
 
-                        if (extras[2] == 1)
+                        // lightbar macro takes precedence
+                        if (extras[2] == 1 && !lightbarMacro.Active)
                         {
                             DS4Color color = new DS4Color { red = (byte)extras[3], green = (byte)extras[4], blue = (byte)extras[5] };
                             DS4LightBar.forcedColor[device] = color;
@@ -3526,6 +3546,50 @@ namespace DS4Windows
 
                     held[device] = DS4Controls.None;
                     usingExtra = DS4Controls.None;
+                }
+            }
+
+
+            if (lightbarMacro.Active)
+            {
+                if (BoolDS4Controls.Contains(dcs.control))
+                {
+                    var dev = ctrl.DS4Controllers[device];
+                    var prev = dev.GetRawPreviousStateRef();
+                    var curr = dev.GetRawCurrentStateRef();
+
+                    var field = typeof(DS4State).GetField(dcs.control.ToString());
+                    // using cState can lead to some duplicate input issues
+                    var currButtonState = (bool)field.GetValue(curr);
+                    var prevButtonState = (bool)field.GetValue(prev);
+
+                    if (prevButtonState != currButtonState)
+                    {
+                        if ((lightbarMacro.Trigger == LightbarMacroTrigger.Press && !prevButtonState && currButtonState)
+                            || (lightbarMacro.Trigger == LightbarMacroTrigger.Release && prevButtonState &&
+                                !currButtonState))
+                        {
+                            if (lightbarMacroTask != null && !lightbarMacroTask.IsCompleted)
+                            {
+                                threadCts.Cancel();
+
+                                try
+                                {
+                                    lightbarMacroTask.Wait();
+                                }
+                                catch (OperationCanceledException)
+                                {
+                                }
+                                finally
+                                {
+                                    threadCts.Dispose();
+                                    threadCts = new CancellationTokenSource();
+                                }
+                            }
+
+                            lightbarMacroTask = Task.Run(() => RunLightbarMacro(lightbarMacro.Macro, device, threadCts.Token));
+                        }
+                    }
                 }
             }
 
@@ -3832,6 +3896,47 @@ namespace DS4Windows
                     //outputfieldMapping.axisdirs[current] = fieldMapping.axisdirs[current];
                     customMapQueue[device].Enqueue(new ControlToXInput(dcs.control, dcs.control));
                 }
+            }
+        }
+
+        private static void RunLightbarMacro(LightbarMacroElement[] macro, int device, CancellationToken token)
+        {
+            lock (DS4LightBar.forcedColor) lock (DS4LightBar.forcelight)
+            {
+                DS4LightBar.forcelight[device] = true;
+
+                var timestamp = DateTime.UtcNow.Ticks;
+                var i = 0;
+
+                while (i < macro.Length)
+                {
+                    if (token.IsCancellationRequested)
+                    {
+                        break;
+                    }
+
+                    DS4LightBar.forcedColor[device] = macro[i].Color;
+
+                    try
+                    {
+                        Task.Delay(10, token).Wait();
+                    }
+                    catch (AggregateException ex)
+                    {
+                        if (ex.InnerExceptions.All(e => e is OperationCanceledException))
+                        { }
+                        else
+                        { throw; }
+                    }
+
+                    if (DateTime.UtcNow.Ticks - timestamp >= macro[i].Length * TimeSpan.TicksPerMillisecond)
+                    {
+                        i++;
+                        timestamp = DateTime.UtcNow.Ticks;
+                    }
+                }
+
+                DS4LightBar.forcelight[device] = false;
             }
         }
 

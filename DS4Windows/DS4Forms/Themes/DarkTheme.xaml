@@ -697,6 +697,11 @@
         <Setter Property="Foreground" Value="{StaticResource ForegroundColor}" />
     </Style>
 
+    <Style x:Key="UIntegerUpDownStyle" TargetType="{x:Type xctk:UIntegerUpDown}">
+        <Setter Property="Background" Value="{StaticResource BackgroundColor}" />
+        <Setter Property="Foreground" Value="{StaticResource ForegroundColor}" />
+    </Style>
+
     <DataTemplate x:Key="DefaultWatermarkTemplate">
         <ContentControl Content="{Binding}" Focusable="False" Foreground="{StaticResource ForegroundColor}" Margin="0,0,3,0"/>
     </DataTemplate>
@@ -1728,6 +1733,7 @@
     <Style BasedOn="{StaticResource SplitButtonStyle}" TargetType="{x:Type xctk:SplitButton}" />
     <Style BasedOn="{StaticResource DoubleUpDownStyle}" TargetType="{x:Type xctk:DoubleUpDown}" />
     <Style BasedOn="{StaticResource SByteUpDownStyle}" TargetType="{x:Type xctk:SByteUpDown}" />
+    <Style BasedOn="{StaticResource UIntegerUpDownStyle}" TargetType="{x:Type xctk:UIntegerUpDown}" />
     <Style BasedOn="{StaticResource IntegerDownStyle}" TargetType="{x:Type xctk:IntegerUpDown}" />
     <Style BasedOn="{StaticResource ContextMenuStyle}" TargetType="{x:Type ContextMenu}" />
     <Style BasedOn="{StaticResource MenuStyle}" TargetType="{x:Type Menu}" />

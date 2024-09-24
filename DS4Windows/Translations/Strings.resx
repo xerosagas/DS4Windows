@@ -1439,4 +1439,61 @@ Please click OK to confirm that you have read the message. Press Cancel to be re
   <data name="ProfileSwitchNotification" xml:space="preserve">
     <value>Display profile switch notification</value>
   </data>
+  <data name="CreateLightbarMacro" xml:space="preserve">
+    <value>Create lightbar macro</value>
+  </data>
+  <data name="LightbarMode" xml:space="preserve">
+    <value>Lightbar Mode</value>
+  </data>
+  <data name="SolidColor" xml:space="preserve">
+    <value>Solid Colour</value>
+  </data>
+  <data name="Macro" xml:space="preserve">
+    <value>Macro</value>
+  </data>
+  <data name="Add" xml:space="preserve">
+    <value>Add</value>
+  </data>
+  <data name="ColorAndLength" xml:space="preserve">
+    <value>Colour and length</value>
+  </data>
+<data name="UseDs3PitchRollSim" xml:space="preserve">
+    <value>[EXPERIMENTAL] Use DS3 gyro simulation</value>
+  </data>
+<data name="StickCalibration" xml:space="preserve">
+    <value>Stick Calibration</value>
+</data>
+<data name="XAxisOffset" xml:space="preserve">
+    <value>X Axis Offset</value>
+</data>
+<data name="YAxisOffset" xml:space="preserve">
+    <value>Y Axis Offset</value>
+  </data>
+  <data name="ProcessPriority" xml:space="preserve">
+    <value>Process priority</value>
+  </data>
+  <data name="RealTimeNoAdmin" xml:space="preserve">
+    <value>Selecting real-time priority requires running the application in admin mode.</value>
+  </data>
+  <data name="ProfileSwitchNotification" xml:space="preserve">
+    <value>Display profile switch notification</value>
+  </data>
+  <data name="CreateLightbarMacro" xml:space="preserve">
+    <value>Create lightbar macro</value>
+  </data>
+  <data name="LightbarMode" xml:space="preserve">
+    <value>Lightbar Mode</value>
+  </data>
+  <data name="SolidColor" xml:space="preserve">
+    <value>Solid Colour</value>
+  </data>
+  <data name="Macro" xml:space="preserve">
+    <value>Macro</value>
+  </data>
+  <data name="Add" xml:space="preserve">
+    <value>Add</value>
+  </data>
+  <data name="ColorAndLength" xml:space="preserve">
+    <value>Colour and length</value>
+  </data>
 </root>

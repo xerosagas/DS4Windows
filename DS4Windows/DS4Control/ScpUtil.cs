@@ -41,6 +41,9 @@ using System.Xml.Serialization;
 using WpfScreenHelper;
 using static DS4Windows.Mouse;
 using static DS4Windows.Util;
+using WpfScreenHelper;
+using DS4Windows.InputDevices;
+using DS4WinWPF.DS4Forms.ViewModels;
 
 namespace DS4Windows
 {
@@ -129,6 +132,7 @@ namespace DS4Windows
         public enum ActionType : byte { Default, Key, Button, Macro };
         public ActionType actionType = ActionType.Default;
         public ControlActionData action = new ControlActionData();
+        public string lightbarMacro;
 
         public ActionType shiftActionType = ActionType.Default;
         public ControlActionData shiftAction = new ControlActionData();
@@ -152,7 +156,7 @@ namespace DS4Windows
             action = new ControlActionData();
             action.actionAlias = 0;
             //actionAlias = 0;
-
+            lightbarMacro = string.Empty;
             shiftActionType = ActionType.Default;
             shiftAction = new ControlActionData();
             shiftAction.actionAlias = 0;
@@ -9198,6 +9202,23 @@ namespace DS4Windows
                     dcs.shiftKeyType = keyType;
                 else
                     dcs.keyType = keyType;
+            }
+        }
+
+        public void UpdateDS4CLightbarMacro(int deviceNum, string buttonName, bool shift, string macro)
+        {
+            DS4Controls dc;
+            if (buttonName.StartsWith("bn"))
+                dc = getDS4ControlsByName(buttonName);
+            else
+                dc = (DS4Controls)Enum.Parse(typeof(DS4Controls), buttonName, true);
+
+            int temp = (int)dc;
+            if (temp > 0)
+            {
+                int index = temp - 1;
+                DS4ControlSettings dcs = ds4settings[deviceNum][index];
+                dcs.lightbarMacro = macro;
             }
         }
 

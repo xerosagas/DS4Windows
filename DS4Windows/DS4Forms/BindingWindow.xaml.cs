@@ -18,6 +18,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -29,6 +30,7 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
+using DS4Windows;
 using DS4WinWPF.DS4Forms.ViewModels;
 
 namespace DS4WinWPF.DS4Forms
@@ -943,6 +945,18 @@ namespace DS4WinWPF.DS4Forms
             };
         }
 
+        private void CreateLightbarMacro_Click(object sender, RoutedEventArgs e)
+        {
+            LightbarMacroCreator dialog = new(bindingVM.ActionBinding.LightbarMacro, bindingVM.ActionBinding.LightbarMacroTrigger);
+            dialog.Owner = Application.Current.MainWindow;
+            dialog.Save += (_, eventArgs) =>
+            {
+                bindingVM.PrepareSaveLightbarMacro(bindingVM.ActionBinding, eventArgs.MacroElements, eventArgs.Trigger,
+                    bindingVM.ActionBinding.IsShift());
+            };
+            dialog.ShowDialog();
+        }
+
         private void UnregisterDataContext()
         {
             topOptsPanel.DataContext = null;
@@ -964,5 +978,22 @@ namespace DS4WinWPF.DS4Forms
         public string Xbox360MapPNG { get => $"{DS4Windows.Global.RESOURCES_PREFIX}/360 map.png"; }
         public string Xbox360HighlightPNG { get => $"{DS4Windows.Global.RESOURCES_PREFIX}/360 highlight.png"; }
         public string MousePNG { get => $"{DS4Windows.Global.RESOURCES_PREFIX}/mouse.png"; }
+    }
+
+    [ValueConversion(typeof(int), typeof(bool))]
+    public class IntToBoolConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            if (value is null) return DependencyProperty.UnsetValue;
+            var casted = (bool)value;
+            return casted ? 1 : 0;
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            if (value is null) return DependencyProperty.UnsetValue;
+            return (int)value == 1;
+        }
     }
 }

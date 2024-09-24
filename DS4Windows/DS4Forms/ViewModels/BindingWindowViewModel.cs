@@ -34,7 +34,6 @@ namespace DS4WinWPF.DS4Forms.ViewModels
         private DS4ControlSettings settings;
         private OutBinding currentOutBind;
         private OutBinding shiftOutBind;
-        private OutBinding actionBinding;
         private bool showShift;
         private bool rumbleActive;
 
@@ -45,14 +44,7 @@ namespace DS4WinWPF.DS4Forms.ViewModels
         public int DeviceNum { get => deviceNum; }
         public OutBinding CurrentOutBind { get => currentOutBind; }
         public OutBinding ShiftOutBind { get => shiftOutBind; }
-        public OutBinding ActionBinding
-        {
-            get => actionBinding;
-            set
-            {
-                actionBinding = value;
-            }
-        }
+        public OutBinding ActionBinding { get; set; }
 
         public bool ShowShift { get => showShift; set => showShift = value; }
         public bool RumbleActive { get => rumbleActive; set => rumbleActive = value; }
@@ -144,6 +136,17 @@ namespace DS4WinWPF.DS4Forms.ViewModels
             {
                 shiftOutBind.ParseExtras(setting.shiftExtras);
             }
+
+            if (!string.IsNullOrEmpty(settings.lightbarMacro))
+            {
+                currentOutBind.ParseLightbarMacro(setting.lightbarMacro);
+            }
+        }
+
+        public void PrepareSaveLightbarMacro(OutBinding bind, LightbarMacroElement[] macro, LightbarMacroTrigger trigger, bool shiftBind = false)
+        {
+            bind.LightbarMacro = macro;
+            bind.LightbarMacroTrigger = trigger;
         }
 
         public void PrepareSaveMacro(OutBinding bind, bool shiftBind=false)
@@ -253,6 +256,21 @@ namespace DS4WinWPF.DS4Forms.ViewModels
         private int flashRate;
         private int mouseSens = 25;
         private DS4Color extrasColor = new DS4Color(255,255,255);
+        private bool _useLightbarMacro;
+        private LightbarMacroTrigger _lightbarMacroTrigger;
+
+        public bool UseLightbarMacro
+        {
+            get => _useLightbarMacro;
+            set => _useLightbarMacro = value;
+        }
+        public LightbarMacroElement[] LightbarMacro { get; set; }
+
+        public LightbarMacroTrigger LightbarMacroTrigger
+        {
+            get => _lightbarMacroTrigger;
+            set => _lightbarMacroTrigger = value;
+        }
 
         public bool HasScanCode { get => hasScanCode; set => hasScanCode = value; }
         public bool Toggle { get => toggle; set => toggle = value; }
@@ -571,6 +589,78 @@ namespace DS4WinWPF.DS4Forms.ViewModels
             return result;
         }
 
+        public void ParseLightbarMacro(string m)
+        {
+            var parsed = GetLightbarMacroFromString(m);
+            UseLightbarMacro = parsed.Active;
+            LightbarMacro = parsed.Macro;
+            LightbarMacroTrigger = parsed.Trigger;
+        }
+
+        public static LightbarMacro GetLightbarMacroFromString(string m)
+        {
+            // parsing the string in general + active flag
+            var fieldSplit = m.Split('/');
+            if (fieldSplit.Length != 3) throw new ArgumentException("Provided string doesn't comply with the format.");
+            if (!bool.TryParse(fieldSplit[0], out var active)) throw new ArgumentException("Provided string doesn't comply with the format.");
+
+            var macroSplit = fieldSplit[1].Split(';');
+            List<LightbarMacroElement> macroList = [];
+            foreach (var macroElement in macroSplit)
+            {
+                var elementSplit = macroElement.Split(':');
+                var color = elementSplit[0];
+                var length = elementSplit[1];
+                DS4Color parsedColor = new();
+                if (!DS4Color.TryParse(color, ref parsedColor)
+                    || !uint.TryParse(length, out var parsedLength))
+                    throw new ArgumentException("Provided string doesn't comply with the format.");
+                macroList.Add(new LightbarMacroElement(parsedColor, parsedLength));
+            }
+
+            Enum.TryParse<LightbarMacroTrigger>(fieldSplit[2], out var lightbarMacroTrigger);
+
+            return new LightbarMacro(active, macroList.ToArray(), lightbarMacroTrigger);
+        }
+
+        public string CompileLightbarMacro()
+        {
+            var sb = new StringBuilder();
+
+            sb.Append(UseLightbarMacro.ToString());
+            // / between Active flag, macro and trigger
+            sb.Append('/');
+            var firstAppended = false;
+            foreach (var element in LightbarMacro)
+            {
+                if (firstAppended)
+                {
+                    // ; after each part (element) of a macro
+                    sb.Append(';');
+                }
+                else
+                {
+                    firstAppended = true;
+                }
+
+                // r,g,b to comply with TryParse method on DS4Color class
+                sb.Append(element.Color.red);
+                sb.Append(',');
+                sb.Append(element.Color.green);
+                sb.Append(',');
+                sb.Append(element.Color.blue);
+                // : between the colour and the timespan
+                sb.Append(':');
+                sb.Append(element.Length);
+            }
+
+            // trigger separated with /
+            sb.Append('/');
+            sb.Append(LightbarMacroTrigger.ToString());
+
+            return sb.ToString();
+        }
+
         public bool IsUsingExtras()
         {
             bool result = false;
@@ -649,6 +739,9 @@ namespace DS4WinWPF.DS4Forms.ViewModels
                     settings.extras = string.Empty;
                 }
 
+                if (LightbarMacro is not null)
+                    settings.lightbarMacro = CompileLightbarMacro();
+
                 Global.RefreshActionAlias(settings, shiftBind);
             }
             else
@@ -713,6 +806,9 @@ namespace DS4WinWPF.DS4Forms.ViewModels
                     settings.shiftExtras = string.Empty;
                 }
 
+                if (LightbarMacro is not null)
+                    settings.lightbarMacro = CompileLightbarMacro();
+
                 Global.RefreshActionAlias(settings, shiftBind);
             }
         }
@@ -723,5 +819,12 @@ namespace DS4WinWPF.DS4Forms.ViewModels
             ExtrasColorG = color.G;
             ExtrasColorB = color.B;
         }
+    }
+
+    public class LightbarMacro(bool active, LightbarMacroElement[] macro, LightbarMacroTrigger trigger)
+    {
+        public bool Active { get; } = active;
+        public LightbarMacroElement[] Macro { get; } = macro;
+        public LightbarMacroTrigger Trigger { get; } = trigger;
     }
 }
