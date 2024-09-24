@@ -41,9 +41,6 @@ using System.Xml.Serialization;
 using WpfScreenHelper;
 using static DS4Windows.Mouse;
 using static DS4Windows.Util;
-using WpfScreenHelper;
-using DS4Windows.InputDevices;
-using DS4WinWPF.DS4Forms.ViewModels;
 
 namespace DS4Windows
 {
