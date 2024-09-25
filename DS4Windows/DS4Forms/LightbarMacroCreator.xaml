@@ -28,7 +28,8 @@
             <Label Content="{lex:Loc ColorAndLength}" />
             <StackPanel Orientation="Horizontal">
                 <Button Click="SelectColor_Click" Background="{Binding CurrentColorString}" Height="25" Width="25" Margin="3 0" />
-                <xctk:UIntegerUpDown Value="{Binding CurrentInterval}" HorizontalAlignment="Stretch" Increment="10" Margin="0 0 3 0" />
+                <xctk:UIntegerUpDown Value="{Binding CurrentInterval}" Width="60" Increment="10" Margin="0 0 3 0" />
+                <Label Content="ms" />
             </StackPanel>
             <Label Content="{lex:Loc Trigger}" />
             <ComboBox x:Name="TriggerCombo" SelectedItem="{Binding MacroTrigger}" HorizontalAlignment="Stretch" Margin="3 0" />
