@@ -237,7 +237,7 @@ namespace DS4WinWPF
                 var title = GetWindowTitle((HWND)hWnd).ToLower();
                 if (title != prevForegroundWndTitleName)
                 {
-                    topWndTitleName = title;
+                    prevForegroundWndTitleName = topWndTitleName = title;
                     return true;
                 }
                 topWndTitleName = prevForegroundWndTitleName;
