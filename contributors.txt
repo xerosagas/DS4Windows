@@ -11,6 +11,7 @@ CrazyHPi
 DandelionSprout
 dante38
 Denellyne
+DerGoogler
 dezerving
 dondrakon
 dpearson2699
@@ -36,6 +37,7 @@ Kanuan
 Korney Czukowski (czukowski)
 kurtanr
 Leonardo Melati (Leomelati)
+major-sanyi
 MakiseKurisu
 markguleno
 mayawei
