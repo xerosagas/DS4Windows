@@ -40,11 +40,11 @@ namespace DS4WinWPF.DS4Forms
         private LaunchProgramViewModel launchProgVM;
         private LoadProfileViewModel loadProfileVM;
         private PressKeyViewModel pressKeyVM;
-        private DisconnectBTViewModel disconnectBtVM;
+        private SpecialActionViewModel disconnectBtVM;
         private CheckBatteryViewModel checkBatteryVM;
         private MultiActButtonViewModel multiActButtonVM;
-        private SASteeringWheelViewModel saSteeringWheelVM;
-        private CalibrateGyroViewModel calibrateGyroVM;
+        private SpecialActionViewModel saSteeringWheelVM;
+        private SpecialActionViewModel calibrateGyroVM;
 
         public event EventHandler Cancel;
         public delegate void SaveHandler(object sender, string actionName);
@@ -90,11 +90,11 @@ namespace DS4WinWPF.DS4Forms
             launchProgVM = new LaunchProgramViewModel();
             loadProfileVM = new LoadProfileViewModel(profileList);
             pressKeyVM = new PressKeyViewModel();
-            disconnectBtVM = new DisconnectBTViewModel();
+            disconnectBtVM = new SpecialActionViewModel(5);
             checkBatteryVM = new CheckBatteryViewModel();
             multiActButtonVM = new MultiActButtonViewModel();
-            saSteeringWheelVM = new SASteeringWheelViewModel();
-            calibrateGyroVM = new CalibrateGyroViewModel();
+            saSteeringWheelVM = new SpecialActionViewModel(8);
+            calibrateGyroVM = new SpecialActionViewModel(9);
 
             // Hide tab headers. Tab content will still be visible
             blankActTab.Visibility = Visibility.Collapsed;
