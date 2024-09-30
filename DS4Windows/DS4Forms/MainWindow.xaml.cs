@@ -207,13 +207,22 @@ namespace DS4WinWPF.DS4Forms
             // Log exceptions that might occur
             Util.LogAssistBackgroundTask(tempTask);
 #if !BETA_VERSION
-            tempTask = Task.Delay(100).ContinueWith((t) =>
+            tempTask = Task.Delay(100).ContinueWith(_ =>
             {
                 int checkwhen = Global.CheckWhen;
                 if (checkwhen > 0 && DateTime.Now >= Global.LastChecked + TimeSpan.FromHours(checkwhen))
                 {
-                    mainWinVM.DownloadUpstreamVersionInfo();
-                    Check_Version();
+                    try
+                    {
+                        if (Global.CheckNewerVersionExists(out var version, false))
+                        {
+                            DisplayUpdaterWindow(version.ToString());
+                        }
+                    }
+                    catch
+                    {
+                        Dispatcher.Invoke(() => MessageBox.Show(Strings.FailedToRetrieveLatestVersion, "DS4Windows Updater"));
+                    }
 
                     Global.LastChecked = DateTime.Now;
                 }
@@ -227,6 +236,47 @@ namespace DS4WinWPF.DS4Forms
             });
 #endif
             Util.LogAssistBackgroundTask(tempTask);
+        }
+
+        private void DisplayUpdaterWindow(string version)
+        {
+            MessageBoxResult result = MessageBoxResult.No;
+            Dispatcher.Invoke(() =>
+            {
+                var updaterWin = new UpdaterWindow(version);
+                updaterWin.ShowDialog();
+                result = updaterWin.Result;
+            });
+
+            if (result == MessageBoxResult.Yes)
+            {
+                bool launch = true;
+                launch = mainWinVM.RunUpdaterCheck(launch, out string newUpdaterVersion);
+
+                if (launch)
+                {
+                    launch = mainWinVM.LauchDS4Updater();
+                }
+
+                if (launch)
+                {
+                    // Set that the window is getting ready to close for other components
+                    contextclose = true;
+                    Dispatcher.BeginInvoke(Close);
+                }
+                else
+                {
+                    Dispatcher.Invoke(() =>
+                    {
+                        MessageBox.Show(Properties.Resources.PleaseDownloadUpdater);
+                        if (!string.IsNullOrEmpty(newUpdaterVersion))
+                        {
+                            Util.StartProcessHelper(
+                                $"https://github.com/schmaldeo/DS4Updater/releases/tag/v{newUpdaterVersion}/{mainWinVM.updaterExe}");
+                        }
+                    });
+                }
+            }
         }
 
         private void Check_Version(bool showstatus = false)
@@ -1438,8 +1488,17 @@ Suspend support not enabled.", true);
         {
             Task.Run(() =>
             {
-                mainWinVM.DownloadUpstreamVersionInfo();
-                Check_Version(true);
+                try
+                {
+                    if (Global.CheckNewerVersionExists(out var version, false))
+                        DisplayUpdaterWindow(version.ToString());
+                    else
+                        Dispatcher.Invoke(() => MessageBox.Show(Properties.Resources.UpToDate, "DS4Windows Updater"));
+                }
+                catch
+                {
+                    Dispatcher.Invoke(() => MessageBox.Show(Strings.FailedToRetrieveLatestVersion, "DS4Windows Updater"));
+                }
             });
         }
 

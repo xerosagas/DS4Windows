@@ -17,7 +17,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
 using DS4Windows;
-using DS4WinWPF.ApiDtos;
+using DS4WinWPF.ApiDTO;
 using HttpProgress;
 using System;
 using System.Collections.Generic;
@@ -54,11 +54,11 @@ namespace DS4WinWPF.DS4Forms.ViewModels
             requestTask.Wait();
             if (requestTask.Result.IsSuccessStatusCode)
             {
-                Task<GitHubRelease> gitHubReleaseTask = requestTask.Result.Content.ReadFromJsonAsync<GitHubRelease>();
+                var gitHubReleaseTask = requestTask.Result.Content.ReadFromJsonAsync<GithubRelease>();
                 gitHubReleaseTask.Wait();
                 if (!gitHubReleaseTask.IsFaulted)
                 {
-                    return gitHubReleaseTask.Result.tag_name.Substring(1);
+                    return gitHubReleaseTask.Result.TagName.Substring(1);
                 }
             }
             return string.Empty;
@@ -115,11 +115,11 @@ namespace DS4WinWPF.DS4Forms.ViewModels
                     requestTask.Wait();
                     if (requestTask.Result.IsSuccessStatusCode)
                     {
-                        Task<GitHubRelease> gitHubReleaseTask = requestTask.Result.Content.ReadFromJsonAsync<GitHubRelease>();
+                        var gitHubReleaseTask = requestTask.Result.Content.ReadFromJsonAsync<GithubRelease>();
                         gitHubReleaseTask.Wait();
                         if (!gitHubReleaseTask.IsFaulted)
                         {
-                            streamWriter.Write(gitHubReleaseTask.Result.tag_name.Substring(1));
+                            streamWriter.Write(gitHubReleaseTask.Result.TagName.Substring(1));
                             success = true;
                         }
                     }

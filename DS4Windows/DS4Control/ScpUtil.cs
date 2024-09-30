@@ -28,6 +28,7 @@ using System.Drawing;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Net.Http.Json;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Security.Principal;
@@ -38,6 +39,8 @@ using System.Windows;
 using System.Windows.Input;
 using System.Xml;
 using System.Xml.Serialization;
+using DS4WinWPF;
+using DS4WinWPF.ApiDTO;
 using WpfScreenHelper;
 using static DS4Windows.Mouse;
 using static DS4Windows.Util;
@@ -912,6 +915,73 @@ namespace DS4Windows
             [TrayIconChoice.Black] = $"{Global.RESOURCES_PREFIX}/DS4W - Black.ico",
             [TrayIconChoice.Battery] = $"{RESOURCES_PREFIX}/DS4W.ico"
         };
+
+        public const string GITHUB_RELEASES_API_URI = "https://api.github.com/repos/schmaldeo/DS4Windows/releases";
+        public const string GITHUB_LATEST_RELEASE_API_URI = "https://api.github.com/repos/schmaldeo/DS4Windows/releases/latest";
+
+        private static bool? _newerVersionAvailable = null;
+        private static Version _latestVersion;
+
+        // Much more compact and elegant way of checking if there is a new update available than the
+        // shenanigans with fetching newest.txt and using a .txt file as a DTO instead of simply
+        // passing a string to the function that displays the updater window.
+        // I wanted to make this method async, but these can't have an out parameter and this is the signature i wanted
+        // it to have
+        public static bool CheckNewerVersionExists(out Version version, bool allowCached = true)
+        {
+            // attempt to limit HTTP requests for reasons of 1. performance 2. GH API rate limit
+            if (allowCached && _newerVersionAvailable is not null)
+            {
+                version = _latestVersion;
+                return (bool)_newerVersionAvailable;
+            }
+
+            version = Version.Parse("0.0.0");
+            var request = App.requestClient.GetAsync(GITHUB_LATEST_RELEASE_API_URI);
+            request.Wait();
+            if (request.Result.IsSuccessStatusCode)
+            {
+                var task = request.Result.Content.ReadFromJsonAsync<GithubRelease>();
+                task.Wait();
+
+                version = Version.Parse(task.Result.TagName[1..]);
+
+                var currentVersion = Version.Parse(exeversion);
+                // if there is a newer version available
+                if (currentVersion < version)
+                {
+                    _latestVersion = version;
+                    _newerVersionAvailable = true;
+                    return true;
+                }
+
+                // if current version is the latest
+                _newerVersionAvailable = false;
+                return false;
+            }
+
+            return false;
+        }
+
+        public static async Task<Dictionary<Version, string>> GetChangelog(bool allVersions = false)
+        {
+            var request = await App.requestClient.GetAsync(GITHUB_LATEST_RELEASE_API_URI);
+            var releases = await request.Content.ReadFromJsonAsync<GithubRelease[]>();
+
+            Dictionary<Version, string> dict = new();
+            var currentVersion = Version.Parse(exeversion);
+            foreach (var release in releases)
+            {
+                if (release.PreRelease) continue;
+                var parsedVersion = Version.Parse(release.TagName[1..]);
+                if (!allVersions && parsedVersion > currentVersion)
+                {
+                    dict.Add(parsedVersion, release.Body);
+                }
+            }
+
+            return dict;
+        }
 
         public static void SaveWhere(string path)
         {

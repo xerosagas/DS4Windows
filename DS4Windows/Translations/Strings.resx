@@ -1463,4 +1463,7 @@ Please click OK to confirm that you have read the message. Press Cancel to be re
   <data name="HoldFor" xml:space="preserve">
     <value>Hold for</value>
   </data>
+  <data name="FailedToRetrieveLatestVersion" xml:space="preserve">
+    <value>Failed to retrieve latest version</value>
+  </data>
 </root>

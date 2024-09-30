@@ -1378,6 +1378,15 @@ namespace DS4WinWPF.Translations {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Failed to retrieve latest version.
+        /// </summary>
+        public static string FailedToRetrieveLatestVersion {
+            get {
+                return ResourceManager.GetString("FailedToRetrieveLatestVersion", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Due to other mappers enabling support for multiple device types by default (Steam Input), DS4Windows only enables support for reading from DS4 controllers by default. You can specify mapper support for other supported device types here. Be careful when using DS4Windows with other possible mappers running at the same time..
         /// </summary>
         public static string FirstLaunch_DeviceIntroText {
