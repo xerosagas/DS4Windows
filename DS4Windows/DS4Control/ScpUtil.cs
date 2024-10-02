@@ -3282,6 +3282,10 @@ namespace DS4Windows
         // it to have
         public static bool CheckNewerVersionExists(out Version version, bool allowCached = true)
         {
+            version = Version.Parse("0.0.0");
+
+            if (!Version.TryParse(Global.exeversion, out var currentVersion)) return false;
+
             // attempt to limit HTTP requests for reasons of 1. performance 2. GH API rate limit
             if (allowCached && _newerVersionAvailable is not null)
             {
@@ -3289,7 +3293,6 @@ namespace DS4Windows
                 return (bool)_newerVersionAvailable;
             }
 
-            version = Version.Parse("0.0.0");
             var request = App.requestClient.GetAsync(GITHUB_LATEST_RELEASE_API_URI);
             request.Wait();
             if (request.Result.IsSuccessStatusCode)
@@ -3297,9 +3300,9 @@ namespace DS4Windows
                 var task = request.Result.Content.ReadFromJsonAsync<GithubRelease>();
                 task.Wait();
 
-                version = Version.Parse(task.Result.TagName[1..]);
+                // if can't parse the newest version
+                if (!Version.TryParse(task.Result.TagName[1..], out version)) return false;
 
-                var currentVersion = Version.Parse(Global.exeversion);
                 // if there is a newer version available
                 if (currentVersion < version)
                 {
@@ -3318,15 +3321,18 @@ namespace DS4Windows
 
         public static async Task<Dictionary<Version, string>> GetChangelog(bool allVersions = false)
         {
+            Dictionary<Version, string> dict = new();
+
+            if (!Version.TryParse(Global.exeversion, out var currentVersion)) return dict;
+
             var request = await App.requestClient.GetAsync(GITHUB_RELEASES_API_URI);
             var releases = await request.Content.ReadFromJsonAsync<GithubRelease[]>();
 
-            Dictionary<Version, string> dict = new();
-            var currentVersion = Version.Parse(Global.exeversion);
             foreach (var release in releases)
             {
                 if (release.PreRelease) continue;
-                var parsedVersion = Version.Parse(release.TagName[1..]);
+
+                if (!Version.TryParse(release.TagName[1..], out var parsedVersion)) continue;
 
                 if (!allVersions && parsedVersion <= currentVersion) break;
                 dict.Add(parsedVersion, release.Body);
