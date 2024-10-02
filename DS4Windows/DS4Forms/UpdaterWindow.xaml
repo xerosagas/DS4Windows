@@ -4,6 +4,7 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:lex="http://wpflocalizeextension.codeplex.com"
+        xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit"
         xmlns:local="clr-namespace:DS4WinWPF.DS4Forms"
         lex:LocalizeDictionary.DesignCulture=""
         lex:ResxLocalizationProvider.DefaultAssembly="DS4Windows"
@@ -28,12 +29,8 @@
                 <Style TargetType="{x:Type Run}">
                     <Style.Triggers>
                         <Trigger Property="Tag" Value="Header">
-                            <Setter Property="FontSize" Value="16" />
+                            <Setter Property="FontSize" Value="18" />
                             <Setter Property="FontWeight" Value="Bold" />
-                        </Trigger>
-                        <Trigger Property="Tag" Value="ReleaseDate">
-                            <Setter Property="FontSize" Value="12" />
-                            <Setter Property="FontStyle" Value="Italic" />
                         </Trigger>
                     </Style.Triggers>
                 </Style>

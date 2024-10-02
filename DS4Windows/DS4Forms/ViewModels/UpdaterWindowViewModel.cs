@@ -35,8 +35,7 @@ namespace DS4WinWPF.DS4Forms.ViewModels
     {
         public const string CHANGELOG_URI = "https://raw.githubusercontent.com/Ryochan7/DS4Windows/jay/DS4Windows/Changelog.min.json";
 
-        private string newversion;
-        public string Newversion { get => newversion; }
+        private string Version { get; set; }
 
         private FlowDocument changelogDocument;
         public FlowDocument ChangelogDocument
@@ -52,103 +51,51 @@ namespace DS4WinWPF.DS4Forms.ViewModels
         public event EventHandler ChangelogDocumentChanged;
 
 
-        public UpdaterWindowViewModel(string newversion)
+        public UpdaterWindowViewModel(string version)
         {
             BuildTempDocument("Retrieving changelog info.Please wait...");
-            this.newversion = newversion;
-            //RetrieveChangelogInfo();
+            Version = version;
         }
 
-        public async void RetrieveChangelogInfo()
+        public void BuildChangelogDocument(Dictionary<Version, string> versions)
         {
-            // Sorry other devs, gonna have to find your own server
-            Uri url = new Uri(CHANGELOG_URI);
-            string filename = Path.Combine(Path.GetTempPath(), "Changelog.min.json");
-            bool readFile = false;
-            using (var downloadStream = new FileStream(filename, FileMode.Create))
+            MarkdownEngine engine = new();
+            FlowDocument flow = new();
+
+            foreach (var version in versions)
             {
-                Task<System.Net.Http.HttpResponseMessage> temp = App.requestClient.GetAsync(url.ToString(), downloadStream);
-                try
-                {
-                    await temp.ConfigureAwait(true);
-                    if (temp.Result.IsSuccessStatusCode) readFile = true;
-                }
-                catch (System.Net.Http.HttpRequestException) { }
-            }
+                Paragraph paragraph = new();
+                paragraph.Inlines.Add(new Run($"Version {version.Key.ToString()}") { Tag = "Header" });
+                flow.Blocks.Add(paragraph);
 
-            bool fileExists = File.Exists(filename);
-            if (fileExists && readFile)
-            {
-                string temp = File.ReadAllText(filename).Trim();
-                try
-                {
-                    JsonSerializerOptions options = new JsonSerializerOptions()
-                    {
-                        PropertyNameCaseInsensitive = true,
-                    };
-                    options.Converters.Add(new DateTimeJsonConverter.DateTimeConverterUsingDateTimeParse());
-                    ChangelogInfo tempInfo = JsonSerializer.Deserialize<ChangelogInfo>(temp, options);
-                    BuildChangelogDocument(tempInfo);
-                }
-                catch (JsonException) { }
-            }
-            else if (!readFile)
-            {
-                BuildTempDocument("Failed to retrieve information");
-            }
-
-            if (fileExists)
-            {
-                File.Delete(filename);
-            }
-        }
-
-        private void BuildChangelogDocument(ChangelogInfo tempInfo)
-        {
-            MarkdownEngine engine = new MarkdownEngine();
-            FlowDocument flow = new FlowDocument();
-            foreach (ChangeVersionInfo versionInfo in tempInfo.Changelog.Versions)
-            {
-                ulong versionNumber = versionInfo.VersionNumberInfo.GetVersionNumber();
-                if (versionNumber > DS4Windows.Global.exeversionLong)
-                {
-                    VersionLogLocale tmpLog = versionInfo.ApplicableInfo(DS4Windows.Global.UseLang);
-                    if (tmpLog != null)
-                    {
-                        Paragraph tmpPar = new Paragraph();
-                        string tmp = tmpLog.Header;
-                        tmpPar.Inlines.Add(new Run(tmp) { Tag = "Header" });
-                        flow.Blocks.Add(tmpPar);
-
-                        tmpPar.Inlines.Add(new LineBreak());
-                        tmpPar.Inlines.Add(new Run(versionInfo.ReleaseDate.ToUniversalTime().ToString("r")) { Tag = "ReleaseDate" });
-
-                        tmpLog.BuildDisplayText();
-
-                        FlowDocument tmpDoc = engine.Transform(tmpLog.DisplayLogText);
-                        flow.Blocks.AddRange(new List<Block>(tmpDoc.Blocks));
-
-                        tmpPar = new Paragraph();
-                        flow.Blocks.Add(tmpPar);
-                    }
-                }
+                var parsedChangelog = ParseChangelogString(version.Value);
+                var doc = engine.Transform(parsedChangelog);
+                flow.Blocks.AddRange(new List<Block>(doc.Blocks));
             }
 
             ChangelogDocument = flow;
+        }
+
+        private static string ParseChangelogString(string changelog)
+        {
+            var split = changelog.Split("\n").ToList();
+            split.RemoveAll(x => x.StartsWith("**Full Changelog**"));
+            return string.Join(Environment.NewLine, split);
         }
 
         private void BuildTempDocument(string message)
         {
             FlowDocument flow = new FlowDocument();
             flow.Blocks.Add(new Paragraph(new Run(message)));
+            flow.Blocks.Add(new Paragraph(new Run(message)));
             ChangelogDocument = flow;
         }
 
         public void SetSkippedVersion()
         {
-            if (!string.IsNullOrEmpty(newversion))
+            if (!string.IsNullOrEmpty(Version))
             {
-                DS4Windows.Global.LastVersionChecked = newversion;
+                DS4Windows.Global.LastVersionChecked = Version;
             }
         }
 
@@ -158,6 +105,7 @@ namespace DS4WinWPF.DS4Forms.ViewModels
         }
     }
 
+    // all of these below are useless
     public class ChangelogInfo
     {
         private string latestVersion;

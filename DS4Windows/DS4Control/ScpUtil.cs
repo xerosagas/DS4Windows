@@ -965,7 +965,7 @@ namespace DS4Windows
 
         public static async Task<Dictionary<Version, string>> GetChangelog(bool allVersions = false)
         {
-            var request = await App.requestClient.GetAsync(GITHUB_LATEST_RELEASE_API_URI);
+            var request = await App.requestClient.GetAsync(GITHUB_RELEASES_API_URI);
             var releases = await request.Content.ReadFromJsonAsync<GithubRelease[]>();
 
             Dictionary<Version, string> dict = new();

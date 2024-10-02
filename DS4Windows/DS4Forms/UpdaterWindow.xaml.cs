@@ -18,7 +18,9 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 using DS4WinWPF.DS4Forms.ViewModels;
 using System;
+using System.Threading.Tasks;
 using System.Windows;
+using DS4Windows;
 
 namespace DS4WinWPF.DS4Forms
 {
@@ -46,7 +48,11 @@ namespace DS4WinWPF.DS4Forms
 
             SetupEvents();
 
-            updaterWinVM.RetrieveChangelogInfo();
+            Task.Run(async () =>
+            {
+                var changelog = await Global.GetChangelog();
+                Dispatcher.Invoke(() => updaterWinVM.BuildChangelogDocument(changelog));
+            });
         }
 
         private void SetupEvents()
