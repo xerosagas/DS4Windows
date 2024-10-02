@@ -3327,10 +3327,9 @@ namespace DS4Windows
             {
                 if (release.PreRelease) continue;
                 var parsedVersion = Version.Parse(release.TagName[1..]);
-                if (!allVersions && parsedVersion > currentVersion)
-                {
-                    dict.Add(parsedVersion, release.Body);
-                }
+
+                if (!allVersions && parsedVersion <= currentVersion) break;
+                dict.Add(parsedVersion, release.Body);
             }
 
             return dict;
