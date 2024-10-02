@@ -15,9 +15,9 @@
 		<RunAnalyzersDuringBuild>true</RunAnalyzersDuringBuild>
 		<EnableNETAnalyzers>false</EnableNETAnalyzers>
 		<ServerGarbageCollection>true</ServerGarbageCollection>
-		<AssemblyVersion>3.7.4</AssemblyVersion>
-		<FileVersion>3.7.4</FileVersion>
-		<Version>3.7.4</Version>
+		<AssemblyVersion>3.9.0</AssemblyVersion>
+		<FileVersion>3.9.0</FileVersion>
+		<Version>3.9.0</Version>
 		<Configuration Condition="'$(Configuration)' == ''">Debug</Configuration>
 		<Platform Condition=" '$(Platform)' == '' ">x64</Platform>
 		<Copyright>Copyright © Scarlet.Crush Productions 2012, 2013; InhexSTER, HecticSeptic, electrobrains 2013, 2014; Jays2Kings 2013, 2014, 2015, 2016; Ryochan7 2017-2023, schmaldeo 2024</Copyright>
@@ -27,6 +27,7 @@
 		<PackageProjectUrl>https://schmaldeo.github.io/DS4WindowsDocs</PackageProjectUrl>
 		<PackageLicenseUrl>https://www.gnu.org/licenses/gpl-3.0.txt</PackageLicenseUrl>
 		<RepositoryUrl>https://github.com/schmaldeo/DS4Windows</RepositoryUrl>
+		<IncludePackageReferencesDuringMarkupCompilation>true</IncludePackageReferencesDuringMarkupCompilation>
 	</PropertyGroup>
 
 	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -78,10 +79,15 @@
 		<PackageReference Include="DotNetProjects.Extended.Wpf.Toolkit" Version="5.0.106" />
 		<PackageReference Include="H.NotifyIcon.Wpf" Version="2.0.74" />
 		<PackageReference Include="MdXaml" Version="1.16.2" />
+		<PackageReference Include="Microsoft.Windows.CsWin32" Version="0.3.106">
+		  <PrivateAssets>all</PrivateAssets>
+		  <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+		</PackageReference>
 		<PackageReference Include="NLog" Version="5.1.1" />
 		<!--<PackageReference Include="Nefarius.ViGEm.Client" Version="1.21.230" />-->
 		<PackageReference Include="Ookii.Dialogs.Wpf" Version="5.0.1" />
 		<PackageReference Include="System.Management" Version="7.0.2" />
+		<PackageReference Include="System.Memory" Version="4.5.5" />
 		<PackageReference Include="TaskScheduler" Version="2.10.1" />
 		<PackageReference Include="WPFLocalizeExtension" Version="3.9.4" />
 		<PackageReference Include="WpfScreenHelper" Version="2.1.0" />

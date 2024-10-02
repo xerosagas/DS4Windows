@@ -1,0 +1,4 @@
+﻿ReadFile
+CreateEvent
+WaitForSingleObject
+GetOverlappedResult

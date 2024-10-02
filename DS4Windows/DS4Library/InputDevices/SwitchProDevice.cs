@@ -361,7 +361,7 @@ namespace DS4Windows.InputDevices
             {
                 Debouncer = SetupDebouncer();
                 firstActive = DateTime.UtcNow;
-                NativeMethods.HidD_SetNumInputBuffers(hDevice.safeReadHandle.DangerousGetHandle(), 3);
+                NativeMethods.HidD_SetNumInputBuffers(hDevice.SafeReadHandle.DangerousGetHandle(), 3);
                 Queue<long> latencyQueue = new Queue<long>(21); // Set capacity at max + 1 to avoid any resizing
                 int tempLatencyCount = 0;
                 long oldtime = 0;
@@ -799,7 +799,7 @@ namespace DS4Windows.InputDevices
             data[0] = 0x80; data[1] = 0x01;
             //result = hidDevice.WriteAsyncOutputReportViaInterrupt(data);
             result = hDevice.WriteOutputReportViaInterrupt(data, 0);
-            hDevice.fileStream.Flush();
+            hDevice.FileStream.Flush();
             //Array.Clear(tmpReport, 0 , 64);
             //res = hidDevice.ReadWithFileStream(tmpReport);
             //Console.WriteLine("TEST BYTE: {0}", tmpReport[2]);
@@ -809,24 +809,24 @@ namespace DS4Windows.InputDevices
             //Thread.Sleep(2000);
             //Thread.Sleep(1000);
             result = hDevice.WriteOutputReportViaInterrupt(data, 0);
-            hDevice.fileStream.Flush();
+            hDevice.FileStream.Flush();
 
             data[0] = 0x80; data[1] = 0x03; // 3Mbit baud rate
             //result = hidDevice.WriteAsyncOutputReportViaInterrupt(data);
             result = hDevice.WriteOutputReportViaInterrupt(data, 0);
             //Thread.Sleep(2000);
-            hDevice.fileStream.Flush();
+            hDevice.FileStream.Flush();
 
             data[0] = 0x80; data[1] = 0x02; // Handshake at new baud rate
             result = hDevice.WriteOutputReportViaInterrupt(data, 0);
             //Thread.Sleep(1000);
             //result = hidDevice.WriteOutputReportViaInterrupt(command, 500);
             //Thread.Sleep(2000);
-            hDevice.fileStream.Flush();
+            hDevice.FileStream.Flush();
 
             data[0] = 0x80; data[1] = 0x4; // Prevent HID timeout
             result = hDevice.WriteOutputReportViaInterrupt(data, 0);
-            hDevice.fileStream.Flush();
+            hDevice.FileStream.Flush();
             //result = hidDevice.WriteOutputReportViaInterrupt(command, 500);
         }
 
@@ -866,7 +866,7 @@ namespace DS4Windows.InputDevices
             frameCount = (byte)(++frameCount & 0x0F);
 
             result = hDevice.WriteOutputReportViaInterrupt(tmpRumble, 0);
-            hDevice.fileStream.Flush();
+            hDevice.FileStream.Flush();
             //res = hidDevice.ReadWithFileStream(tmpReport, 500);
             //res = hidDevice.ReadFile(tmpReport);
         }
@@ -885,7 +885,7 @@ namespace DS4Windows.InputDevices
             commandBuffer[10] = subcommand;
 
             result = hDevice.WriteOutputReportViaInterrupt(commandBuffer, 0);
-            hDevice.fileStream.Flush();
+            hDevice.FileStream.Flush();
 
             byte[] tmpReport = null;
             if (result && checkResponse)

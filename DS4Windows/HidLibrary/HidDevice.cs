@@ -3,6 +3,9 @@ using System.Runtime.InteropServices;
 using System.Threading;
 using System.IO;
 using System.Threading.Tasks;
+using Windows.Win32;
+using Windows.Win32.Foundation;
+using Windows.Win32.Security;
 using Microsoft.Win32.SafeHandles;
 namespace DS4Windows
 {
@@ -26,8 +29,8 @@ namespace DS4Windows
         private readonly HidDeviceCapabilities _deviceCapabilities;
         //private bool _monitorDeviceEvents;
         private string serial = null;
-        private SafeFileHandle safeReadHandle1;
-        private FileStream fileStream1;
+        private SafeFileHandle safeReadHandle;
+        private FileStream fileStream;
         private bool isOpen;
         private bool isExclusive;
         private const string BLANK_SERIAL = "00:00:00:00:00:00";
@@ -54,8 +57,9 @@ namespace DS4Windows
             }
         }
 
-        public SafeFileHandle safeReadHandle { get => safeReadHandle1; private set => safeReadHandle1 = value; }
-        public FileStream fileStream { get => fileStream1; private set => fileStream1 = value; }
+        private SECURITY_ATTRIBUTES SecurityAttributes { get; set; }
+        public SafeFileHandle SafeReadHandle { get => safeReadHandle; private set => safeReadHandle = value; }
+        public FileStream FileStream { get => fileStream; private set => fileStream = value; }
         public bool IsOpen { get => isOpen; private set => isOpen = value; }
         public bool IsExclusive { get => isExclusive; private set => isExclusive = value; }
         public bool IsConnected { get { return HidDevices.IsConnected(_devicePath); } }
@@ -79,8 +83,8 @@ namespace DS4Windows
             if (IsOpen) return;
             try
             {
-                if (safeReadHandle == null || safeReadHandle.IsInvalid)
-                    safeReadHandle = OpenHandle(_devicePath, isExclusive, enumerate: false);
+                if (SafeReadHandle == null || SafeReadHandle.IsInvalid)
+                    SafeReadHandle = OpenHandle(_devicePath, isExclusive, enumerate: false);
             }
             catch (Exception exception)
             {
@@ -88,24 +92,24 @@ namespace DS4Windows
                 throw new Exception("Error opening HID device.", exception);
             }
 
-            IsOpen = !safeReadHandle.IsInvalid;
+            IsOpen = !SafeReadHandle.IsInvalid;
             IsExclusive = isExclusive;
         }
 
         public void OpenFileStream(int reportSize)
         {
-            if (fileStream == null && !safeReadHandle.IsInvalid)
+            if (FileStream == null && !SafeReadHandle.IsInvalid)
             {
-                fileStream = new FileStream(safeReadHandle, FileAccess.ReadWrite, reportSize, true);
+                FileStream = new FileStream(SafeReadHandle, FileAccess.ReadWrite, reportSize, true);
             }
         }
 
         public bool IsFileStreamOpen()
         {
             bool result = false;
-            if (fileStream != null)
+            if (FileStream != null)
             {
-                result = !fileStream.SafeFileHandle.IsInvalid && !fileStream.SafeFileHandle.IsClosed;
+                result = !FileStream.SafeFileHandle.IsInvalid && !FileStream.SafeFileHandle.IsClosed;
             }
 
             return result;
@@ -128,22 +132,22 @@ namespace DS4Windows
         public void CancelIO()
         {
             if (IsOpen)
-                NativeMethods.CancelIoEx(safeReadHandle.DangerousGetHandle(), IntPtr.Zero);
+                NativeMethods.CancelIoEx(SafeReadHandle.DangerousGetHandle(), IntPtr.Zero);
         }
 
         public bool ReadInputReport(byte[] data)
         {
-            if (safeReadHandle == null)
-                safeReadHandle = OpenHandle(_devicePath, true, enumerate: false);
-            return NativeMethods.HidD_GetInputReport(safeReadHandle, data, data.Length);
+            if (SafeReadHandle == null)
+                SafeReadHandle = OpenHandle(_devicePath, true, enumerate: false);
+            return NativeMethods.HidD_GetInputReport(SafeReadHandle, data, data.Length);
         }
 
         public bool WriteFeatureReport(byte[] data)
         {
             bool result = false;
-            if (IsOpen && safeReadHandle != null)
+            if (IsOpen && SafeReadHandle != null)
             {
-                result = NativeMethods.HidD_SetFeature(safeReadHandle, data, data.Length);
+                result = NativeMethods.HidD_SetFeature(SafeReadHandle, data, data.Length);
             }
 
             return result;
@@ -174,39 +178,39 @@ namespace DS4Windows
 
         private void closeFileStreamIO()
         {
-            if (fileStream != null)
+            if (FileStream != null)
             {
                 try
                 {
-                    fileStream.Close();
+                    FileStream.Close();
                 }
                 catch (IOException) { }
                 catch (OperationCanceledException) { }
             }
 
-            fileStream = null;
+            FileStream = null;
             Console.WriteLine("Close fs");
-            if (safeReadHandle != null && !safeReadHandle.IsInvalid)
+            if (SafeReadHandle != null && !SafeReadHandle.IsInvalid)
             {
                 try
                 {
-                    if (!safeReadHandle.IsClosed)
+                    if (!SafeReadHandle.IsClosed)
                     {
-                        safeReadHandle.Close();
+                        SafeReadHandle.Close();
                         Console.WriteLine("Close sh");
                     }
                 }
                 catch (IOException) { }
             }
 
-            safeReadHandle = null;
+            SafeReadHandle = null;
         }
 
         public void flush_Queue()
         {
-            if (safeReadHandle != null)
+            if (SafeReadHandle != null)
             {
-                NativeMethods.HidD_FlushQueue(safeReadHandle);
+                NativeMethods.HidD_FlushQueue(SafeReadHandle);
             }
         }
 
@@ -214,7 +218,7 @@ namespace DS4Windows
         {
             try
             {
-                if (fileStream.Read(inputBuffer, 0, inputBuffer.Length) > 0)
+                if (FileStream.Read(inputBuffer, 0, inputBuffer.Length) > 0)
                 {
                     return ReadStatus.Success;
                 }
@@ -229,25 +233,47 @@ namespace DS4Windows
             }
         }
 
-        public ReadStatus ReadFile(byte[] inputBuffer)
+        public unsafe ReadStatus ReadFile(byte[] inputBuffer)
         {
-            if (safeReadHandle == null)
-                safeReadHandle = OpenHandle(_devicePath, true, enumerate: false);
+            if (SafeReadHandle == null)
+                SafeReadHandle = OpenHandle(_devicePath, true, enumerate: false);
+
+            var overlapped = new Overlapped();
+
+            overlapped.OffsetLow = 0;
+            overlapped.OffsetHigh = 0;
+            overlapped.EventHandleIntPtr = PInvoke.CreateEvent(SecurityAttributes, false, true, string.Empty).DangerousGetHandle();
+
             try
             {
-                uint bytesRead;
-                if (NativeMethods.ReadFile(safeReadHandle.DangerousGetHandle(), inputBuffer, (uint)inputBuffer.Length, out bytesRead, IntPtr.Zero))
+                var packed = overlapped.Pack(null, inputBuffer);
+
+                var success = PInvoke.ReadFile(SafeReadHandle, inputBuffer, null, packed);
+                if (success)
                 {
                     return ReadStatus.Success;
                 }
                 else
                 {
-                    return ReadStatus.NoDataRead;
+                    var result = PInvoke.WaitForSingleObject((HANDLE)overlapped.EventHandleIntPtr, 500);
+
+                    switch (result)
+                    {
+                        case WAIT_EVENT.WAIT_OBJECT_0:
+                            PInvoke.GetOverlappedResult(SafeReadHandle, *packed, out _, false);
+                            return ReadStatus.Success;
+                        case WAIT_EVENT.WAIT_TIMEOUT:
+                            return ReadStatus.WaitTimedOut;
+                        case WAIT_EVENT.WAIT_FAILED:
+                            return ReadStatus.WaitFail;
+                        default:
+                            return ReadStatus.NoDataRead;
+                    }
                 }
             }
-            catch (Exception)
+            finally
             {
-                return ReadStatus.ReadError;
+                PInvoke.CloseHandle((HANDLE)overlapped.EventHandleIntPtr);
             }
         }
 
@@ -255,7 +281,7 @@ namespace DS4Windows
         {
             try
             {
-                if (fileStream.Read(inputBuffer, 0, inputBuffer.Length) > 0)
+                if (FileStream.Read(inputBuffer, 0, inputBuffer.Length) > 0)
                 {
                     return ReadStatus.Success;
                 }
@@ -279,7 +305,7 @@ namespace DS4Windows
                 //if (fileStream == null && !safeReadHandle.IsInvalid)
                 //    fileStream = new FileStream(safeReadHandle, FileAccess.ReadWrite, inputBuffer.Length, true);
 
-                if (!safeReadHandle.IsInvalid && fileStream.CanRead)
+                if (!SafeReadHandle.IsInvalid && FileStream.CanRead)
                 {
                     Task<ReadStatus> readFileTask = new Task<ReadStatus>(() => ReadWithFileStreamTask(inputBuffer));
                     readFileTask.Start();
@@ -329,9 +355,9 @@ namespace DS4Windows
                 //if (fileStream == null && !safeReadHandle.IsInvalid)
                 //    fileStream = new FileStream(safeReadHandle, FileAccess.ReadWrite, inputBuffer.Length, true);
 
-                if (!safeReadHandle.IsInvalid && fileStream.CanRead)
+                if (!SafeReadHandle.IsInvalid && FileStream.CanRead)
                 {
-                    Task<int> readTask = fileStream.ReadAsync(inputBuffer, 0, inputBuffer.Length);
+                    Task<int> readTask = FileStream.ReadAsync(inputBuffer, 0, inputBuffer.Length);
                     bool success = readTask.Wait(timeout);
                     if (success)
                     {
@@ -369,12 +395,12 @@ namespace DS4Windows
 
         public bool WriteOutputReportViaControl(byte[] outputBuffer)
         {
-            if (safeReadHandle == null)
+            if (SafeReadHandle == null)
             {
-                safeReadHandle = OpenHandle(_devicePath, true, enumerate: false);
+                SafeReadHandle = OpenHandle(_devicePath, true, enumerate: false);
             }
 
-            if (NativeMethods.HidD_SetOutputReport(safeReadHandle, outputBuffer, outputBuffer.Length))
+            if (NativeMethods.HidD_SetOutputReport(SafeReadHandle, outputBuffer, outputBuffer.Length))
                 return true;
             else
                 return false;
@@ -384,7 +410,7 @@ namespace DS4Windows
         {
             try
             {
-                fileStream.Write(outputBuffer, 0, outputBuffer.Length);
+                FileStream.Write(outputBuffer, 0, outputBuffer.Length);
                 return true;
             }
             catch (Exception e)
@@ -406,9 +432,9 @@ namespace DS4Windows
                 //{
                 //    fileStream = new FileStream(safeReadHandle, FileAccess.ReadWrite, outputBuffer.Length, true);
                 //}
-                if (fileStream != null && fileStream.CanWrite && !safeReadHandle.IsInvalid)
+                if (FileStream != null && FileStream.CanWrite && !SafeReadHandle.IsInvalid)
                 {
-                    fileStream.Write(outputBuffer, 0, outputBuffer.Length);
+                    FileStream.Write(outputBuffer, 0, outputBuffer.Length);
                     return true;
                 }
                 else
@@ -436,9 +462,9 @@ namespace DS4Windows
                 //    fileStream = new FileStream(safeReadHandle, FileAccess.ReadWrite, outputBuffer.Length, true);
                 //}
 
-                if (fileStream != null && fileStream.CanWrite && !safeReadHandle.IsInvalid)
+                if (FileStream != null && FileStream.CanWrite && !SafeReadHandle.IsInvalid)
                 {
-                    Task writeTask = fileStream.WriteAsync(outputBuffer, 0, outputBuffer.Length);
+                    Task writeTask = FileStream.WriteAsync(outputBuffer, 0, outputBuffer.Length);
                     //fileStream.Write(outputBuffer, 0, outputBuffer.Length);
                     return true;
                 }
@@ -454,7 +480,7 @@ namespace DS4Windows
 
         }
 
-        private SafeFileHandle OpenHandle(String devicePathName, Boolean isExclusive, bool enumerate)
+        private unsafe SafeFileHandle OpenHandle(String devicePathName, Boolean isExclusive, bool enumerate)
         {
             SafeFileHandle hidHandle;
             uint access = enumerate ? 0 : NativeMethods.GENERIC_READ | NativeMethods.GENERIC_WRITE;
@@ -468,12 +494,19 @@ namespace DS4Windows
                 hidHandle = NativeMethods.CreateFile(devicePathName, access, NativeMethods.FILE_SHARE_READ | NativeMethods.FILE_SHARE_WRITE, IntPtr.Zero, NativeMethods.OpenExisting, NativeMethods.FILE_FLAG_NO_BUFFERING | NativeMethods.FILE_FLAG_WRITE_THROUGH | NativeMethods.FILE_ATTRIBUTE_TEMPORARY | NativeMethods.FILE_FLAG_OVERLAPPED, 0);
             }
 
+            var security = new SECURITY_ATTRIBUTES();
+            security.lpSecurityDescriptor = null;
+            security.bInheritHandle = true;
+            security.nLength = (uint)Marshal.SizeOf(typeof(SECURITY_ATTRIBUTES));
+
+            SecurityAttributes = security;
+
             return hidHandle;
         }
 
         public bool readFeatureData(byte[] inputBuffer)
         {
-            return NativeMethods.HidD_GetFeature(safeReadHandle.DangerousGetHandle(), inputBuffer, inputBuffer.Length);
+            return NativeMethods.HidD_GetFeature(SafeReadHandle.DangerousGetHandle(), inputBuffer, inputBuffer.Length);
         }
 
         public void resetSerial()
@@ -507,7 +540,7 @@ namespace DS4Windows
 #else
                 uint bufferLen = 126;
 #endif
-                if (NativeMethods.HidD_GetSerialNumberString(safeReadHandle.DangerousGetHandle(), buffer, bufferLen))
+                if (NativeMethods.HidD_GetSerialNumberString(SafeReadHandle.DangerousGetHandle(), buffer, bufferLen))
                 {
                     string MACAddr = System.Text.Encoding.Unicode.GetString(buffer).Replace("\0", string.Empty).ToUpper();
                     if (MACAddr.Length == 12)
