@@ -48,20 +48,7 @@ namespace DS4WinWPF.DS4Forms
 
             DataContext = changelogVM;
 
-            SetupEvents();
-
-            changelogVM.RetrieveChangelogInfo();
-
-        }
-
-        private void SetupEvents()
-        {
-            changelogVM.ChangelogDocumentChanged += ChangelogVM_ChangelogDocumentChanged;
-        }
-
-        private void ChangelogVM_ChangelogDocumentChanged(object sender, EventArgs e)
-        {
-            richChangelogTxtBox.Document = changelogVM.ChangelogDocument;
+            Task.Run(async () => await Dispatcher.InvokeAsync(async () => await changelogVM.DisplayChangelog()));
         }
 
         private void CloseBtn_Click(object sender, RoutedEventArgs e)
