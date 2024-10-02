@@ -37,43 +37,38 @@ namespace DS4WinWPF.DS4Forms.ViewModels
 
         private string Version { get; set; }
 
-        private FlowDocument changelogDocument;
-        public FlowDocument ChangelogDocument
+        private string markdown;
+
+        public string Markdown
         {
-            get => changelogDocument;
-            private set
+            get => markdown;
+            set
             {
-                if (changelogDocument == value) return;
-                changelogDocument = value;
-                ChangelogDocumentChanged?.Invoke(this, EventArgs.Empty);
+                markdown = value;
+                MarkdownChanged?.Invoke(this, EventArgs.Empty);
             }
         }
-        public event EventHandler ChangelogDocumentChanged;
+        public event EventHandler MarkdownChanged;
 
 
         public UpdaterWindowViewModel(string version)
         {
-            BuildTempDocument("Retrieving changelog info.Please wait...");
             Version = version;
         }
 
         public void BuildChangelogDocument(Dictionary<Version, string> versions)
         {
-            MarkdownEngine engine = new();
-            FlowDocument flow = new();
-
+            StringBuilder sb = new();
             foreach (var version in versions)
             {
-                Paragraph paragraph = new();
-                paragraph.Inlines.Add(new Run($"Version {version.Key.ToString()}") { Tag = "Header" });
-                flow.Blocks.Add(paragraph);
-
+                sb.Append("## Version ");
+                sb.Append(version.Key);
+                sb.Append(Environment.NewLine);
                 var parsedChangelog = ParseChangelogString(version.Value);
-                var doc = engine.Transform(parsedChangelog);
-                flow.Blocks.AddRange(new List<Block>(doc.Blocks));
+                sb.Append(parsedChangelog);
             }
 
-            ChangelogDocument = flow;
+            Markdown = sb.ToString();
         }
 
         private static string ParseChangelogString(string changelog)
@@ -81,14 +76,6 @@ namespace DS4WinWPF.DS4Forms.ViewModels
             var split = changelog.Split("\n").ToList();
             split.RemoveAll(x => x.StartsWith("**Full Changelog**"));
             return string.Join(Environment.NewLine, split);
-        }
-
-        private void BuildTempDocument(string message)
-        {
-            FlowDocument flow = new FlowDocument();
-            flow.Blocks.Add(new Paragraph(new Run(message)));
-            flow.Blocks.Add(new Paragraph(new Run(message)));
-            ChangelogDocument = flow;
         }
 
         public void SetSkippedVersion()
