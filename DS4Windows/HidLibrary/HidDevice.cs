@@ -244,9 +244,9 @@ namespace DS4Windows
             overlapped.OffsetHigh = 0;
             overlapped.EventHandleIntPtr = PInvoke.CreateEvent(SecurityAttributes, false, true, string.Empty).DangerousGetHandle();
 
+            var packed = overlapped.Pack(null, inputBuffer);
             try
             {
-                var packed = overlapped.Pack(null, inputBuffer);
 
                 var success = PInvoke.ReadFile(SafeReadHandle, inputBuffer, null, packed);
                 if (success)
@@ -274,6 +274,7 @@ namespace DS4Windows
             finally
             {
                 PInvoke.CloseHandle((HANDLE)overlapped.EventHandleIntPtr);
+                Overlapped.Unpack(packed);
             }
         }
 
