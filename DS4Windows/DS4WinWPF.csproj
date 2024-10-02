@@ -404,8 +404,4 @@
 	<ItemGroup>
 		<Folder Remove="extras\" />
 	</ItemGroup>
-
-	<Target Name="PostBuild" AfterTargets="PostBuildEvent" Condition="'$(Configuration)'=='Release'">
-		<Exec Command="python $(SolutionDir)utils\post-build.py $(ProjectDir) $(Version)" />
-	</Target>
 </Project>
