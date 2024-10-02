@@ -214,7 +214,7 @@ namespace DS4WinWPF.DS4Forms
                 {
                     try
                     {
-                        if (Global.CheckNewerVersionExists(out var version, false))
+                        if (Changelog.CheckNewerVersionExists(out var version, false))
                         {
                             DisplayUpdaterWindow(version.ToString());
                         }
@@ -1490,7 +1490,7 @@ Suspend support not enabled.", true);
             {
                 try
                 {
-                    if (Global.CheckNewerVersionExists(out var version, false))
+                    if (Changelog.CheckNewerVersionExists(out var version, false))
                         DisplayUpdaterWindow(version.ToString());
                     else
                         Dispatcher.Invoke(() => MessageBox.Show(Properties.Resources.UpToDate, "DS4Windows Updater"));

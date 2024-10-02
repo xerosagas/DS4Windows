@@ -48,8 +48,7 @@ namespace DS4WinWPF.DS4Forms
 
             Task.Run(async () =>
             {
-                var changelog = await Global.GetChangelog();
-                Dispatcher.Invoke(() => updaterWinVM.BuildChangelogDocument(changelog));
+                await Dispatcher.InvokeAsync(async () => await updaterWinVM.DisplayChangelog());
             });
         }
 
