@@ -4,6 +4,7 @@ WriteFile
 CreateEvent
 WaitForSingleObject
 GetOverlappedResult
+GetOverlappedResultEx
 
 FILE_CREATION_DISPOSITION
 FILE_FLAGS_AND_ATTRIBUTES

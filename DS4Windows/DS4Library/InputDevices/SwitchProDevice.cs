@@ -280,11 +280,6 @@ namespace DS4Windows.InputDevices
             inputReportBuffer = new byte[INPUT_REPORT_LEN];
             outputReportBuffer = new byte[OUTPUT_REPORT_LEN];
             rumbleReportBuffer = new byte[RUMBLE_REPORT_LEN];
-
-            if (!hDevice.IsFileStreamOpen())
-            {
-                hDevice.OpenFileStream(inputReportBuffer.Length);
-            }
         }
 
         public static ConnectionType DetermineConnectionType(HidDevice hDevice)
@@ -399,7 +394,7 @@ namespace DS4Windows.InputDevices
 
                     readWaitEv.Set();
 
-                    HidDevice.ReadStatus res = hDevice.ReadWithFileStream(inputReportBuffer);
+                    HidDevice.ReadStatus res = hDevice.ReadFile(inputReportBuffer);
                     if (res == HidDevice.ReadStatus.Success)
                     {
                         if (inputReportBuffer[0] != 0x30)
@@ -799,7 +794,6 @@ namespace DS4Windows.InputDevices
             data[0] = 0x80; data[1] = 0x01;
             //result = hidDevice.WriteAsyncOutputReportViaInterrupt(data);
             result = hDevice.WriteOutputReportViaInterrupt(data, 0);
-            hDevice.FileStream.Flush();
             //Array.Clear(tmpReport, 0 , 64);
             //res = hidDevice.ReadWithFileStream(tmpReport);
             //Console.WriteLine("TEST BYTE: {0}", tmpReport[2]);
@@ -809,24 +803,20 @@ namespace DS4Windows.InputDevices
             //Thread.Sleep(2000);
             //Thread.Sleep(1000);
             result = hDevice.WriteOutputReportViaInterrupt(data, 0);
-            hDevice.FileStream.Flush();
 
             data[0] = 0x80; data[1] = 0x03; // 3Mbit baud rate
             //result = hidDevice.WriteAsyncOutputReportViaInterrupt(data);
             result = hDevice.WriteOutputReportViaInterrupt(data, 0);
             //Thread.Sleep(2000);
-            hDevice.FileStream.Flush();
 
             data[0] = 0x80; data[1] = 0x02; // Handshake at new baud rate
             result = hDevice.WriteOutputReportViaInterrupt(data, 0);
             //Thread.Sleep(1000);
             //result = hidDevice.WriteOutputReportViaInterrupt(command, 500);
             //Thread.Sleep(2000);
-            hDevice.FileStream.Flush();
 
             data[0] = 0x80; data[1] = 0x4; // Prevent HID timeout
             result = hDevice.WriteOutputReportViaInterrupt(data, 0);
-            hDevice.FileStream.Flush();
             //result = hidDevice.WriteOutputReportViaInterrupt(command, 500);
         }
 
@@ -866,7 +856,6 @@ namespace DS4Windows.InputDevices
             frameCount = (byte)(++frameCount & 0x0F);
 
             result = hDevice.WriteOutputReportViaInterrupt(tmpRumble, 0);
-            hDevice.FileStream.Flush();
             //res = hidDevice.ReadWithFileStream(tmpReport, 500);
             //res = hidDevice.ReadFile(tmpReport);
         }
@@ -885,20 +874,19 @@ namespace DS4Windows.InputDevices
             commandBuffer[10] = subcommand;
 
             result = hDevice.WriteOutputReportViaInterrupt(commandBuffer, 0);
-            hDevice.FileStream.Flush();
 
             byte[] tmpReport = null;
             if (result && checkResponse)
             {
                 tmpReport = new byte[INPUT_REPORT_LEN];
                 HidDevice.ReadStatus res;
-                res = hDevice.ReadWithFileStream(tmpReport, SUBCOMMAND_RESPONSE_TIMEOUT);
+                res = hDevice.ReadFile(tmpReport, SUBCOMMAND_RESPONSE_TIMEOUT);
                 int tries = 1;
                 while (res == HidDevice.ReadStatus.Success &&
                     tmpReport[0] != 0x21 && tmpReport[14] != subcommand && tries < 100)
                 {
                     //Console.WriteLine("TRY AGAIN: {0}", tmpReport[0]);
-                    res = hDevice.ReadWithFileStream(tmpReport, SUBCOMMAND_RESPONSE_TIMEOUT);
+                    res = hDevice.ReadFile(tmpReport, SUBCOMMAND_RESPONSE_TIMEOUT);
                     tries++;
                 }
 

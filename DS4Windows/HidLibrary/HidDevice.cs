@@ -31,7 +31,6 @@ namespace DS4Windows
         //private bool _monitorDeviceEvents;
         private string serial = null;
         private SafeFileHandle safeReadHandle;
-        private FileStream fileStream;
         private bool isOpen;
         private bool isExclusive;
         private const string BLANK_SERIAL = "00:00:00:00:00:00";
@@ -60,7 +59,6 @@ namespace DS4Windows
 
         public SafeFileHandle SafeReadHandle { get => safeReadHandle; private set => safeReadHandle = value; }
         [Obsolete("Causes memory overhead, should be refactored.")]
-        public FileStream FileStream { get => fileStream; private set => fileStream = value; }
         public bool IsOpen { get => isOpen; private set => isOpen = value; }
         public bool IsExclusive { get => isExclusive; private set => isExclusive = value; }
         public bool IsConnected { get { return HidDevices.IsConnected(_devicePath); } }
@@ -97,29 +95,9 @@ namespace DS4Windows
             IsExclusive = isExclusive;
         }
 
-        public void OpenFileStream(int reportSize)
-        {
-            if (FileStream == null && !SafeReadHandle.IsInvalid)
-            {
-                FileStream = new FileStream(SafeReadHandle, FileAccess.ReadWrite, reportSize, true);
-            }
-        }
-
-        public bool IsFileStreamOpen()
-        {
-            bool result = false;
-            if (FileStream != null)
-            {
-                result = !FileStream.SafeFileHandle.IsInvalid && !FileStream.SafeFileHandle.IsClosed;
-            }
-
-            return result;
-        }
-
         public void CloseDevice()
         {
             if (!IsOpen) return;
-            closeFileStreamIO();
 
             IsOpen = false;
         }
@@ -155,7 +133,6 @@ namespace DS4Windows
             return result;
         }
 
-
         private static HidDeviceAttributes GetDeviceAttributes(SafeFileHandle hidHandle)
         {
             var deviceAttributes = default(NativeMethods.HIDD_ATTRIBUTES);
@@ -178,36 +155,6 @@ namespace DS4Windows
             return new HidDeviceCapabilities(capabilities);
         }
 
-        private void closeFileStreamIO()
-        {
-            if (FileStream != null)
-            {
-                try
-                {
-                    FileStream.Close();
-                }
-                catch (IOException) { }
-                catch (OperationCanceledException) { }
-            }
-
-            FileStream = null;
-            Console.WriteLine("Close fs");
-            if (SafeReadHandle != null && !SafeReadHandle.IsInvalid)
-            {
-                try
-                {
-                    if (!SafeReadHandle.IsClosed)
-                    {
-                        SafeReadHandle.Close();
-                        Console.WriteLine("Close sh");
-                    }
-                }
-                catch (IOException) { }
-            }
-
-            SafeReadHandle = null;
-        }
-
         [Obsolete("Unused.")]
         public void flush_Queue()
         {
@@ -217,26 +164,7 @@ namespace DS4Windows
             }
         }
 
-        private ReadStatus ReadWithFileStreamTask(byte[] inputBuffer)
-        {
-            try
-            {
-                if (FileStream.Read(inputBuffer, 0, inputBuffer.Length) > 0)
-                {
-                    return ReadStatus.Success;
-                }
-                else
-                {
-                    return ReadStatus.NoDataRead;
-                }
-            }
-            catch (Exception)
-            {
-                return ReadStatus.ReadError;
-            }
-        }
-
-        public unsafe ReadStatus ReadFile(Span<byte> inputBuffer)
+        public unsafe ReadStatus ReadFile(Span<byte> inputBuffer, uint timeout = 0)
         {
             SafeReadHandle ??= OpenHandle(_devicePath, true, false);
 
@@ -248,132 +176,23 @@ namespace DS4Windows
             if (PInvoke.ReadFile(SafeReadHandle, inputBuffer, null, &ov))
                 return ReadStatus.Success;
 
-            // NOTE: if a timeout is required, use GetOverlappedResultEx instead
-            if (!PInvoke.GetOverlappedResult(SafeReadHandle, ov, out var transferred, true))
-                return ReadStatus.ReadError;
+            uint transferred;
+            if (timeout != 0)
+            {
+                if (!PInvoke.GetOverlappedResultEx(SafeReadHandle, ov, out transferred, timeout, true))
+                    return ReadStatus.ReadError;
+            }
+            else
+            {
+                if (!PInvoke.GetOverlappedResult(SafeReadHandle, ov, out transferred, true))
+                    return ReadStatus.ReadError;
+            }
 
             // this should never happen
             if (transferred > inputBuffer.Length)
                 throw new InvalidOperationException("We read more than the buffer can hold.");
 
             return ReadStatus.Success;
-        }
-
-        [Obsolete("Leaks memory, do not use.")]
-        public ReadStatus ReadWithFileStream(byte[] inputBuffer)
-        {
-            try
-            {
-                if (FileStream.Read(inputBuffer, 0, inputBuffer.Length) > 0)
-                {
-                    return ReadStatus.Success;
-                }
-                else
-                {
-                    return ReadStatus.NoDataRead;
-                }
-            }
-            catch (Exception)
-            {
-                return ReadStatus.ReadError;
-            }
-        }
-
-        public ReadStatus ReadWithFileStream(byte[] inputBuffer, int timeout)
-        {
-            try
-            {
-                //if (safeReadHandle == null)
-                //    safeReadHandle = OpenHandle(_devicePath, true, enumerate: false);
-                //if (fileStream == null && !safeReadHandle.IsInvalid)
-                //    fileStream = new FileStream(safeReadHandle, FileAccess.ReadWrite, inputBuffer.Length, true);
-
-                if (!SafeReadHandle.IsInvalid && FileStream.CanRead)
-                {
-                    Task<ReadStatus> readFileTask = new Task<ReadStatus>(() => ReadWithFileStreamTask(inputBuffer));
-                    readFileTask.Start();
-                    bool success = readFileTask.Wait(timeout);
-                    if (success)
-                    {
-                        if (readFileTask.Result == ReadStatus.Success)
-                        {
-                            return ReadStatus.Success;
-                        }
-                        else if (readFileTask.Result == ReadStatus.ReadError)
-                        {
-                            return ReadStatus.ReadError;
-                        }
-                        else if (readFileTask.Result == ReadStatus.NoDataRead)
-                        {
-                            return ReadStatus.NoDataRead;
-                        }
-                    }
-                    else
-                        return ReadStatus.WaitTimedOut;
-                }
-
-            }
-            catch (Exception e)
-            {
-                if (e is AggregateException)
-                {
-                    Console.WriteLine(e.Message);
-                    return ReadStatus.WaitFail;
-                }
-                else
-                {
-                    return ReadStatus.ReadError;
-                }
-            }
-
-            return ReadStatus.ReadError;
-        }
-
-        public ReadStatus ReadAsyncWithFileStream(byte[] inputBuffer, int timeout)
-        {
-            try
-            {
-                //if (safeReadHandle == null)
-                //    safeReadHandle = OpenHandle(_devicePath, true, enumerate: false);
-                //if (fileStream == null && !safeReadHandle.IsInvalid)
-                //    fileStream = new FileStream(safeReadHandle, FileAccess.ReadWrite, inputBuffer.Length, true);
-
-                if (!SafeReadHandle.IsInvalid && FileStream.CanRead)
-                {
-                    Task<int> readTask = FileStream.ReadAsync(inputBuffer, 0, inputBuffer.Length);
-                    bool success = readTask.Wait(timeout);
-                    if (success)
-                    {
-                        if (readTask.Result > 0)
-                        {
-                            return ReadStatus.Success;
-                        }
-                        else
-                        {
-                            return ReadStatus.NoDataRead;
-                        }
-                    }
-                    else
-                    {
-                        return ReadStatus.WaitTimedOut;
-                    }
-                }
-
-            }
-            catch (Exception e)
-            {
-                if (e is AggregateException)
-                {
-                    Console.WriteLine(e.Message);
-                    return ReadStatus.WaitFail;
-                }
-                else
-                {
-                    return ReadStatus.ReadError;
-                }
-            }
-
-            return ReadStatus.ReadError;
         }
 
         public bool WriteOutputReportViaControl(byte[] outputBuffer)
@@ -387,20 +206,6 @@ namespace DS4Windows
                 return true;
             else
                 return false;
-        }
-
-        private bool WriteOutputReportViaInterruptTask(byte[] outputBuffer)
-        {
-            try
-            {
-                FileStream.Write(outputBuffer, 0, outputBuffer.Length);
-                return true;
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e.Message);
-                return false;
-            }
         }
 
         public unsafe bool WriteOutputReportViaInterrupt(byte[] outputBuffer, int timeout)
@@ -420,37 +225,6 @@ namespace DS4Windows
                     throw new InvalidOperationException("We read more than the buffer can hold.");
 
                 return true;
-        }
-
-        public bool WriteAsyncOutputReportViaInterrupt(byte[] outputBuffer)
-        {
-            try
-            {
-                //if (safeReadHandle == null)
-                //{
-                //    safeReadHandle = OpenHandle(_devicePath, true, enumerate: false);
-                //}
-                //if (fileStream == null && !safeReadHandle.IsInvalid)
-                //{
-                //    fileStream = new FileStream(safeReadHandle, FileAccess.ReadWrite, outputBuffer.Length, true);
-                //}
-
-                if (FileStream != null && FileStream.CanWrite && !SafeReadHandle.IsInvalid)
-                {
-                    Task writeTask = FileStream.WriteAsync(outputBuffer, 0, outputBuffer.Length);
-                    //fileStream.Write(outputBuffer, 0, outputBuffer.Length);
-                    return true;
-                }
-                else
-                {
-                    return false;
-                }
-            }
-            catch (Exception)
-            {
-                return false;
-            }
-
         }
 
         private SafeFileHandle OpenHandle(string devicePathName, bool isExclusive, bool enumerate)

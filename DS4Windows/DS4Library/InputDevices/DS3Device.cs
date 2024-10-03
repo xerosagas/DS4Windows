@@ -53,11 +53,6 @@ namespace DS4Windows.InputDevices
             inputReport = new byte[hDevice.Capabilities.InputReportByteLength];
             outputReport = new byte[hDevice.Capabilities.OutputReportByteLength];
             warnInterval = WARN_INTERVAL_USB;
-
-            if (!hDevice.IsFileStreamOpen())
-            {
-                hDevice.OpenFileStream(outputReport.Length);
-            }
         }
 
         public static ConnectionType DetermineConnectionType(HidDevice hidDevice)
