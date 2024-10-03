@@ -719,10 +719,10 @@ namespace DS4Windows
             if (runCalib)
                 RefreshCalibration();
 
-            if (!hDevice.IsFileStreamOpen())
-            {
-                hDevice.OpenFileStream(outputReport.Length);
-            }
+            // if (!hDevice.IsFileStreamOpen())
+            // {
+            //     hDevice.OpenFileStream(outputReport.Length);
+            // }
 
             // Temporarily disable this check as it does not seem to help
             // detect fake DS4 controllers
@@ -1085,7 +1085,7 @@ namespace DS4Windows
                     {
                         //HidDevice.ReadStatus res = hDevice.ReadFile(btInputReport);
                         //HidDevice.ReadStatus res = hDevice.ReadAsyncWithFileStream(btInputReport, READ_STREAM_TIMEOUT);
-                        HidDevice.ReadStatus res = hDevice.ReadWithFileStream(btInputReport);
+                        HidDevice.ReadStatus res = hDevice.ReadFile(btInputReport);
                         timeoutEvent = false;
                         if (res == HidDevice.ReadStatus.Success)
                         {
