@@ -164,7 +164,7 @@ namespace DS4Windows
             }
         }
 
-        public unsafe ReadStatus ReadFile(Span<byte> inputBuffer, uint timeout = 0)
+        public unsafe ReadStatus ReadFile(Span<byte> inputBuffer, uint timeout = uint.MaxValue)
         {
             SafeReadHandle ??= OpenHandle(_devicePath, true, false);
 
@@ -172,22 +172,14 @@ namespace DS4Windows
 
             var ov = new NativeOverlapped { EventHandle = wait.SafeWaitHandle.DangerousGetHandle() };
 
-            // NOTE: this will never hit when overlapped is used
             if (PInvoke.ReadFile(SafeReadHandle, inputBuffer, null, &ov))
                 return ReadStatus.Success;
 
-            uint transferred;
-            if (timeout != 0)
-            {
-                if (!PInvoke.GetOverlappedResultEx(SafeReadHandle, ov, out transferred, timeout, true))
-                    return ReadStatus.ReadError;
-            }
-            else
-            {
-                if (!PInvoke.GetOverlappedResult(SafeReadHandle, ov, out transferred, true))
-                    return ReadStatus.ReadError;
-            }
+            if (Marshal.GetLastWin32Error() != (uint)WIN32_ERROR.ERROR_IO_PENDING) return ReadStatus.ReadError;
 
+            if (!PInvoke.GetOverlappedResultEx(SafeReadHandle, ov, out var transferred, timeout, true))
+                return ReadStatus.ReadError;
+            
             // this should never happen
             if (transferred > inputBuffer.Length)
                 throw new InvalidOperationException("We read more than the buffer can hold.");
