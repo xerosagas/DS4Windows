@@ -58,7 +58,6 @@ namespace DS4Windows
         }
 
         public SafeFileHandle SafeReadHandle { get => safeReadHandle; private set => safeReadHandle = value; }
-        [Obsolete("Causes memory overhead, should be refactored.")]
         public bool IsOpen { get => isOpen; private set => isOpen = value; }
         public bool IsExclusive { get => isExclusive; private set => isExclusive = value; }
         public bool IsConnected { get { return HidDevices.IsConnected(_devicePath); } }
@@ -77,13 +76,13 @@ namespace DS4Windows
                                 _devicePath);
         }
 
-        public void OpenDevice(bool isExclusive)
+        public void OpenDevice(bool exclusive)
         {
             if (IsOpen) return;
             try
             {
                 if (SafeReadHandle == null || SafeReadHandle.IsInvalid)
-                    SafeReadHandle = OpenHandle(_devicePath, isExclusive, enumerate: false);
+                    SafeReadHandle = OpenHandle(_devicePath, exclusive, enumerate: false);
             }
             catch (Exception exception)
             {
@@ -92,7 +91,7 @@ namespace DS4Windows
             }
 
             IsOpen = !SafeReadHandle.IsInvalid;
-            IsExclusive = isExclusive;
+            IsExclusive = exclusive;
         }
 
         public void CloseDevice()
@@ -146,11 +145,11 @@ namespace DS4Windows
             var capabilities = default(NativeMethods.HIDP_CAPS);
             var preparsedDataPointer = default(IntPtr);
 
-            if (NativeMethods.HidD_GetPreparsedData(hidHandle.DangerousGetHandle(), ref preparsedDataPointer))
-            {
-                NativeMethods.HidP_GetCaps(preparsedDataPointer, ref capabilities);
-                NativeMethods.HidD_FreePreparsedData(preparsedDataPointer);
-            }
+            if (!NativeMethods.HidD_GetPreparsedData(hidHandle.DangerousGetHandle(), ref preparsedDataPointer))
+                return new HidDeviceCapabilities(capabilities);
+
+            NativeMethods.HidP_GetCaps(preparsedDataPointer, ref capabilities);
+            NativeMethods.HidD_FreePreparsedData(preparsedDataPointer);
 
             return new HidDeviceCapabilities(capabilities);
         }
@@ -189,15 +188,9 @@ namespace DS4Windows
 
         public bool WriteOutputReportViaControl(byte[] outputBuffer)
         {
-            if (SafeReadHandle == null)
-            {
-                SafeReadHandle = OpenHandle(_devicePath, true, enumerate: false);
-            }
+            SafeReadHandle ??= OpenHandle(_devicePath, true, enumerate: false);
 
-            if (NativeMethods.HidD_SetOutputReport(SafeReadHandle, outputBuffer, outputBuffer.Length))
-                return true;
-            else
-                return false;
+            return NativeMethods.HidD_SetOutputReport(SafeReadHandle, outputBuffer, outputBuffer.Length);
         }
 
         public unsafe bool WriteOutputReportViaInterrupt(byte[] outputBuffer, int timeout)
