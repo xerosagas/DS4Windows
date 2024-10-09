@@ -3243,7 +3243,7 @@ namespace DS4Windows
                     }
                     else if (triggerValue != 0 && !triggerData.outputActive)
                     {
-                        bool outputActive = triggerData.checkTime + TimeSpan.FromMilliseconds(outputSettings.hipFireMS) +  + TimeSpan.FromMilliseconds(Global.DebouncingMs[device]) < DateTime.Now;
+                        bool outputActive = triggerData.checkTime + TimeSpan.FromMilliseconds(outputSettings.hipFireMS) + TimeSpan.FromMilliseconds(Global.DebouncingMs[device]) < DateTime.Now;
                         if (outputActive)
                         {
                             triggerData.outputActive = true;
