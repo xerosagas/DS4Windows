@@ -53,11 +53,6 @@ namespace DS4Windows.InputDevices
             inputReport = new byte[hDevice.Capabilities.InputReportByteLength];
             outputReport = new byte[hDevice.Capabilities.OutputReportByteLength];
             warnInterval = WARN_INTERVAL_USB;
-
-            if (!hDevice.IsFileStreamOpen())
-            {
-                hDevice.OpenFileStream(outputReport.Length);
-            }
         }
 
         public static ConnectionType DetermineConnectionType(HidDevice hidDevice)
@@ -109,7 +104,7 @@ namespace DS4Windows.InputDevices
             {
                 Debouncer = SetupDebouncer();
                 firstActive = DateTime.UtcNow;
-                NativeMethods.HidD_SetNumInputBuffers(hDevice.safeReadHandle.DangerousGetHandle(), 3);
+                NativeMethods.HidD_SetNumInputBuffers(hDevice.SafeReadHandle.DangerousGetHandle(), 3);
                 Queue<long> latencyQueue = new Queue<long>(21); // Set capacity at max + 1 to avoid any resizing
                 int tempLatencyCount = 0;
                 long oldtime = 0;

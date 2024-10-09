@@ -719,10 +719,10 @@ namespace DS4Windows
             if (runCalib)
                 RefreshCalibration();
 
-            if (!hDevice.IsFileStreamOpen())
-            {
-                hDevice.OpenFileStream(outputReport.Length);
-            }
+            // if (!hDevice.IsFileStreamOpen())
+            // {
+            //     hDevice.OpenFileStream(outputReport.Length);
+            // }
 
             // Temporarily disable this check as it does not seem to help
             // detect fake DS4 controllers
@@ -1027,7 +1027,7 @@ namespace DS4Windows
             {
                 Debouncer = SetupDebouncer();
                 firstActive = DateTime.UtcNow;
-                NativeMethods.HidD_SetNumInputBuffers(hDevice.safeReadHandle.DangerousGetHandle(), 3);
+                NativeMethods.HidD_SetNumInputBuffers(hDevice.SafeReadHandle.DangerousGetHandle(), 3);
                 Queue<long> latencyQueue = new Queue<long>(21); // Set capacity at max + 1 to avoid any resizing
                 int tempLatencyCount = 0;
                 long oldtime = 0;
@@ -1085,7 +1085,7 @@ namespace DS4Windows
                     {
                         //HidDevice.ReadStatus res = hDevice.ReadFile(btInputReport);
                         //HidDevice.ReadStatus res = hDevice.ReadAsyncWithFileStream(btInputReport, READ_STREAM_TIMEOUT);
-                        HidDevice.ReadStatus res = hDevice.ReadWithFileStream(btInputReport);
+                        HidDevice.ReadStatus res = hDevice.ReadFile(btInputReport);
                         timeoutEvent = false;
                         if (res == HidDevice.ReadStatus.Success)
                         {
@@ -1149,7 +1149,7 @@ namespace DS4Windows
                             else
                             {
                                 int winError = Marshal.GetLastWin32Error();
-                                Console.WriteLine(Mac.ToString() + " " + DateTime.UtcNow.ToString("o") + "> disconnect due to read failure: " + winError);
+                                Console.WriteLine($"{Mac} {DateTime.UtcNow.ToString("o")}> disconnect due to read failure: {winError.ToString("x8")}");
                                 //Log.LogToGui(Mac.ToString() + " disconnected due to read failure: " + winError, true);
                                 AppLogger.LogToGui(Mac.ToString() + " disconnected due to read failure: " + winError, true);
                             }
@@ -1169,7 +1169,7 @@ namespace DS4Windows
                         //HidDevice.ReadStatus res = hDevice.ReadFile(inputReport);
                         //Array.Clear(inputReport, 0, inputReport.Length);
                         //HidDevice.ReadStatus res = hDevice.ReadAsyncWithFileStream(inputReport, READ_STREAM_TIMEOUT);
-                        HidDevice.ReadStatus res = hDevice.ReadWithFileStream(inputReport);
+                        HidDevice.ReadStatus res = hDevice.ReadFile(inputReport);
                         if (res != HidDevice.ReadStatus.Success)
                         {
                             if (res == HidDevice.ReadStatus.WaitTimedOut)
@@ -1179,7 +1179,7 @@ namespace DS4Windows
                             else
                             {
                                 int winError = Marshal.GetLastWin32Error();
-                                Console.WriteLine(Mac.ToString() + " " + DateTime.UtcNow.ToString("o") + "> disconnect due to read failure: " + winError);
+                                Console.WriteLine($"{Mac} {DateTime.UtcNow.ToString("o")}> disconnect due to read failure: {winError.ToString("x8")}");
                                 //Log.LogToGui(Mac.ToString() + " disconnected due to read failure: " + winError, true);
                             }
 
