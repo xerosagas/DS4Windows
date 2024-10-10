@@ -18,6 +18,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -143,12 +144,6 @@ namespace DS4WinWPF.DS4Forms.ViewModels
             }
         }
 
-        public void PrepareSaveLightbarMacro(OutBinding bind, LightbarMacroElement[] macro, LightbarMacroTrigger trigger, bool shiftBind = false)
-        {
-            bind.LightbarMacro = macro;
-            bind.LightbarMacroTrigger = trigger;
-        }
-
         public void PrepareSaveMacro(OutBinding bind, bool shiftBind=false)
         {
             DS4ControlSettings setting = settings;
@@ -256,21 +251,48 @@ namespace DS4WinWPF.DS4Forms.ViewModels
         private int flashRate;
         private int mouseSens = 25;
         private DS4Color extrasColor = new DS4Color(255,255,255);
-        private bool _useLightbarMacro;
-        private LightbarMacroTrigger _lightbarMacroTrigger;
 
-        public bool UseLightbarMacro
-        {
-            get => _useLightbarMacro;
-            set => _useLightbarMacro = value;
-        }
-        public LightbarMacroElement[] LightbarMacro { get; set; }
+        private LightbarMacro lightbarMacro;
 
-        public LightbarMacroTrigger LightbarMacroTrigger
+        public LightbarMacro LightbarMacro
         {
-            get => _lightbarMacroTrigger;
-            set => _lightbarMacroTrigger = value;
+            get => lightbarMacro;
+            set
+            {
+                lightbarMacro = value;
+                LightbarMacroChanged?.Invoke(this, EventArgs.Empty);
+            }
         }
+
+        public event EventHandler LightbarMacroChanged;
+
+        private uint currentInterval;
+        public uint CurrentInterval
+        {
+            get => currentInterval;
+            set
+            {
+                currentInterval = value;
+                CurrentIntervalChanged?.Invoke(this, EventArgs.Empty);
+            }
+        }
+
+        public event EventHandler CurrentIntervalChanged;
+
+        private Color currentColor;
+        public Color CurrentColor
+        {
+            get => currentColor;
+            set
+            {
+                currentColor = value;
+                CurrentColorString = value.ToString();
+                CurrentColorStringChanged?.Invoke(this, EventArgs.Empty);
+            }
+        }
+        public string CurrentColorString { get; private set; }
+
+        public event EventHandler CurrentColorStringChanged;
 
         public bool HasScanCode { get => hasScanCode; set => hasScanCode = value; }
         public bool Toggle { get => toggle; set => toggle = value; }
@@ -483,6 +505,7 @@ namespace DS4WinWPF.DS4Forms.ViewModels
             ExtrasColorGChanged += OutBinding_ExtrasColorGChanged;
             ExtrasColorBChanged += OutBinding_ExtrasColorBChanged;
             UseExtrasColorChanged += OutBinding_UseExtrasColorChanged;
+            CurrentColor = Color.FromRgb(255, 255, 255);
         }
 
         private void OutBinding_ExtrasColorBChanged(object sender, EventArgs e)
@@ -591,10 +614,7 @@ namespace DS4WinWPF.DS4Forms.ViewModels
 
         public void ParseLightbarMacro(string m)
         {
-            var parsed = GetLightbarMacroFromString(m);
-            UseLightbarMacro = parsed.Active;
-            LightbarMacro = parsed.Macro;
-            LightbarMacroTrigger = parsed.Trigger;
+            LightbarMacro = GetLightbarMacroFromString(m);
         }
 
         public static LightbarMacro GetLightbarMacroFromString(string m)
@@ -627,11 +647,12 @@ namespace DS4WinWPF.DS4Forms.ViewModels
         {
             var sb = new StringBuilder();
 
-            sb.Append(UseLightbarMacro.ToString());
+            sb.Append(LightbarMacro.Active.ToString());
             // / between Active flag, macro and trigger
             sb.Append('/');
             var firstAppended = false;
-            foreach (var element in LightbarMacro)
+            LightbarMacro.Macro = LightbarMacro.ObservableMacro.ToArray();
+            foreach (var element in LightbarMacro.Macro)
             {
                 if (firstAppended)
                 {
@@ -656,7 +677,7 @@ namespace DS4WinWPF.DS4Forms.ViewModels
 
             // trigger separated with /
             sb.Append('/');
-            sb.Append(LightbarMacroTrigger.ToString());
+            sb.Append(LightbarMacro.Trigger.ToString());
 
             return sb.ToString();
         }
@@ -821,10 +842,45 @@ namespace DS4WinWPF.DS4Forms.ViewModels
         }
     }
 
-    public class LightbarMacro(bool active, LightbarMacroElement[] macro, LightbarMacroTrigger trigger)
+    public class LightbarMacro
     {
-        public bool Active { get; } = active;
-        public LightbarMacroElement[] Macro { get; } = macro;
-        public LightbarMacroTrigger Trigger { get; } = trigger;
+        private bool active;
+
+        public bool Active
+        {
+            get => active;
+            set
+            {
+                active = value;
+                ActiveChanged?.Invoke(this, EventArgs.Empty);
+            }
+        }
+
+        public event EventHandler ActiveChanged;
+
+        public ObservableCollection<LightbarMacroElement> ObservableMacro { get; set; }
+
+        public LightbarMacroElement[] Macro { get; set; }
+
+        private LightbarMacroTrigger trigger;
+
+        public LightbarMacroTrigger Trigger
+        {
+            get => trigger;
+            set
+            {
+                trigger = value;
+                TriggerChanged?.Invoke(this, EventArgs.Empty);
+            }
+        }
+        public event EventHandler TriggerChanged;
+
+        public LightbarMacro(bool active, LightbarMacroElement[] macro, LightbarMacroTrigger trigger)
+        {
+            Active = active;
+            Macro = macro;
+            Trigger = trigger;
+            ObservableMacro = new ObservableCollection<LightbarMacroElement>(Macro);
+        }
     }
 }

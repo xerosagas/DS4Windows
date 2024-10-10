@@ -22,7 +22,7 @@
             <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
 
-        <ListBox x:Name="MacroListBox" ItemsSource="{Binding MacroList}" SelectionMode="Single" />
+        <ListBox x:Name="MacroListBox" ItemsSource="{Binding LightbarMacro.ObservableMacro}" SelectionMode="Single" />
 
         <StackPanel Grid.Column="1">
             <Label Content="{lex:Loc ColorAndLength}" />
@@ -32,7 +32,7 @@
                 <Label Content="ms" />
             </StackPanel>
             <Label Content="{lex:Loc Trigger}" />
-            <ComboBox x:Name="TriggerCombo" SelectedItem="{Binding MacroTrigger}" HorizontalAlignment="Stretch" Margin="3 0" />
+            <ComboBox x:Name="TriggerCombo" SelectedItem="{Binding LightbarMacro.MacroTrigger}" HorizontalAlignment="Stretch" Margin="3 0" />
             <Button Content="{lex:Loc Add}" Click="AddColor_OnClick" Margin="3" />
             <Button Content="{lex:Loc Delete}" Click="DeleteColor_OnClick" Margin="3" />
             <Button Content="{lex:Loc Clear}" Click="Clear_OnClick" Margin="3" />

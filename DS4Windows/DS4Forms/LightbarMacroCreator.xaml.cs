@@ -11,25 +11,13 @@ namespace DS4WinWPF.DS4Forms;
 
 public partial class LightbarMacroCreator : Window
 {
-    private LightbarMacroViewModel _lightbarMacroVM;
+    private OutBinding OutBinding { get; }
 
-    public event EventHandler<LightbarMacroSaveEventArgs> Save;
-
-    public LightbarMacroCreator(LightbarMacroElement[] macro = null, LightbarMacroTrigger trigger = LightbarMacroTrigger.Press)
+    public LightbarMacroCreator(OutBinding outBinding)
     {
         InitializeComponent();
-        _lightbarMacroVM = new LightbarMacroViewModel();
-        DataContext = _lightbarMacroVM;
-        if (macro is null)
-        {
-            _lightbarMacroVM.MacroList = new();
-        }
-        else
-        {
-            _lightbarMacroVM.MacroList = new(macro);
-        }
-
-        _lightbarMacroVM.MacroTrigger = trigger;
+        DataContext = outBinding;
+        OutBinding = outBinding;
 
         TriggerCombo.ItemsSource = Enum.GetValues<LightbarMacroTrigger>();
     }
@@ -41,40 +29,34 @@ public partial class LightbarMacroCreator : Window
             Owner = Application.Current.MainWindow
         };
         dialog.ShowDialog();
-        _lightbarMacroVM.CurrentColor = dialog.colorPicker.SelectedColor.GetValueOrDefault();
+        OutBinding.CurrentColor = dialog.colorPicker.SelectedColor.GetValueOrDefault();
     }
 
     private void AddColor_OnClick(object sender, RoutedEventArgs e)
     {
         var color = new DS4Color
         {
-            red = _lightbarMacroVM.CurrentColor.R, green = _lightbarMacroVM.CurrentColor.G,
-            blue = _lightbarMacroVM.CurrentColor.B
+            red = OutBinding.CurrentColor.R, green = OutBinding.CurrentColor.G,
+            blue = OutBinding.CurrentColor.B
         };
-        _lightbarMacroVM.MacroList.Add(new LightbarMacroElement(color, _lightbarMacroVM.CurrentInterval));
+        OutBinding.LightbarMacro.ObservableMacro.Add(new LightbarMacroElement(color, OutBinding.CurrentInterval));
     }
 
     private void DeleteColor_OnClick(object sender, RoutedEventArgs e)
     {
         // TODO show a popup window saying you must select an item to delete
         if (MacroListBox.SelectedItems.Count == 0) return;
-        _lightbarMacroVM.MacroList.Remove((LightbarMacroElement)MacroListBox.SelectedItems[0]);
+        OutBinding.LightbarMacro.ObservableMacro.Remove((LightbarMacroElement)MacroListBox.SelectedItems[0]);
     }
 
     private void Clear_OnClick(object sender, RoutedEventArgs e)
     {
-        _lightbarMacroVM.MacroList.Clear();
+        OutBinding.LightbarMacro.ObservableMacro.Clear();
     }
 
     private void Save_OnClick(object sender, RoutedEventArgs e)
     {
-        Save?.Invoke(this, new LightbarMacroSaveEventArgs(_lightbarMacroVM.MacroList.ToArray(), _lightbarMacroVM.MacroTrigger));
+        // Save?.Invoke(this, new LightbarMacroSaveEventArgs(_lightbarMacroVM.MacroList.ToArray(), _lightbarMacroVM.MacroTrigger));
         Close();
     }
-}
-
-public class LightbarMacroSaveEventArgs(LightbarMacroElement[] macroElements, LightbarMacroTrigger trigger) : EventArgs
-{
-    public LightbarMacroElement[] MacroElements { get; } = macroElements;
-    public LightbarMacroTrigger Trigger { get; } = trigger;
 }
