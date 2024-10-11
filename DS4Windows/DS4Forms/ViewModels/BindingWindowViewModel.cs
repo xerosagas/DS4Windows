@@ -830,6 +830,15 @@ namespace DS4WinWPF.DS4Forms.ViewModels
             CancelCurrent = false;
         }
 
+        /// <summary>
+        ///     Automatically parses a string to this object
+        /// </summary>
+        /// <param name="macroString">Correctly formatted string, see <see cref="Compile"/></param>
+        public LightbarMacro(string macroString)
+        {
+            Parse(macroString);
+        }
+
         public LightbarMacro(bool active, LightbarMacroElement[] macro, LightbarMacroTrigger trigger, bool cancelCurrent)
         {
             Active = active;
@@ -838,6 +847,15 @@ namespace DS4WinWPF.DS4Forms.ViewModels
             CancelCurrent = cancelCurrent;
         }
 
+        /// <summary>
+        ///     <para>Compiles this object to a string that can be serialised and is used in the profile XML.</para>
+        ///     <para>Example: <c>True/255,255,255:100;255,0,0:50;/Press/False</c>, which means:</para>
+        ///     <para><see cref="Active"/>: <c>true</c>,</para>
+        ///     <para><see cref="Macro"/>: 2 elements: #FFFFFF for 100ms and #FF0000 for 50ms</para>
+        ///     <para><see cref="Trigger"/>: <see cref="LightbarMacroTrigger.Press"/></para>
+        ///     <para><see cref="CancelCurrent"/>: <c>false</c></para>
+        /// </summary>
+        /// <returns>Serialisable string</returns>
         public string Compile()
         {
             var sb = new StringBuilder();
