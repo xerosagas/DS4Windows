@@ -3569,7 +3569,7 @@ namespace DS4Windows
                             || (lightbarMacro.Trigger == LightbarMacroTrigger.Release && prevButtonState &&
                                 !currButtonState))
                         {
-                            if (lightbarMacroTask != null && !lightbarMacroTask.IsCompleted)
+                            if (lightbarMacro.CancelCurrent && lightbarMacroTask != null && !lightbarMacroTask.IsCompleted)
                             {
                                 threadCts.Cancel();
 
@@ -3587,7 +3587,15 @@ namespace DS4Windows
                                 }
                             }
 
-                            lightbarMacroTask = Task.Run(() => RunLightbarMacro(lightbarMacro.Macro, device, threadCts.Token));
+                            // if cancellation is on, the task has already been cancelled, if cancellation is off,
+                            // we need to make sure that we don't do Task.Run when the previous one hasn't completed yet,
+                            // as that would queue it and it's undesired. check for task being null too as it's
+                            // only initialised here and in case not a single macro hasn't run yet, it will be null
+                            if (lightbarMacro.CancelCurrent ||
+                                (!lightbarMacro.CancelCurrent
+                                 && (lightbarMacroTask is null || lightbarMacroTask.IsCompleted))
+                                )
+                                lightbarMacroTask = Task.Run(() => RunLightbarMacro(lightbarMacro.Macro, device, threadCts.Token));
                         }
                     }
                 }
