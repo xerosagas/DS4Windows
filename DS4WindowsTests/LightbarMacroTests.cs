@@ -63,7 +63,6 @@ public class LightbarMacroTests
             new(new DS4Color(0, 0, 0), 5)
         };
         CollectionAssert.AreEqual(macro.Macro, expectedArray);
-        CollectionAssert.AreEqual(macro.ObservableMacro, expectedArray);
         Assert.AreEqual(macro.CancelCurrent, true);
 
         incomingString = "False/255,0,0:100/Release/False";
@@ -74,7 +73,6 @@ public class LightbarMacroTests
         _ = DS4Color.TryParse("255,0,0", ref color);
         expectedArray = [new LightbarMacroElement(color, 100)];
         CollectionAssert.AreEqual(macro.Macro, expectedArray);
-        CollectionAssert.AreEqual(macro.ObservableMacro, expectedArray);
         Assert.AreEqual(macro.CancelCurrent, false);
 
         // test pre-3.9.2 strings that didn't have the cancellation parameter (should always have it on)
@@ -83,7 +81,6 @@ public class LightbarMacroTests
         Assert.AreEqual(macro.Active, false);
         Assert.AreEqual(macro.Trigger, LightbarMacroTrigger.Release);
         CollectionAssert.AreEqual(macro.Macro, expectedArray);
-        CollectionAssert.AreEqual(macro.ObservableMacro, expectedArray);
         Assert.AreEqual(macro.CancelCurrent, true);
 
         // string with no macro elements should always parse to the same output, regardless of other parameters
@@ -93,7 +90,6 @@ public class LightbarMacroTests
         Assert.AreEqual(macro.Trigger, LightbarMacroTrigger.Press);
         expectedArray = [];
         CollectionAssert.AreEqual(macro.Macro, expectedArray);
-        CollectionAssert.AreEqual(macro.ObservableMacro, expectedArray);
         Assert.AreEqual(macro.CancelCurrent, false);
 
 

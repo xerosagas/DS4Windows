@@ -39,19 +39,19 @@ public partial class LightbarMacroCreator : Window
             red = OutBinding.CurrentColor.R, green = OutBinding.CurrentColor.G,
             blue = OutBinding.CurrentColor.B
         };
-        OutBinding.LightbarMacro.ObservableMacro.Add(new LightbarMacroElement(color, OutBinding.CurrentInterval));
+        OutBinding.LightbarMacro.Macro.Add(new LightbarMacroElement(color, OutBinding.CurrentInterval));
     }
 
     private void DeleteColor_OnClick(object sender, RoutedEventArgs e)
     {
         // TODO show a popup window saying you must select an item to delete
         if (MacroListBox.SelectedItems.Count == 0) return;
-        OutBinding.LightbarMacro.ObservableMacro.Remove((LightbarMacroElement)MacroListBox.SelectedItems[0]);
+        OutBinding.LightbarMacro.Macro.Remove((LightbarMacroElement)MacroListBox.SelectedItems[0]);
     }
 
     private void Clear_OnClick(object sender, RoutedEventArgs e)
     {
-        OutBinding.LightbarMacro.ObservableMacro.Clear();
+        OutBinding.LightbarMacro.Macro.Clear();
     }
 
     private void Save_OnClick(object sender, RoutedEventArgs e)

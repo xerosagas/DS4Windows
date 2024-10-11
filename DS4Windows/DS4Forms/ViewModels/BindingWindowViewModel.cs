@@ -138,10 +138,7 @@ namespace DS4WinWPF.DS4Forms.ViewModels
                 shiftOutBind.ParseExtras(setting.shiftExtras);
             }
 
-            if (!string.IsNullOrEmpty(settings.lightbarMacro))
-            {
-                currentOutBind.LightbarMacro.Parse(setting.lightbarMacro);
-            }
+            if (settings.LightbarMacro is not null) currentOutBind.LightbarMacro = settings.LightbarMacro;
         }
 
         public void PrepareSaveMacro(OutBinding bind, bool shiftBind=false)
@@ -688,8 +685,8 @@ namespace DS4WinWPF.DS4Forms.ViewModels
                     settings.extras = string.Empty;
                 }
 
-                if (LightbarMacro is not null && LightbarMacro.ObservableMacro.Count > 0)
-                    settings.lightbarMacro = LightbarMacro.Compile();
+                if (LightbarMacro is not null && LightbarMacro.Macro.Count > 0)
+                    settings.LightbarMacroString = LightbarMacro.Compile();
 
                 Global.RefreshActionAlias(settings, shiftBind);
             }
@@ -781,18 +778,7 @@ namespace DS4WinWPF.DS4Forms.ViewModels
         }
         public event EventHandler ActiveChanged;
 
-        public ObservableCollection<LightbarMacroElement> ObservableMacro { get; set; }
-
-        private LightbarMacroElement[] _macro;
-        public LightbarMacroElement[] Macro
-        {
-            get => _macro;
-            set
-            {
-                _macro = value;
-                ObservableMacro = new ObservableCollection<LightbarMacroElement>(value);
-            }
-        }
+        public ObservableCollection<LightbarMacroElement> Macro { get; set; }
 
         private LightbarMacroTrigger _trigger;
         public LightbarMacroTrigger Trigger
@@ -825,7 +811,6 @@ namespace DS4WinWPF.DS4Forms.ViewModels
         {
             Active = false;
             Macro = [];
-            ObservableMacro = [];
             Trigger = LightbarMacroTrigger.Press;
             CancelCurrent = false;
         }
@@ -842,8 +827,8 @@ namespace DS4WinWPF.DS4Forms.ViewModels
         public LightbarMacro(bool active, LightbarMacroElement[] macro, LightbarMacroTrigger trigger, bool cancelCurrent)
         {
             Active = active;
-            Macro = macro;
             Trigger = trigger;
+            Macro = new ObservableCollection<LightbarMacroElement>(macro);
             CancelCurrent = cancelCurrent;
         }
 
@@ -866,7 +851,7 @@ namespace DS4WinWPF.DS4Forms.ViewModels
             sb.Append('/');
 
             var firstAppended = false;
-            foreach (var element in ObservableMacro)
+            foreach (var element in Macro)
             {
                 // ; after each element of the macro
                 if (firstAppended)
@@ -899,7 +884,6 @@ namespace DS4WinWPF.DS4Forms.ViewModels
             var parsed = GetMacroFromString(macro);
             Active = parsed.Active;
             Macro = parsed.Macro;
-            ObservableMacro = parsed.ObservableMacro;
             Trigger = parsed.Trigger;
             CancelCurrent = parsed.CancelCurrent;
         }
@@ -908,7 +892,7 @@ namespace DS4WinWPF.DS4Forms.ViewModels
         {
             // parsing the string in general + active flag
             var fieldSplit = macro.Split('/');
-            if (fieldSplit.Length is < 3 or > 4) throw new ArgumentException("Provided string doesn't comply with the format (too few or too many sections separated with '/').");
+            if (fieldSplit.Length is < 3 or > 4) throw new ArgumentException($"Provided string doesn't comply with the format (too few or too many sections separated with '/').\n{macro}");
 
             // prior to 3.9.2 cancellation was not available, so the string was different, check is done for backwards compatibility
             var oldFormat = fieldSplit.Length == 3;

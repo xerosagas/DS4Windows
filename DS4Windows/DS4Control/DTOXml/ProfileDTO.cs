@@ -1859,9 +1859,9 @@ namespace DS4WinWPF.DS4Control.DTOXml
                     extrasSerializer.CustomMapExtras.Add(dcs.control, dcs.extras);
                 }
 
-                if (dcs.lightbarMacro is not null && dcs.lightbarMacro != string.Empty)
+                if (dcs.LightbarMacroString is not null && dcs.LightbarMacroString != string.Empty)
                 {
-                    lightbarMacroSerializer.CustomMapMacro.Add(dcs.control, dcs.lightbarMacro);
+                    lightbarMacroSerializer.CustomMapMacro.Add(dcs.control, dcs.LightbarMacroString);
                 }
 
                 if (dcs.shiftActionType != DS4ControlSettings.ActionType.Default && dcs.shiftTrigger > 0)

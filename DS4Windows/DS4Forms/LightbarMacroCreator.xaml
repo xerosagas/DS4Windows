@@ -18,7 +18,7 @@
             <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
 
-        <ListBox x:Name="MacroListBox" ItemsSource="{Binding LightbarMacro.ObservableMacro}" SelectionMode="Single" />
+        <ListBox x:Name="MacroListBox" ItemsSource="{Binding LightbarMacro.Macro}" SelectionMode="Single" />
 
         <StackPanel Grid.Column="1">
             <Label Content="{lex:Loc ColorAndLength}" />
