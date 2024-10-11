@@ -56,7 +56,6 @@ public partial class LightbarMacroCreator : Window
 
     private void Save_OnClick(object sender, RoutedEventArgs e)
     {
-        // Save?.Invoke(this, new LightbarMacroSaveEventArgs(_lightbarMacroVM.MacroList.ToArray(), _lightbarMacroVM.MacroTrigger));
         Close();
     }
 }

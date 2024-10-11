@@ -3472,7 +3472,7 @@ namespace DS4Windows
 
             var lightbarMacro = new LightbarMacro(false, [], LightbarMacroTrigger.Press);
             if (!string.IsNullOrEmpty(dcs.lightbarMacro))
-                lightbarMacro = OutBinding.GetLightbarMacroFromString(dcs.lightbarMacro);
+                lightbarMacro = LightbarMacro.GetMacroFromString(dcs.lightbarMacro);
 
             if (usingExtra == DS4Controls.None || usingExtra == dcs.control)
             {

@@ -140,7 +140,7 @@ namespace DS4WinWPF.DS4Forms.ViewModels
 
             if (!string.IsNullOrEmpty(settings.lightbarMacro))
             {
-                currentOutBind.ParseLightbarMacro(setting.lightbarMacro);
+                currentOutBind.LightbarMacro.Parse(setting.lightbarMacro);
             }
         }
 
@@ -263,7 +263,6 @@ namespace DS4WinWPF.DS4Forms.ViewModels
                 LightbarMacroChanged?.Invoke(this, EventArgs.Empty);
             }
         }
-
         public event EventHandler LightbarMacroChanged;
 
         private uint currentInterval;
@@ -276,7 +275,6 @@ namespace DS4WinWPF.DS4Forms.ViewModels
                 CurrentIntervalChanged?.Invoke(this, EventArgs.Empty);
             }
         }
-
         public event EventHandler CurrentIntervalChanged;
 
         private Color currentColor;
@@ -291,7 +289,6 @@ namespace DS4WinWPF.DS4Forms.ViewModels
             }
         }
         public string CurrentColorString { get; private set; }
-
         public event EventHandler CurrentColorStringChanged;
 
         public bool HasScanCode { get => hasScanCode; set => hasScanCode = value; }
@@ -506,6 +503,7 @@ namespace DS4WinWPF.DS4Forms.ViewModels
             ExtrasColorBChanged += OutBinding_ExtrasColorBChanged;
             UseExtrasColorChanged += OutBinding_UseExtrasColorChanged;
             CurrentColor = Color.FromRgb(255, 255, 255);
+            LightbarMacro = new LightbarMacro();
         }
 
         private void OutBinding_ExtrasColorBChanged(object sender, EventArgs e)
@@ -612,76 +610,6 @@ namespace DS4WinWPF.DS4Forms.ViewModels
             return result;
         }
 
-        public void ParseLightbarMacro(string m)
-        {
-            LightbarMacro = GetLightbarMacroFromString(m);
-        }
-
-        public static LightbarMacro GetLightbarMacroFromString(string m)
-        {
-            // parsing the string in general + active flag
-            var fieldSplit = m.Split('/');
-            if (fieldSplit.Length != 3) throw new ArgumentException("Provided string doesn't comply with the format.");
-            if (!bool.TryParse(fieldSplit[0], out var active)) throw new ArgumentException("Provided string doesn't comply with the format.");
-
-            var macroSplit = fieldSplit[1].Split(';');
-            List<LightbarMacroElement> macroList = [];
-            foreach (var macroElement in macroSplit)
-            {
-                var elementSplit = macroElement.Split(':');
-                var color = elementSplit[0];
-                var length = elementSplit[1];
-                DS4Color parsedColor = new();
-                if (!DS4Color.TryParse(color, ref parsedColor)
-                    || !uint.TryParse(length, out var parsedLength))
-                    throw new ArgumentException("Provided string doesn't comply with the format.");
-                macroList.Add(new LightbarMacroElement(parsedColor, parsedLength));
-            }
-
-            Enum.TryParse<LightbarMacroTrigger>(fieldSplit[2], out var lightbarMacroTrigger);
-
-            return new LightbarMacro(active, macroList.ToArray(), lightbarMacroTrigger);
-        }
-
-        public string CompileLightbarMacro()
-        {
-            var sb = new StringBuilder();
-
-            sb.Append(LightbarMacro.Active.ToString());
-            // / between Active flag, macro and trigger
-            sb.Append('/');
-            var firstAppended = false;
-            LightbarMacro.Macro = LightbarMacro.ObservableMacro.ToArray();
-            foreach (var element in LightbarMacro.Macro)
-            {
-                if (firstAppended)
-                {
-                    // ; after each part (element) of a macro
-                    sb.Append(';');
-                }
-                else
-                {
-                    firstAppended = true;
-                }
-
-                // r,g,b to comply with TryParse method on DS4Color class
-                sb.Append(element.Color.red);
-                sb.Append(',');
-                sb.Append(element.Color.green);
-                sb.Append(',');
-                sb.Append(element.Color.blue);
-                // : between the colour and the timespan
-                sb.Append(':');
-                sb.Append(element.Length);
-            }
-
-            // trigger separated with /
-            sb.Append('/');
-            sb.Append(LightbarMacro.Trigger.ToString());
-
-            return sb.ToString();
-        }
-
         public bool IsUsingExtras()
         {
             bool result = false;
@@ -760,8 +688,8 @@ namespace DS4WinWPF.DS4Forms.ViewModels
                     settings.extras = string.Empty;
                 }
 
-                if (LightbarMacro is not null)
-                    settings.lightbarMacro = CompileLightbarMacro();
+                if (LightbarMacro is not null && LightbarMacro.ObservableMacro.Count > 0)
+                    settings.lightbarMacro = LightbarMacro.Compile();
 
                 Global.RefreshActionAlias(settings, shiftBind);
             }
@@ -827,9 +755,6 @@ namespace DS4WinWPF.DS4Forms.ViewModels
                     settings.shiftExtras = string.Empty;
                 }
 
-                if (LightbarMacro is not null)
-                    settings.lightbarMacro = CompileLightbarMacro();
-
                 Global.RefreshActionAlias(settings, shiftBind);
             }
         }
@@ -844,43 +769,127 @@ namespace DS4WinWPF.DS4Forms.ViewModels
 
     public class LightbarMacro
     {
-        private bool active;
-
+        private bool _active;
         public bool Active
         {
-            get => active;
+            get => _active;
             set
             {
-                active = value;
+                _active = value;
                 ActiveChanged?.Invoke(this, EventArgs.Empty);
             }
         }
-
         public event EventHandler ActiveChanged;
 
         public ObservableCollection<LightbarMacroElement> ObservableMacro { get; set; }
 
-        public LightbarMacroElement[] Macro { get; set; }
-
-        private LightbarMacroTrigger trigger;
-
-        public LightbarMacroTrigger Trigger
+        private LightbarMacroElement[] _macro;
+        public LightbarMacroElement[] Macro
         {
-            get => trigger;
+            get => _macro;
             set
             {
-                trigger = value;
+                _macro = value;
+                ObservableMacro = new ObservableCollection<LightbarMacroElement>(value);
+            }
+        }
+
+        private LightbarMacroTrigger _trigger;
+        public LightbarMacroTrigger Trigger
+        {
+            get => _trigger;
+            set
+            {
+                _trigger = value;
                 TriggerChanged?.Invoke(this, EventArgs.Empty);
             }
         }
         public event EventHandler TriggerChanged;
+
+        public LightbarMacro()
+        {
+            Active = false;
+            Macro = [];
+            ObservableMacro = [];
+            Trigger = LightbarMacroTrigger.Press;
+        }
 
         public LightbarMacro(bool active, LightbarMacroElement[] macro, LightbarMacroTrigger trigger)
         {
             Active = active;
             Macro = macro;
             Trigger = trigger;
-            ObservableMacro = new ObservableCollection<LightbarMacroElement>(Macro);
+        }
+
+        public string Compile()
+        {
+            var sb = new StringBuilder();
+
+            sb.Append(Active.ToString());
+
+            // / between active flag, macro, trigger and cancellation flag
+            sb.Append('/');
+
+            var firstAppended = false;
+            foreach (var element in ObservableMacro)
+            {
+                // ; after each element of the macro
+                if (firstAppended)
+                    sb.Append(';');
+                else
+                    firstAppended = true;
+
+                // format of r,g,b to comply with TryParse method on DS4Color class
+                sb.Append(element.Color.red);
+                sb.Append(',');
+                sb.Append(element.Color.green);
+                sb.Append(',');
+                sb.Append(element.Color.blue);
+                // : between the colour and the timespan
+                sb.Append(':');
+                sb.Append(element.Length);
+            }
+
+            sb.Append('/');
+            sb.Append(Trigger.ToString());
+
+            return sb.ToString();
+        }
+
+        public void Parse(string macro)
+        {
+            var parsed = GetMacroFromString(macro);
+            Active = parsed.Active;
+            Macro = parsed.Macro;
+            ObservableMacro = parsed.ObservableMacro;
+            Trigger = parsed.Trigger;
+        }
+
+        public static LightbarMacro GetMacroFromString(string macro)
+        {
+            // parsing the string in general + active flag
+            var fieldSplit = macro.Split('/');
+            if (fieldSplit.Length != 3) throw new ArgumentException("Provided string doesn't comply with the format.");
+            if (!bool.TryParse(fieldSplit[0], out var active)) throw new ArgumentException("Provided string doesn't comply with the format.");
+
+            var macroSplit = fieldSplit[1].Split(';');
+            List<LightbarMacroElement> macroList = [];
+            foreach (var macroElement in macroSplit)
+            {
+                if (string.IsNullOrEmpty(macroElement)) return new LightbarMacro();
+                var elementSplit = macroElement.Split(':');
+                var color = elementSplit[0];
+                var length = elementSplit[1];
+                DS4Color parsedColor = new();
+                if (!DS4Color.TryParse(color, ref parsedColor)
+                    || !uint.TryParse(length, out var parsedLength))
+                    throw new ArgumentException("Provided string doesn't comply with the format.");
+                macroList.Add(new LightbarMacroElement(parsedColor, parsedLength));
+            }
+
+            Enum.TryParse<LightbarMacroTrigger>(fieldSplit[2], out var lightbarMacroTrigger);
+
+            return new LightbarMacro(active, macroList.ToArray(), lightbarMacroTrigger);
         }
     }
 }

@@ -44,7 +44,7 @@
                     <StackPanel Orientation="Vertical">
                         <StackPanel Margin="{StaticResource spaceMargin}">
                             <Label Content="{lex:Loc LightbarMode}" />
-                            <ComboBox x:Name="LightbarModeCombo" MinWidth="160" SelectedIndex="{Binding Path=UseLightbarMacro, Converter={StaticResource IntToBoolConverter}}">
+                            <ComboBox x:Name="LightbarModeCombo" MinWidth="160" SelectedIndex="{Binding Path=LightbarMacro.Active, Converter={StaticResource IntToBoolConverter}}">
                                 <ComboBoxItem Content="{lex:Loc SolidColor}" />
                                 <ComboBoxItem Content="{lex:Loc Macro}" />
                             </ComboBox>
