@@ -1466,4 +1466,10 @@ Please click OK to confirm that you have read the message. Press Cancel to be re
   <data name="FailedToRetrieveLatestVersion" xml:space="preserve">
     <value>Failed to retrieve latest version</value>
   </data>
+  <data name="CancelCurrentMacro" xml:space="preserve">
+    <value>Cancel current macro</value>
+  </data>
+  <data name="CancelCurrentMacroTooltip" xml:space="preserve">
+    <value>Indicates whether running this macro should stop a currently running one</value>
+  </data>
 </root>

@@ -806,19 +806,36 @@ namespace DS4WinWPF.DS4Forms.ViewModels
         }
         public event EventHandler TriggerChanged;
 
+        private bool _cancelCurrent;
+        /// <summary>
+        ///     Indicates whether this macro should take precedence over a currently running one
+        /// </summary>
+        public bool CancelCurrent
+        {
+            get => _cancelCurrent;
+            set
+            {
+                _cancelCurrent = value;
+                CancelCurrentChanged?.Invoke(this, EventArgs.Empty);
+            }
+        }
+        public event EventHandler CancelCurrentChanged;
+
         public LightbarMacro()
         {
             Active = false;
             Macro = [];
             ObservableMacro = [];
             Trigger = LightbarMacroTrigger.Press;
+            CancelCurrent = false;
         }
 
-        public LightbarMacro(bool active, LightbarMacroElement[] macro, LightbarMacroTrigger trigger)
+        public LightbarMacro(bool active, LightbarMacroElement[] macro, LightbarMacroTrigger trigger, bool cancelCurrent)
         {
             Active = active;
             Macro = macro;
             Trigger = trigger;
+            CancelCurrent = cancelCurrent;
         }
 
         public string Compile()
@@ -853,6 +870,9 @@ namespace DS4WinWPF.DS4Forms.ViewModels
             sb.Append('/');
             sb.Append(Trigger.ToString());
 
+            sb.Append('/');
+            sb.Append(CancelCurrent.ToString());
+
             return sb.ToString();
         }
 
@@ -863,14 +883,19 @@ namespace DS4WinWPF.DS4Forms.ViewModels
             Macro = parsed.Macro;
             ObservableMacro = parsed.ObservableMacro;
             Trigger = parsed.Trigger;
+            CancelCurrent = parsed.CancelCurrent;
         }
 
         public static LightbarMacro GetMacroFromString(string macro)
         {
             // parsing the string in general + active flag
             var fieldSplit = macro.Split('/');
-            if (fieldSplit.Length != 3) throw new ArgumentException("Provided string doesn't comply with the format.");
-            if (!bool.TryParse(fieldSplit[0], out var active)) throw new ArgumentException("Provided string doesn't comply with the format.");
+            if (fieldSplit.Length is < 3 or > 4) throw new ArgumentException("Provided string doesn't comply with the format (too few or too many sections separated with '/').");
+
+            // prior to 3.9.2 cancellation was not available, so the string was different, check is done for backwards compatibility
+            var oldFormat = fieldSplit.Length == 3;
+
+            if (!bool.TryParse(fieldSplit[0], out var active)) throw new ArgumentException("Provided string doesn't comply with the format (cannot parse active flag).");
 
             var macroSplit = fieldSplit[1].Split(';');
             List<LightbarMacroElement> macroList = [];
@@ -883,13 +908,21 @@ namespace DS4WinWPF.DS4Forms.ViewModels
                 DS4Color parsedColor = new();
                 if (!DS4Color.TryParse(color, ref parsedColor)
                     || !uint.TryParse(length, out var parsedLength))
-                    throw new ArgumentException("Provided string doesn't comply with the format.");
+                    throw new ArgumentException("Provided lightbar macro string doesn't comply with the format (cannot parse color or length).");
                 macroList.Add(new LightbarMacroElement(parsedColor, parsedLength));
             }
 
             Enum.TryParse<LightbarMacroTrigger>(fieldSplit[2], out var lightbarMacroTrigger);
 
-            return new LightbarMacro(active, macroList.ToArray(), lightbarMacroTrigger);
+            bool cancel;
+            // before the choice of cancellation was introduced, default behaviour was to cancel the current macro
+            if (oldFormat)
+                cancel = true;
+            else
+                if (!bool.TryParse(fieldSplit[3], out cancel))
+                    throw new ArgumentException("Provided lightbar macro string doesn't comply with the format (cannot parse cancellation flag).");
+
+            return new LightbarMacro(active, macroList.ToArray(), lightbarMacroTrigger, cancel);
         }
     }
 }

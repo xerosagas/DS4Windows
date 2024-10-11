@@ -3470,7 +3470,7 @@ namespace DS4Windows
                 keyType = dcs.keyType;
             }
 
-            var lightbarMacro = new LightbarMacro(false, [], LightbarMacroTrigger.Press);
+            var lightbarMacro = new LightbarMacro(false, [], LightbarMacroTrigger.Press, false);
             if (!string.IsNullOrEmpty(dcs.lightbarMacro))
                 lightbarMacro = LightbarMacro.GetMacroFromString(dcs.lightbarMacro);
 
