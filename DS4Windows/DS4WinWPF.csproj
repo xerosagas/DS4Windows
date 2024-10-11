@@ -15,9 +15,9 @@
 		<RunAnalyzersDuringBuild>true</RunAnalyzersDuringBuild>
 		<EnableNETAnalyzers>false</EnableNETAnalyzers>
 		<ServerGarbageCollection>true</ServerGarbageCollection>
-		<AssemblyVersion>3.9.0</AssemblyVersion>
-		<FileVersion>3.9.0</FileVersion>
-		<Version>3.9.0</Version>
+		<AssemblyVersion>3.9.3</AssemblyVersion>
+		<FileVersion>3.9.3</FileVersion>
+		<Version>3.9.3-beta.1</Version>
 		<Configuration Condition="'$(Configuration)' == ''">Debug</Configuration>
 		<Platform Condition=" '$(Platform)' == '' ">x64</Platform>
 		<Copyright>Copyright © Scarlet.Crush Productions 2012, 2013; InhexSTER, HecticSeptic, electrobrains 2013, 2014; Jays2Kings 2013, 2014, 2015, 2016; Ryochan7 2017-2023, schmaldeo 2024</Copyright>
@@ -41,7 +41,7 @@
 
 	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
 		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-		<DefineConstants>WIN64</DefineConstants>
+		<DefineConstants>WIN64;BETA_VERSION</DefineConstants>
 		<ErrorReport>none</ErrorReport>
 		<DebugType>none</DebugType>
 		<DebugSymbols>false</DebugSymbols>
@@ -51,7 +51,7 @@
 
 	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x86'">
 		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-		<DefineConstants></DefineConstants>
+		<DefineConstants>BETA_VERSION</DefineConstants>
 		<ErrorReport>none</ErrorReport>
 		<DebugType>none</DebugType>
 		<DebugSymbols>false</DebugSymbols>
