@@ -127,6 +127,11 @@ namespace DS4WinWPF.DS4Forms
             profileSettingsVM.SXDeadZoneChanged += UpdateReadingsSXDeadZone;
             profileSettingsVM.SZDeadZoneChanged += UpdateReadingsSZDeadZone;
             profileSettingsVM.TouchpadOutputIndexChanged += TouchpadOutputDisplayChange;
+
+            profileSettingsVM.LeftStickDriftXAxisChanged += UpdateReadingsLSDrift;
+            profileSettingsVM.LeftStickDriftYAxisChanged += UpdateReadingsLSDrift;
+            profileSettingsVM.RightStickDriftXAxisChanged += UpdateReadingsRSDrift;
+            profileSettingsVM.RightStickDriftYAxisChanged += UpdateReadingsRSDrift;
         }
 
         private void UnregisterEvents()
@@ -148,6 +153,11 @@ namespace DS4WinWPF.DS4Forms
             axialLSStickControl.AxialVM.DeadZoneYChanged -= UpdateReadingsLsDeadZoneY;
             axialRSStickControl.AxialVM.DeadZoneXChanged -= UpdateReadingsRsDeadZoneX;
             axialRSStickControl.AxialVM.DeadZoneYChanged -= UpdateReadingsRsDeadZoneY;
+
+            profileSettingsVM.LeftStickDriftXAxisChanged -= UpdateReadingsLSDrift;
+            profileSettingsVM.LeftStickDriftYAxisChanged -= UpdateReadingsLSDrift;
+            profileSettingsVM.RightStickDriftXAxisChanged -= UpdateReadingsRSDrift;
+            profileSettingsVM.RightStickDriftYAxisChanged -= UpdateReadingsRSDrift;
 
             inputTimer.Stop();
             inputTimer.Elapsed -= InputDS4;
@@ -253,6 +263,18 @@ namespace DS4WinWPF.DS4Forms
         private void UpdateReadingsRsDeadZoneY(object sender, EventArgs e)
         {
             conReadingsUserCon.RsDeadY = axialRSStickControl.AxialVM.DeadZoneY;
+        }
+
+        private void UpdateReadingsLSDrift(object sender, EventArgs e)
+        {
+            conReadingsUserCon.LsDriftX = profileSettingsVM.LeftStickDriftXAxis;
+            conReadingsUserCon.LsDriftY = profileSettingsVM.LeftStickDriftYAxis;
+        }
+
+        private void UpdateReadingsRSDrift(object sender, EventArgs e)
+        {
+            conReadingsUserCon.RsDriftX = profileSettingsVM.RightStickDriftXAxis;
+            conReadingsUserCon.RsDriftY = profileSettingsVM.RightStickDriftYAxis;
         }
 
         private void AssignTiltAssociation()
@@ -728,6 +750,11 @@ namespace DS4WinWPF.DS4Forms
             conReadingsUserCon.SixAxisXDead = profileSettingsVM.SXDeadZone;
             conReadingsUserCon.SixAxisZDead = profileSettingsVM.SZDeadZone;
 
+            conReadingsUserCon.LsDriftX = profileSettingsVM.LeftStickDriftXAxis;
+            conReadingsUserCon.LsDriftY = profileSettingsVM.LeftStickDriftYAxis;
+            conReadingsUserCon.RsDriftX = profileSettingsVM.RightStickDriftXAxis;
+            conReadingsUserCon.RsDriftY = profileSettingsVM.RightStickDriftYAxis;
+
             axialLSStickControl.AxialVM.DeadZoneXChanged += UpdateReadingsLsDeadZoneX;
             axialLSStickControl.AxialVM.DeadZoneYChanged += UpdateReadingsLsDeadZoneY;
             axialRSStickControl.AxialVM.DeadZoneXChanged += UpdateReadingsRsDeadZoneX;
@@ -778,6 +805,10 @@ namespace DS4WinWPF.DS4Forms
             conReadingsUserCon.R2Dead = profileSettingsVM.R2DeadZone;
             conReadingsUserCon.SixAxisXDead = profileSettingsVM.SXDeadZone;
             conReadingsUserCon.SixAxisZDead = profileSettingsVM.SZDeadZone;
+            conReadingsUserCon.LsDriftX = profileSettingsVM.LeftStickDriftXAxis;
+            conReadingsUserCon.LsDriftY = profileSettingsVM.LeftStickDriftYAxis;
+            conReadingsUserCon.RsDriftX = profileSettingsVM.RightStickDriftXAxis;
+            conReadingsUserCon.RsDriftY = profileSettingsVM.RightStickDriftYAxis;
         }
 
         private void CancelBtn_Click(object sender, RoutedEventArgs e)
