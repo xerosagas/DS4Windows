@@ -62,6 +62,11 @@ namespace DS4WinWPF.DS4Forms
         private double l2Dead;
         private double r2Dead;
 
+        private sbyte lsDriftX;
+        private sbyte lsDriftY;
+        private sbyte rsDriftX;
+        private sbyte rsDriftY;
+
         public double LsDeadX
         {
             get => lsDeadX;
@@ -150,6 +155,52 @@ namespace DS4WinWPF.DS4Forms
         }
         public event EventHandler R2DeadChanged;
 
+
+        public sbyte LsDriftX
+        {
+            get => lsDriftX;
+            set
+            {
+                lsDriftX = value;
+                LsDriftXChanged?.Invoke(this, EventArgs.Empty);
+            }
+        }
+        public event EventHandler LsDriftXChanged;
+
+        public sbyte LsDriftY
+        {
+            get => lsDriftY;
+            set
+            {
+                lsDriftY = value;
+                LsDriftYChanged?.Invoke(this, EventArgs.Empty);
+            }
+        }
+        public event EventHandler LsDriftYChanged;
+
+        public sbyte RsDriftX
+        {
+            get => rsDriftX;
+            set
+            {
+                rsDriftX = value;
+                RsDriftXChanged?.Invoke(this, EventArgs.Empty);
+            }
+        }
+        public event EventHandler RsDriftXChanged;
+
+        public sbyte RsDriftY
+        {
+            get => rsDriftY;
+            set
+            {
+                rsDriftY = value;
+                RsDriftYChanged?.Invoke(this, EventArgs.Empty);
+            }
+        }
+        public event EventHandler RsDriftYChanged;
+
+
         private LatencyWarnMode warnMode;
         private LatencyWarnMode prevWarnMode;
         private DS4State baseState = new DS4State();
@@ -176,12 +227,35 @@ namespace DS4WinWPF.DS4Forms
 
             SixAxisDeadXChanged += ChangeSixAxisDeadControls;
             SixAxisDeadZChanged += ChangeSixAxisDeadControls;
+
+            LsDriftXChanged += ChangeLsDriftControls;
+            LsDriftYChanged += ChangeLsDriftControls;
+
+            RsDriftXChanged += ChangeRsDriftControls;
+            RsDriftYChanged += ChangeRsDriftControls;
+
             DeviceNumChanged += ControllerReadingsControl_DeviceNumChanged;
         }
 
         private void ControllerReadingsControl_DeviceNumChanged(object sender, EventArgs e)
         {
             inputContNum.Content = $"#{deviceNum+1}";
+        }
+
+        private void ChangeRsDriftControls(object sender, EventArgs e)
+        {
+            rsDriftEllipse.Width = rsDeadX * CANVAS_WIDTH;
+            rsDriftEllipse.Height = rsDeadY * CANVAS_WIDTH;
+            Canvas.SetLeft(rsDriftEllipse, (1 + (RsDriftX / 127.0) - rsDeadX) * CANVAS_MIDPOINT);
+            Canvas.SetTop(rsDriftEllipse, (1 + (RsDriftY / 127.0) - rsDeadY) * CANVAS_MIDPOINT);
+        }
+
+        private void ChangeLsDriftControls(object sender, EventArgs e)
+        {
+            lsDriftEllipse.Width = lsDeadX * CANVAS_WIDTH;
+            lsDriftEllipse.Height = lsDeadY * CANVAS_WIDTH;
+            Canvas.SetLeft(lsDriftEllipse, (1 + (LsDriftX / 127.0) - lsDeadX) * CANVAS_MIDPOINT);
+            Canvas.SetTop(lsDriftEllipse, (1 + (LsDriftY / 127.0) - lsDeadY) * CANVAS_MIDPOINT);
         }
 
         private void ChangeSixAxisDeadControls(object sender, EventArgs e)
@@ -198,6 +272,7 @@ namespace DS4WinWPF.DS4Forms
             rsDeadEllipse.Height = rsDeadY * CANVAS_WIDTH;
             Canvas.SetLeft(rsDeadEllipse, CANVAS_MIDPOINT - (rsDeadX * CANVAS_WIDTH / 2.0));
             Canvas.SetTop(rsDeadEllipse, CANVAS_MIDPOINT - (rsDeadY * CANVAS_WIDTH / 2.0));
+            ChangeRsDriftControls(sender, e);
         }
 
         private void ChangeLsDeadControls(object sender, EventArgs e)
@@ -206,6 +281,7 @@ namespace DS4WinWPF.DS4Forms
             lsDeadEllipse.Height = lsDeadY * CANVAS_WIDTH;
             Canvas.SetLeft(lsDeadEllipse, CANVAS_MIDPOINT - (lsDeadX * CANVAS_WIDTH / 2.0));
             Canvas.SetTop(lsDeadEllipse, CANVAS_MIDPOINT - (lsDeadY * CANVAS_WIDTH / 2.0));
+            ChangeLsDriftControls(sender, e);
         }
 
         public void UseDevice(int index, int profileDevIdx)
