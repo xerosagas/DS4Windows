@@ -38,7 +38,7 @@ namespace DS4WinWPF.DS4Forms
         private const string InstallerDLX86 =
             "https://github.com/nefarius/ViGEmBus/releases/download/v1.22.0/ViGEmBus_1.22.0_x64_x86_arm64.exe";
 
-        private const string InstallerHidHideX64 = "https://github.com/nefarius/HidHide/releases/download/v1.2.128.0/HidHide_1.2.128_x64.exe";
+        private const string InstallerHidHideX64 = "https://github.com/nefarius/HidHide/releases/download/v1.5.230.0/HidHide_1.5.230_x64.exe";
         private const string InstallerFakerInputX64 = "https://github.com/Ryochan7/FakerInput/releases/download/v0.1.0/FakerInput_0.1.0_x64.msi";
         private const string InstallerFakerInputX86 = "https://github.com/Ryochan7/FakerInput/releases/download/v0.1.0/FakerInput_0.1.0_x86.msi";
 
