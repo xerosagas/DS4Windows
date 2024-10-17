@@ -160,6 +160,12 @@ namespace DS4WinWPF
                 DS4Forms.SaveWhere savewh =
                     new DS4Forms.SaveWhere(DS4Windows.Global.multisavespots);
                 savewh.ShowDialog();
+                if (!savewh.ChoiceMade)
+                {
+                    runShutdown = false;
+                    Current.Shutdown();
+                    return;
+                }
             }
 
             // Exit if base configuration could not be generated
