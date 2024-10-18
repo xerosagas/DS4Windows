@@ -176,12 +176,8 @@ namespace DS4Windows
 
             if (Marshal.GetLastWin32Error() != (uint)WIN32_ERROR.ERROR_IO_PENDING) return ReadStatus.ReadError;
 
-            if (!PInvoke.GetOverlappedResultEx(SafeReadHandle, ov, out var transferred, timeout, true))
+            if (!PInvoke.GetOverlappedResultEx(SafeReadHandle, ov, out _, timeout, true))
                 return ReadStatus.ReadError;
-            
-            // this should never happen
-            if (transferred > inputBuffer.Length)
-                throw new InvalidOperationException("We read more than the buffer can hold.");
 
             return ReadStatus.Success;
         }
@@ -204,11 +200,8 @@ namespace DS4Windows
 
                 if (Marshal.GetLastWin32Error() != (uint)WIN32_ERROR.ERROR_IO_PENDING) return false;
 
-                if (!PInvoke.GetOverlappedResult(SafeReadHandle, ov, out var transferred, true))
+                if (!PInvoke.GetOverlappedResult(SafeReadHandle, ov, out _, true))
                     return false;
-
-                if (transferred > outputBuffer.Length)
-                    throw new InvalidOperationException("Wrote more than the buffer size.");
 
                 return true;
         }
