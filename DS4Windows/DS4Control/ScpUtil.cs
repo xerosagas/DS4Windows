@@ -20,6 +20,7 @@ using DS4Windows.DS4Control;
 using DS4Windows.InputDevices;
 using DS4Windows.StickModifiers;
 using DS4WinWPF.DS4Control.DTOXml;
+using DS4WinWPF.DS4Forms.ViewModels;
 using Sensorit.Base;
 using System;
 using System.Collections.Generic;
@@ -44,6 +45,7 @@ using DS4WinWPF.ApiDTO;
 using WpfScreenHelper;
 using static DS4Windows.Mouse;
 using static DS4Windows.Util;
+using LightbarMacro = DS4WinWPF.DS4Forms.ViewModels.LightbarMacro;
 
 namespace DS4Windows
 {
@@ -132,7 +134,26 @@ namespace DS4Windows
         public enum ActionType : byte { Default, Key, Button, Macro };
         public ActionType actionType = ActionType.Default;
         public ControlActionData action = new ControlActionData();
-        public string lightbarMacro;
+
+        private string _lightbarMacroString;
+        public string LightbarMacroString
+        {
+            get => _lightbarMacroString;
+            set
+            {
+                _lightbarMacroString = value;
+                if (string.IsNullOrEmpty(value)) return;
+                try
+                {
+                    LightbarMacro = new LightbarMacro(value);
+                }
+                catch (ArgumentException)
+                {
+                    LightbarMacro = new LightbarMacro();
+                }
+            }
+        }
+        public LightbarMacro LightbarMacro { get; set; }
 
         public ActionType shiftActionType = ActionType.Default;
         public ControlActionData shiftAction = new ControlActionData();
@@ -156,7 +177,7 @@ namespace DS4Windows
             action = new ControlActionData();
             action.actionAlias = 0;
             //actionAlias = 0;
-            lightbarMacro = string.Empty;
+            LightbarMacroString = string.Empty;
             shiftActionType = ActionType.Default;
             shiftAction = new ControlActionData();
             shiftAction.actionAlias = 0;
@@ -9320,7 +9341,7 @@ namespace DS4Windows
             {
                 int index = temp - 1;
                 DS4ControlSettings dcs = ds4settings[deviceNum][index];
-                dcs.lightbarMacro = macro;
+                dcs.LightbarMacroString = macro;
             }
         }
 

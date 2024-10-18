@@ -492,6 +492,24 @@ namespace DS4WinWPF.Translations {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Cancel current macro.
+        /// </summary>
+        public static string CancelCurrentMacro {
+            get {
+                return ResourceManager.GetString("CancelCurrentMacro", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Indicates whether running this macro should stop a currently running one.
+        /// </summary>
+        public static string CancelCurrentMacroTooltip {
+            get {
+                return ResourceManager.GetString("CancelCurrentMacroTooltip", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Changelog.
         /// </summary>
         public static string Changelog {

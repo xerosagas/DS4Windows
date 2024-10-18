@@ -13,16 +13,12 @@
         Style="{DynamicResource WindowStyle}"
         Title="Lightbar macro creator" Height="450" Width="800">
     <Grid>
-        <Grid.RowDefinitions>
-            <RowDefinition />
-        </Grid.RowDefinitions>
-
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="5*" />
+            <ColumnDefinition Width="4*" />
             <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
 
-        <ListBox x:Name="MacroListBox" ItemsSource="{Binding MacroList}" SelectionMode="Single" />
+        <ListBox x:Name="MacroListBox" ItemsSource="{Binding LightbarMacro.Macro}" SelectionMode="Single" />
 
         <StackPanel Grid.Column="1">
             <Label Content="{lex:Loc ColorAndLength}" />
@@ -32,7 +28,11 @@
                 <Label Content="ms" />
             </StackPanel>
             <Label Content="{lex:Loc Trigger}" />
-            <ComboBox x:Name="TriggerCombo" SelectedItem="{Binding MacroTrigger}" HorizontalAlignment="Stretch" Margin="3 0" />
+            <ComboBox x:Name="TriggerCombo" SelectedItem="{Binding LightbarMacro.Trigger}" HorizontalAlignment="Stretch" Margin="3 0" />
+            <StackPanel Orientation="Horizontal">
+                <CheckBox IsChecked="{Binding LightbarMacro.CancelCurrent}" Margin="3 5 0 0" />
+                <Label Content="{lex:Loc CancelCurrentMacro}" ToolTip="{lex:Loc CancelCurrentMacroTooltip}" />
+            </StackPanel>
             <Button Content="{lex:Loc Add}" Click="AddColor_OnClick" Margin="3" />
             <Button Content="{lex:Loc Delete}" Click="DeleteColor_OnClick" Margin="3" />
             <Button Content="{lex:Loc Clear}" Click="Clear_OnClick" Margin="3" />

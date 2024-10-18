@@ -947,13 +947,8 @@ namespace DS4WinWPF.DS4Forms
 
         private void CreateLightbarMacro_Click(object sender, RoutedEventArgs e)
         {
-            LightbarMacroCreator dialog = new(bindingVM.ActionBinding.LightbarMacro, bindingVM.ActionBinding.LightbarMacroTrigger);
+            LightbarMacroCreator dialog = new(bindingVM.ActionBinding);
             dialog.Owner = Application.Current.MainWindow;
-            dialog.Save += (_, eventArgs) =>
-            {
-                bindingVM.PrepareSaveLightbarMacro(bindingVM.ActionBinding, eventArgs.MacroElements, eventArgs.Trigger,
-                    bindingVM.ActionBinding.IsShift());
-            };
             dialog.ShowDialog();
         }
 

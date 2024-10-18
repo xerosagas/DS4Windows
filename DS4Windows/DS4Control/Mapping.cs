@@ -18,6 +18,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.IO;
@@ -3470,10 +3471,6 @@ namespace DS4Windows
                 keyType = dcs.keyType;
             }
 
-            var lightbarMacro = new LightbarMacro(false, [], LightbarMacroTrigger.Press);
-            if (!string.IsNullOrEmpty(dcs.lightbarMacro))
-                lightbarMacro = OutBinding.GetLightbarMacroFromString(dcs.lightbarMacro);
-
             if (usingExtra == DS4Controls.None || usingExtra == dcs.control)
             {
                 bool shiftE = !dcs.IsExtrasEmpty(dcs.shiftExtras) && ShiftTrigger(dcs.shiftTrigger, device, cState, eState, tp, fieldMapping);
@@ -3507,7 +3504,7 @@ namespace DS4Windows
                         }
 
                         // lightbar macro takes precedence
-                        if (extras[2] == 1 && !lightbarMacro.Active)
+                        if (extras[2] == 1 && (!dcs.LightbarMacro?.Active ?? false))
                         {
                             DS4Color color = new DS4Color { red = (byte)extras[3], green = (byte)extras[4], blue = (byte)extras[5] };
                             DS4LightBar.forcedColor[device] = color;
@@ -3550,7 +3547,7 @@ namespace DS4Windows
             }
 
 
-            if (lightbarMacro.Active)
+            if (dcs.LightbarMacro is not null && dcs.LightbarMacro.Active)
             {
                 if (BoolDS4Controls.Contains(dcs.control))
                 {
@@ -3565,11 +3562,11 @@ namespace DS4Windows
 
                     if (prevButtonState != currButtonState)
                     {
-                        if ((lightbarMacro.Trigger == LightbarMacroTrigger.Press && !prevButtonState && currButtonState)
-                            || (lightbarMacro.Trigger == LightbarMacroTrigger.Release && prevButtonState &&
+                        if ((dcs.LightbarMacro.Trigger == LightbarMacroTrigger.Press && !prevButtonState && currButtonState)
+                            || (dcs.LightbarMacro.Trigger == LightbarMacroTrigger.Release && prevButtonState &&
                                 !currButtonState))
                         {
-                            if (lightbarMacroTask != null && !lightbarMacroTask.IsCompleted)
+                            if (dcs.LightbarMacro.CancelCurrent && lightbarMacroTask != null && !lightbarMacroTask.IsCompleted)
                             {
                                 threadCts.Cancel();
 
@@ -3587,7 +3584,15 @@ namespace DS4Windows
                                 }
                             }
 
-                            lightbarMacroTask = Task.Run(() => RunLightbarMacro(lightbarMacro.Macro, device, threadCts.Token));
+                            // if cancellation is on, the task has already been cancelled, if cancellation is off,
+                            // we need to make sure that we don't do Task.Run when the previous one hasn't completed yet,
+                            // as that would queue it and it's undesired. check for task being null too as it's
+                            // only initialised here and in case not a single macro hasn't run yet, it will be null
+                            if (dcs.LightbarMacro.CancelCurrent ||
+                                (!dcs.LightbarMacro.CancelCurrent
+                                 && (lightbarMacroTask is null || lightbarMacroTask.IsCompleted))
+                                )
+                                lightbarMacroTask = Task.Run(() => RunLightbarMacro(dcs.LightbarMacro.Macro, device, threadCts.Token));
                         }
                     }
                 }
@@ -3899,7 +3904,7 @@ namespace DS4Windows
             }
         }
 
-        private static void RunLightbarMacro(LightbarMacroElement[] macro, int device, CancellationToken token)
+        private static void RunLightbarMacro(ObservableCollection<LightbarMacroElement> macro, int device, CancellationToken token)
         {
             lock (DS4LightBar.forcedColor) lock (DS4LightBar.forcelight)
             {
@@ -3908,7 +3913,7 @@ namespace DS4Windows
                 var timestamp = DateTime.UtcNow.Ticks;
                 var i = 0;
 
-                while (i < macro.Length)
+                while (i < macro.Count)
                 {
                     if (token.IsCancellationRequested)
                     {

@@ -96,7 +96,7 @@ namespace DS4Windows
             catch { return false; }
         }
 
-        public override string ToString() => $"Red: {red} Green: {green} Blue: {blue}";
+        public override string ToString() => $"#{red:X}{green:X}{blue:X}";
     }
 
     public enum ConnectionType : byte { BT, SONYWA, USB }; // Prioritize Bluetooth when both BT and USB are connected.
