@@ -1,7 +1,7 @@
 # Moonlight virtual controller support
 
-Moonlight virtual controller is supported from version 3.7.0 up.
-You can enable it in `Settings -> Device Options -> Moonlight Support`.
+ViGEm-based virtual controllers are supported from version 3.7.0 up.
+You can enable it in `Settings -> Device Options -> Virtual Controller Support`.
 
 ## Support modes
 
@@ -10,7 +10,7 @@ Not selecting `Advanced Support` means you're using the simple implementation of
 which should be sufficient for most users.
 
 #### Technicalities
-When a new controller is detected, its checked for being virtual. Normally, if it's detected that it's a virtual device,
+When a new controller is detected, it's checked for being virtual. Normally, if it's detected that it's a virtual device,
 it simply wouldn't be added to the controllers list. However, this behaviour makes the detection of the Moonlight virtual controller impossible.
 To counteract this, this support mode makes all devices with a matching Vendor and Product ID skip the check.
 

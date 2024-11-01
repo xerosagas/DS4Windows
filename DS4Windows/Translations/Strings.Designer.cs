@@ -789,7 +789,7 @@ namespace DS4WinWPF.Translations {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Moonlight Support.
+        ///   Looks up a localized string similar to Virtual Controller Support.
         /// </summary>
         public static string ControllerSupportMoonlight {
             get {

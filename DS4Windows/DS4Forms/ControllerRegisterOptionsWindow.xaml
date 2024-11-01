@@ -28,7 +28,7 @@
                 <TextBlock>
                     <Hyperlink NavigateUri="https://github.com/schmaldeo/DS4Windows/blob/moonlight/doc/moonlight_support.md"
                                RequestNavigate="Hyperlink_RequestNavigate">
-                        About Moonlight support
+                        About virtual controller support
                     </Hyperlink>
                 </TextBlock>
             </StackPanel>
