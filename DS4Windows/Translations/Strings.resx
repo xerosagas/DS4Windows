@@ -1472,4 +1472,7 @@ Please click OK to confirm that you have read the message. Press Cancel to be re
   <data name="CancelCurrentMacroTooltip" xml:space="preserve">
     <value>Indicates whether running this macro should stop a currently running one</value>
   </data>
+  <data name="ExportSpecialActions" xml:space="preserve">
+    <value>Export actions</value>
+  </data>
 </root>

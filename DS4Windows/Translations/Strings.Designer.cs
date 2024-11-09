@@ -1387,6 +1387,15 @@ namespace DS4WinWPF.Translations {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Export actions.
+        /// </summary>
+        public static string ExportSpecialActions {
+            get {
+                return ResourceManager.GetString("ExportSpecialActions", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Extra.
         /// </summary>
         public static string Extra {
