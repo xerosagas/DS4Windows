@@ -222,6 +222,8 @@ namespace DS4WinWPF.DS4Forms
                     catch
                     {
                         Dispatcher.Invoke(() => MessageBox.Show(Strings.FailedToRetrieveLatestVersion, "DS4Windows Updater"));
+                        // bubble the exception up to allow to see what's wrong in the log
+                        throw;
                     }
 
                     Global.LastChecked = DateTime.Now;
@@ -1498,6 +1500,8 @@ Suspend support not enabled.", true);
                 catch
                 {
                     Dispatcher.Invoke(() => MessageBox.Show(Strings.FailedToRetrieveLatestVersion, "DS4Windows Updater"));
+                    // bubble the exception up to allow to see what's wrong in the log
+                    throw;
                 }
             });
         }
