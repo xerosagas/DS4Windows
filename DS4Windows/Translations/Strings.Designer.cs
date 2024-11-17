@@ -789,7 +789,7 @@ namespace DS4WinWPF.Translations {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Moonlight Support.
+        ///   Looks up a localized string similar to Virtual Controller Support.
         /// </summary>
         public static string ControllerSupportMoonlight {
             get {
@@ -1383,6 +1383,15 @@ namespace DS4WinWPF.Translations {
         public static string Export {
             get {
                 return ResourceManager.GetString("Export", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Export actions.
+        /// </summary>
+        public static string ExportSpecialActions {
+            get {
+                return ResourceManager.GetString("ExportSpecialActions", resourceCulture);
             }
         }
         

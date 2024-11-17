@@ -1782,6 +1782,23 @@ namespace DS4WinWPF.DS4Forms
             };
             window.ShowDialog();
         }
+
+        private void ExportSpecialActions_OnClick(object sender, RoutedEventArgs e)
+        {
+            var dialog = new SaveFileDialog();
+            dialog.AddExtension = true;
+            dialog.DefaultExt = ".xml";
+            dialog.FileName = "Actions";
+            dialog.Filter = "DS4Windows Special Actions (*.xml)|*.xml";
+            if (dialog.ShowDialog() == DialogResult.OK)
+            {
+                var profileStream = new StreamReader(@$"{Global.appdatapath}\Actions.xml").BaseStream;
+                var dialogStream = dialog.OpenFile();
+                profileStream.CopyTo(dialogStream);
+                profileStream.Close();
+                dialogStream.Close();
+            }
+        }
     }
 
     public class ResourcePaths

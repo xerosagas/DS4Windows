@@ -213,7 +213,7 @@ namespace DS4WinWPF.DS4Forms
         public ControllerReadingsControl()
         {
             InitializeComponent();
-            inputContNum.Content = $"#{deviceNum+1}";
+            inputContNum.Content = $"#{deviceNum + 1}";
             exposeState = new DS4StateExposed(baseState);
 
             readingTimer = new NonFormTimer();
@@ -221,25 +221,36 @@ namespace DS4WinWPF.DS4Forms
 
             LsDeadXChanged += ChangeLsDeadControls;
             LsDeadYChanged += ChangeLsDeadControls;
+            LsDeadXChanged += ChangeLsDriftControls;
+            LsDeadYChanged += ChangeLsDriftControls;
 
             RsDeadXChanged += ChangeRsDeadControls;
             RsDeadYChanged += ChangeRsDeadControls;
-
-            SixAxisDeadXChanged += ChangeSixAxisDeadControls;
-            SixAxisDeadZChanged += ChangeSixAxisDeadControls;
+            RsDeadXChanged += ChangeRsDriftControls;
+            RsDeadYChanged += ChangeRsDriftControls;
 
             LsDriftXChanged += ChangeLsDriftControls;
             LsDriftYChanged += ChangeLsDriftControls;
-
             RsDriftXChanged += ChangeRsDriftControls;
             RsDriftYChanged += ChangeRsDriftControls;
+
+            SixAxisDeadXChanged += ChangeSixAxisDeadControls;
+            SixAxisDeadZChanged += ChangeSixAxisDeadControls;
 
             DeviceNumChanged += ControllerReadingsControl_DeviceNumChanged;
         }
 
         private void ControllerReadingsControl_DeviceNumChanged(object sender, EventArgs e)
         {
-            inputContNum.Content = $"#{deviceNum+1}";
+            inputContNum.Content = $"#{deviceNum + 1}";
+        }
+
+        private void ChangeSixAxisDeadControls(object sender, EventArgs e)
+        {
+            sixAxisDeadEllipse.Width = sixAxisXDead * CANVAS_WIDTH;
+            sixAxisDeadEllipse.Height = sixAxisZDead * CANVAS_WIDTH;
+            Canvas.SetLeft(sixAxisDeadEllipse, CANVAS_MIDPOINT - (sixAxisXDead * CANVAS_WIDTH / 2.0));
+            Canvas.SetTop(sixAxisDeadEllipse, CANVAS_MIDPOINT - (sixAxisZDead * CANVAS_WIDTH / 2.0));
         }
 
         private void ChangeRsDriftControls(object sender, EventArgs e)
@@ -258,21 +269,12 @@ namespace DS4WinWPF.DS4Forms
             Canvas.SetTop(lsDriftEllipse, (1 + (LsDriftY / 127.0) - lsDeadY) * CANVAS_MIDPOINT);
         }
 
-        private void ChangeSixAxisDeadControls(object sender, EventArgs e)
-        {
-            sixAxisDeadEllipse.Width = sixAxisXDead * CANVAS_WIDTH;
-            sixAxisDeadEllipse.Height = sixAxisZDead * CANVAS_WIDTH;
-            Canvas.SetLeft(sixAxisDeadEllipse, CANVAS_MIDPOINT - (sixAxisXDead * CANVAS_WIDTH / 2.0));
-            Canvas.SetTop(sixAxisDeadEllipse, CANVAS_MIDPOINT - (sixAxisZDead * CANVAS_WIDTH / 2.0));
-        }
-
         private void ChangeRsDeadControls(object sender, EventArgs e)
         {
             rsDeadEllipse.Width = rsDeadX * CANVAS_WIDTH;
             rsDeadEllipse.Height = rsDeadY * CANVAS_WIDTH;
             Canvas.SetLeft(rsDeadEllipse, CANVAS_MIDPOINT - (rsDeadX * CANVAS_WIDTH / 2.0));
             Canvas.SetTop(rsDeadEllipse, CANVAS_MIDPOINT - (rsDeadY * CANVAS_WIDTH / 2.0));
-            ChangeRsDriftControls(sender, e);
         }
 
         private void ChangeLsDeadControls(object sender, EventArgs e)
@@ -281,7 +283,6 @@ namespace DS4WinWPF.DS4Forms
             lsDeadEllipse.Height = lsDeadY * CANVAS_WIDTH;
             Canvas.SetLeft(lsDeadEllipse, CANVAS_MIDPOINT - (lsDeadX * CANVAS_WIDTH / 2.0));
             Canvas.SetTop(lsDeadEllipse, CANVAS_MIDPOINT - (lsDeadY * CANVAS_WIDTH / 2.0));
-            ChangeLsDriftControls(sender, e);
         }
 
         public void UseDevice(int index, int profileDevIdx)
@@ -346,8 +347,8 @@ namespace DS4WinWPF.DS4Forms
                     //bool mappedLS = interState.LX != x || interState.LY != y;
                     //if (mappedLS)
                     //{
-                        Canvas.SetLeft(lsMapValRec, interState.LX / 255.0 * CANVAS_WIDTH - 3);
-                        Canvas.SetTop(lsMapValRec, interState.LY / 255.0 * CANVAS_WIDTH - 3);
+                    Canvas.SetLeft(lsMapValRec, interState.LX / 255.0 * CANVAS_WIDTH - 3);
+                    Canvas.SetTop(lsMapValRec, interState.LY / 255.0 * CANVAS_WIDTH - 3);
                     //}
 
                     x = baseState.RX;
