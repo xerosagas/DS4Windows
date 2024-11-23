@@ -1252,39 +1252,42 @@ namespace DS4Windows.InputDevices
         private byte[] Subcommand(byte subcommand, byte[] tmpBuffer, uint bufLen,
             bool checkResponse = false)
         {
-            int retryLimit = 100; stickCalibRetryTag:
+            int retryLimit = 100;
+            byte[] tmpReport;
 
-            bool result;
-            byte[] commandBuffer = new byte[SUBCOMMAND_BUFFER_LEN];
-            Array.Copy(commandBuffHeader, 0, commandBuffer, 2, SUBCOMMAND_HEADER_LEN);
-            Array.Copy(tmpBuffer, 0, commandBuffer, 11, bufLen);
-
-            commandBuffer[0] = 0x01;
-            commandBuffer[1] = frameCount;
-            frameCount = (byte)(++frameCount & 0x0F);
-            commandBuffer[10] = subcommand;
-
-            result = hDevice.WriteOutputReportViaInterrupt(commandBuffer, 0);
-
-            byte[] tmpReport = null;
-            if (result && checkResponse)
+            do
             {
-                tmpReport = new byte[inputReportLen];
-                HidDevice.ReadStatus res;
-                res = hDevice.ReadFile(tmpReport, SUBCOMMAND_RESPONSE_TIMEOUT);
-                int tries = 1;
-                while (res == HidDevice.ReadStatus.Success &&
-                    tmpReport[0] != 0x21 && tmpReport[14] != subcommand && tries < 100)
+                bool result;
+                byte[] commandBuffer = new byte[SUBCOMMAND_BUFFER_LEN];
+                Array.Copy(commandBuffHeader, 0, commandBuffer, 2, SUBCOMMAND_HEADER_LEN);
+                Array.Copy(tmpBuffer, 0, commandBuffer, 11, bufLen);
+
+                commandBuffer[0] = 0x01;
+                commandBuffer[1] = frameCount;
+                frameCount = (byte)(++frameCount & 0x0F);
+                commandBuffer[10] = subcommand;
+
+                result = hDevice.WriteOutputReportViaInterrupt(commandBuffer, 0);
+
+                tmpReport = null;
+                if (result && checkResponse)
                 {
-                    //Console.WriteLine("TRY AGAIN: {0}", tmpReport[0]);
+                    tmpReport = new byte[inputReportLen];
+                    HidDevice.ReadStatus res;
                     res = hDevice.ReadFile(tmpReport, SUBCOMMAND_RESPONSE_TIMEOUT);
-                    tries++;
+                    int tries = 1;
+                    while (res == HidDevice.ReadStatus.Success &&
+                        tmpReport[0] != 0x21 && tmpReport[14] != subcommand && tries < 100)
+                    {
+                        //Console.WriteLine("TRY AGAIN: {0}", tmpReport[0]);
+                        res = hDevice.ReadFile(tmpReport, SUBCOMMAND_RESPONSE_TIMEOUT);
+                        tries++;
+                    }
+
+                    //Console.WriteLine("END GAME: {0} {1} {2}", subcommand, tmpReport[0], tries);
                 }
-
-                //Console.WriteLine("END GAME: {0} {1} {2}", subcommand, tmpReport[0], tries);
             }
-
-            if (ReloadStickCalib(subcommand, tmpBuffer, tmpReport, ref retryLimit)) { goto stickCalibRetryTag; }
+            while (ReloadStickCalib(subcommand, tmpBuffer, tmpReport, ref retryLimit));
 
             return tmpReport;
         }
