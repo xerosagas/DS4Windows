@@ -1252,37 +1252,71 @@ namespace DS4Windows.InputDevices
         private byte[] Subcommand(byte subcommand, byte[] tmpBuffer, uint bufLen,
             bool checkResponse = false)
         {
-            bool result;
-            byte[] commandBuffer = new byte[SUBCOMMAND_BUFFER_LEN];
-            Array.Copy(commandBuffHeader, 0, commandBuffer, 2, SUBCOMMAND_HEADER_LEN);
-            Array.Copy(tmpBuffer, 0, commandBuffer, 11, bufLen);
+            int retryLimit = 100;
+            byte[] tmpReport;
 
-            commandBuffer[0] = 0x01;
-            commandBuffer[1] = frameCount;
-            frameCount = (byte)(++frameCount & 0x0F);
-            commandBuffer[10] = subcommand;
-
-            result = hDevice.WriteOutputReportViaInterrupt(commandBuffer, 0);
-
-            byte[] tmpReport = null;
-            if (result && checkResponse)
+            do
             {
-                tmpReport = new byte[inputReportLen];
-                HidDevice.ReadStatus res;
-                res = hDevice.ReadFile(tmpReport, SUBCOMMAND_RESPONSE_TIMEOUT);
-                int tries = 1;
-                while (res == HidDevice.ReadStatus.Success &&
-                    tmpReport[0] != 0x21 && tmpReport[14] != subcommand && tries < 100)
-                {
-                    //Console.WriteLine("TRY AGAIN: {0}", tmpReport[0]);
-                    res = hDevice.ReadFile(tmpReport, SUBCOMMAND_RESPONSE_TIMEOUT);
-                    tries++;
-                }
+                bool result;
+                byte[] commandBuffer = new byte[SUBCOMMAND_BUFFER_LEN];
+                Array.Copy(commandBuffHeader, 0, commandBuffer, 2, SUBCOMMAND_HEADER_LEN);
+                Array.Copy(tmpBuffer, 0, commandBuffer, 11, bufLen);
 
-                //Console.WriteLine("END GAME: {0} {1} {2}", subcommand, tmpReport[0], tries);
+                commandBuffer[0] = 0x01;
+                commandBuffer[1] = frameCount;
+                frameCount = (byte)(++frameCount & 0x0F);
+                commandBuffer[10] = subcommand;
+
+                result = hDevice.WriteOutputReportViaInterrupt(commandBuffer, 0);
+
+                tmpReport = null;
+                if (result && checkResponse)
+                {
+                    tmpReport = new byte[inputReportLen];
+                    HidDevice.ReadStatus res;
+                    res = hDevice.ReadFile(tmpReport, SUBCOMMAND_RESPONSE_TIMEOUT);
+                    int tries = 1;
+                    while (res == HidDevice.ReadStatus.Success &&
+                        tmpReport[0] != 0x21 && tmpReport[14] != subcommand && tries < 100)
+                    {
+                        //Console.WriteLine("TRY AGAIN: {0}", tmpReport[0]);
+                        res = hDevice.ReadFile(tmpReport, SUBCOMMAND_RESPONSE_TIMEOUT);
+                        tries++;
+                    }
+
+                    //Console.WriteLine("END GAME: {0} {1} {2}", subcommand, tmpReport[0], tries);
+                }
             }
+            while (ReloadStickCalib(subcommand, tmpBuffer, tmpReport, ref retryLimit));
 
             return tmpReport;
+        }
+
+        private bool ReloadStickCalib(byte subcommand, ReadOnlySpan<byte> tmpBuffer, ReadOnlySpan<byte> tmpReport, ref int retryLimit)
+        {
+            if (subcommand != 0x10) { return false; }
+            if (retryLimit-- <= 0) { return false; }
+
+            if (tmpBuffer.SequenceEqual<byte>([0x3D, 0x60, 0x00, 0x00, 0x09]) || // LEFT  STICK FACTORY CALIB
+                tmpBuffer.SequenceEqual<byte>([0x46, 0x60, 0x00, 0x00, 0x09]) || // RIGHT STICK FACTORY CALIB
+                tmpBuffer.SequenceEqual<byte>([0x12, 0x80, 0x00, 0x00, 0x09]) || // LEFT  STICK USER    CALIB
+                tmpBuffer.SequenceEqual<byte>([0x1D, 0x80, 0x00, 0x00, 0x09]))   // RIGHT STICK USER    CALIB
+            {
+                var SPI_RESP_OFFSET = 20;
+                var stickCalib = new ushort[6];
+                stickCalib[0] = (ushort)(((tmpReport[1 + SPI_RESP_OFFSET] << 8) & 0xF00) | tmpReport[0 + SPI_RESP_OFFSET]); // X Axis Max above center
+                stickCalib[1] = (ushort)((tmpReport[2 + SPI_RESP_OFFSET] << 4) | (tmpReport[1 + SPI_RESP_OFFSET] >> 4)); // Y Axis Max above center
+                stickCalib[2] = (ushort)(((tmpReport[4 + SPI_RESP_OFFSET] << 8) & 0xF00) | tmpReport[3 + SPI_RESP_OFFSET]); // X Axis Center
+                stickCalib[3] = (ushort)((tmpReport[5 + SPI_RESP_OFFSET] << 4) | (tmpReport[4 + SPI_RESP_OFFSET] >> 4)); // Y Axis Center
+                stickCalib[4] = (ushort)(((tmpReport[7 + SPI_RESP_OFFSET] << 8) & 0xF00) | tmpReport[6 + SPI_RESP_OFFSET]); // X Axis Min below center
+                stickCalib[5] = (ushort)((tmpReport[8 + SPI_RESP_OFFSET] << 4) | (tmpReport[7 + SPI_RESP_OFFSET] >> 4)); // Y Axis Min below center
+
+                return stickCalib.Any(item => item == 0);
+            }
+            else
+            {
+                return false;
+            }
         }
 
         public void WriteReport()
