@@ -860,8 +860,13 @@ namespace DS4WinWPF.DS4Forms
                     if (!bindingVM.RumbleActive)
                     {
                         bindingVM.RumbleActive = true;
-                        d.setRumble((byte)Math.Min(255, bindingVM.ActionBinding.LightRumble),
+                        if (Global.InverseRumbleMotors[deviceNum])
+                            d.setRumble((byte)Math.Min(255, bindingVM.ActionBinding.HeavyRumble),
+                                (byte)Math.Min(255, bindingVM.ActionBinding.LightRumble));
+                        else
+                            d.setRumble((byte)Math.Min(255, bindingVM.ActionBinding.LightRumble),
                             (byte)Math.Min(255, bindingVM.ActionBinding.HeavyRumble));
+
                         testRumbleBtn.Content = Properties.Resources.StopText;
                     }
                     else

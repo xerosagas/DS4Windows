@@ -159,6 +159,13 @@ namespace DS4WinWPF.DS4Control.DTOXml
             get; set;
         }
 
+        [XmlElement("InverseRumbleMotors")]
+        public bool InverseRumbleMotors
+        {
+            get;
+            set;
+        }
+
         [XmlElement("UseDs3PitchRollSim")]
         public bool UseDs3PitchRollSim
         {
@@ -1477,6 +1484,7 @@ namespace DS4WinWPF.DS4Control.DTOXml
             RightStickDriftXAxis = source.rightStickDriftXAxis[deviceIndex];
             RightStickDriftYAxis = source.rightStickDriftYAxis[deviceIndex];
             DebouncingMs = source.debouncingMs[deviceIndex];
+            InverseRumbleMotors = source.inverseRumbleMotors[deviceIndex];
             RumbleBoost = source.rumble[deviceIndex];
             RumbleAutostopTime = source.rumbleAutostopTime[deviceIndex];
             LedAsBatteryIndicator = lightInfo.ledAsBattery;
@@ -1996,6 +2004,7 @@ namespace DS4WinWPF.DS4Control.DTOXml
 
             destination.useDs3PitchRollSim = UseDs3PitchRollSim;
             destination.debouncingMs[deviceIndex] = DebouncingMs;
+            destination.inverseRumbleMotors[deviceIndex] = InverseRumbleMotors;
             destination.leftStickDriftXAxis[deviceIndex] = LeftStickDriftXAxis;
             destination.leftStickDriftYAxis[deviceIndex] = LeftStickDriftYAxis;
             destination.rightStickDriftXAxis[deviceIndex] = RightStickDriftXAxis;

@@ -1115,14 +1115,22 @@ namespace DS4WinWPF.DS4Forms
                         }
 
                         profileSettingsVM.HeavyRumbleActive = true;
-                        d.setRumble(d.RightLightFastRumble,
+                        if (Global.InverseRumbleMotors[deviceNum])
+                            d.setRumble((byte)Math.Min(255, 255 * rumbleBoost / 100),
+                                d.RightLightFastRumble);
+                        else
+                            d.setRumble(d.RightLightFastRumble,
                             (byte)Math.Min(255, 255 * rumbleBoost / 100));
+
                         heavyRumbleTestBtn.Content = Properties.Resources.StopHText;
                     }
                     else
                     {
                         profileSettingsVM.HeavyRumbleActive = false;
-                        d.setRumble(d.RightLightFastRumble, 0);
+                        if (Global.InverseRumbleMotors[deviceNum])
+                            d.setRumble(0, d.RightLightFastRumble);
+                        else
+                            d.setRumble(d.RightLightFastRumble, 0);
                         heavyRumbleTestBtn.Content = Properties.Resources.TestHText;
                     }
                 }
@@ -1152,14 +1160,22 @@ namespace DS4WinWPF.DS4Forms
                         }
 
                         profileSettingsVM.LightRumbleActive = true;
-                        d.setRumble((byte)Math.Min(255, 255 * rumbleBoost / 100),
-                            d.LeftHeavySlowRumble);
+                        if (Global.InverseRumbleMotors[deviceNum])
+                            d.setRumble(d.LeftHeavySlowRumble,
+                                (byte)Math.Min(255, 255 * rumbleBoost / 100));
+                        else
+                            d.setRumble((byte)Math.Min(255, 255 * rumbleBoost / 100),
+                                d.LeftHeavySlowRumble);
+
                         lightRumbleTestBtn.Content = Properties.Resources.StopLText;
                     }
                     else
                     {
                         profileSettingsVM.LightRumbleActive = false;
-                        d.setRumble(0, d.LeftHeavySlowRumble);
+                        if (Global.InverseRumbleMotors[deviceNum])
+                            d.setRumble(d.LeftHeavySlowRumble, 0);
+                        else
+                            d.setRumble(0, d.LeftHeavySlowRumble);
                         lightRumbleTestBtn.Content = Properties.Resources.TestLText;
                     }
                 }

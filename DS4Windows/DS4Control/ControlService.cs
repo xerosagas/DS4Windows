@@ -1178,7 +1178,10 @@ namespace DS4Windows
                             if ((reportData[1] & DS4OutDevice.RUMBLE_FEATURE_FLAG) != 0)
                             {
                                 useRumble = true;
-                                device.setRumble(reportData[4], reportData[5]);
+                                if (Global.InverseRumbleMotors[devIndex])
+                                    device.setRumble(reportData[5], reportData[4]);
+                                else
+                                    device.setRumble(reportData[4], reportData[5]);
                                 //SetDevRumble(device, devour[4], devour[5], devIndex);
                             }
 
@@ -3212,7 +3215,10 @@ namespace DS4Windows
             if (heavyBoosted > 255)
                 heavyBoosted = 255;
 
-            device.setRumble((byte)lightBoosted, (byte)heavyBoosted);
+            if (Global.InverseRumbleMotors[deviceNum])
+                device.setRumble((byte)heavyBoosted, (byte)lightBoosted);
+            else
+                device.setRumble((byte)lightBoosted, (byte)heavyBoosted);
         }
 
         public DS4State getDS4State(int ind)

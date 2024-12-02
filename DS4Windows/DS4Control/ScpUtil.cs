@@ -1954,6 +1954,8 @@ namespace DS4Windows
         public static sbyte[] LeftStickDriftXAxis => m_Config.leftStickDriftXAxis;
         public static sbyte[] LeftStickDriftYAxis => m_Config.leftStickDriftYAxis;
 
+        public static bool[] InverseRumbleMotors => m_Config.inverseRumbleMotors;
+
         public static int[] DebouncingMs => m_Config.debouncingMs;
 
         public static void DebouncingMsHasChanged()
@@ -3906,6 +3908,11 @@ namespace DS4Windows
         {
             0, 0, 0, 0, 0, 0, 0, 0, 0
         };
+
+        public bool[] inverseRumbleMotors = {
+            false, false, false, false, false, false, false, false, false
+        };
+
         public bool useDs3PitchRollSim = false;
 
         public ControlServiceDeviceOptions deviceOptions =

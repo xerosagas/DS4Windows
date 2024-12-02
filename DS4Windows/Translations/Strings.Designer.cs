@@ -1855,6 +1855,15 @@ namespace DS4WinWPF.Translations {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Inverse motors.
+        /// </summary>
+        public static string InverseMotors {
+            get {
+                return ResourceManager.GetString("InverseMotors", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Maps the controller output to virtual KB+M controls. Useful for playing FPS games with no gamepad support. Gyro is mapped to a virtual Mouse..
         /// </summary>
         public static string KBMGyroMouseDescription {
