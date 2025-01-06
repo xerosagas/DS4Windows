@@ -2985,6 +2985,13 @@ namespace DS4WinWPF.DS4Forms.ViewModels
             get => Global.IsUsingMinViGEm117333();
         }
 
+
+        public bool InverseRumbleMotors
+        {
+            get => Global.InverseRumbleMotors[device];
+            set => Global.InverseRumbleMotors[device] = value;
+        }
+
         public ProfileSettingsViewModel(int device)
         {
             this.device = device;

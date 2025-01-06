@@ -2087,10 +2087,10 @@
                                     </DockPanel>
                                 </UniformGrid>
 
-                                <Button x:Name="heavyRumbleTestBtn" Content="{lex:Loc TestHeavy}" Margin="10,0,0,0" Click="HeavyRumbleTestBtn_Click" />
-                                <Button x:Name="lightRumbleTestBtn" Content="{lex:Loc TestLight}" Margin="10,0,0,0" Click="LightRumbleTestBtn_Click" />
+                                <Button x:Name="heavyRumbleTestBtn" Content="{lex:Loc TestHeavy}" Margin="10,0,0,0" Click="RumbleTestBtn_Click" />
+                                <Button x:Name="lightRumbleTestBtn" Content="{lex:Loc TestLight}" Margin="10,0,0,0" Click="RumbleTestBtn_Click" />
                             </UniformGrid>
-                                <CheckBox Content="{lex:Loc InverseMotors}" />
+                                <CheckBox Content="{lex:Loc InverseMotors}" IsChecked="{Binding InverseRumbleMotors}" />
                                 <GroupBox Header="{lex:Loc DualSRumbleSpecificSettings}" Margin="0,12,0,0" Padding="2,4">
 
                                     <StackPanel>

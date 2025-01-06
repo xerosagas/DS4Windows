@@ -44,7 +44,6 @@ namespace DS4WinWPF.DS4Forms.ViewModels
             set => DS4Windows.Global.UseExclusiveMode = value;
         }
 
-
         public bool SwipeTouchSwitchProfile { get => DS4Windows.Global.SwipeProfiles;
             set => DS4Windows.Global.SwipeProfiles = value; }
 

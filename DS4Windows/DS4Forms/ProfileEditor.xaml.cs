@@ -45,19 +45,30 @@ namespace DS4WinWPF.DS4Forms
         private SpecialActionsListViewModel specialActionsVM;
 
         public event EventHandler Closed;
+
         public delegate void CreatedProfileHandler(ProfileEditor sender, string profile);
+
         public event CreatedProfileHandler CreatedProfile;
 
         private Dictionary<Button, ImageBrush> hoverImages =
             new Dictionary<Button, ImageBrush>();
+
         private Dictionary<Button, HoverImageInfo> hoverLocations = new Dictionary<Button, HoverImageInfo>();
         private Dictionary<Button, int> hoverIndexes = new Dictionary<Button, int>();
         private Dictionary<int, Button> reverseHoverIndexes = new Dictionary<int, Button>();
 
         private bool keepsize;
         private bool controllerReadingsTabActive = false;
-        public bool Keepsize { get => keepsize; }
-        public int DeviceNum { get => deviceNum; }
+
+        public bool Keepsize
+        {
+            get => keepsize;
+        }
+
+        public int DeviceNum
+        {
+            get => deviceNum;
+        }
 
         private NonFormTimer inputTimer;
 
@@ -327,7 +338,7 @@ namespace DS4WinWPF.DS4Forms
 
         private void PopulateReverseHoverIndexes()
         {
-            foreach(KeyValuePair<Button, int> pair in hoverIndexes)
+            foreach (KeyValuePair<Button, int> pair in hoverIndexes)
             {
                 reverseHoverIndexes.Add(pair.Value, pair.Key);
             }
@@ -378,7 +389,7 @@ namespace DS4WinWPF.DS4Forms
             hoverIndexes[swipeDownBtn] = 38;
             hoverIndexes[swipeLeftBtn] = 39;
             hoverIndexes[swipeRightBtn] = 40;
-            
+
             hoverIndexes[fnlConBtn] = 41;
             hoverIndexes[fnrConBtn] = 42;
             hoverIndexes[brpConBtn] = 43;
@@ -387,69 +398,148 @@ namespace DS4WinWPF.DS4Forms
 
         private void PopulateHoverLocations()
         {
-            hoverLocations[crossConBtn] = new HoverImageInfo() { point = new Point(Canvas.GetLeft(crossConBtn), Canvas.GetTop(crossConBtn)),
-                size = new Size(crossConBtn.Width, crossConBtn.Height) };
-            hoverLocations[circleConBtn] = new HoverImageInfo() { point = new Point(Canvas.GetLeft(circleConBtn), Canvas.GetTop(circleConBtn)),
-                size = new Size(circleConBtn.Width, circleConBtn.Height) };
-            hoverLocations[squareConBtn] = new HoverImageInfo() { point = new Point(Canvas.GetLeft(squareConBtn), Canvas.GetTop(squareConBtn)),
-                size = new Size(squareConBtn.Width, squareConBtn.Height) };
-            hoverLocations[triangleConBtn] = new HoverImageInfo() { point = new Point(Canvas.GetLeft(triangleConBtn), Canvas.GetTop(triangleConBtn)),
-                size = new Size(triangleConBtn.Width, triangleConBtn.Height) };
-            hoverLocations[l1ConBtn] = new HoverImageInfo() { point = new Point(Canvas.GetLeft(l1ConBtn), Canvas.GetTop(l1ConBtn)),
-                size = new Size(l1ConBtn.Width, l1ConBtn.Height) };
-            hoverLocations[r1ConBtn] = new HoverImageInfo() { point = new Point(Canvas.GetLeft(r1ConBtn), Canvas.GetTop(r1ConBtn)),
-                size = new Size(r1ConBtn.Width, r1ConBtn.Height) };
-            hoverLocations[l2ConBtn] = new HoverImageInfo() { point = new Point(Canvas.GetLeft(l2ConBtn), Canvas.GetTop(l2ConBtn)),
-                size = new Size(l2ConBtn.Width, l2ConBtn.Height) };
-            hoverLocations[r2ConBtn] = new HoverImageInfo() { point = new Point(Canvas.GetLeft(r2ConBtn), Canvas.GetTop(r2ConBtn)),
-                size = new Size(r2ConBtn.Width, r2ConBtn.Height) };
-            hoverLocations[shareConBtn] = new HoverImageInfo() { point = new Point(Canvas.GetLeft(shareConBtn), Canvas.GetTop(shareConBtn)),
-                size = new Size(shareConBtn.Width, shareConBtn.Height) };
-            hoverLocations[optionsConBtn] = new HoverImageInfo() { point = new Point(Canvas.GetLeft(optionsConBtn), Canvas.GetTop(optionsConBtn)),
-                size = new Size(optionsConBtn.Width, optionsConBtn.Height) };
-            hoverLocations[guideConBtn] = new HoverImageInfo() { point = new Point(Canvas.GetLeft(guideConBtn), Canvas.GetTop(guideConBtn)),
-                size = new Size(guideConBtn.Width, guideConBtn.Height) };
+            hoverLocations[crossConBtn] = new HoverImageInfo()
+            {
+                point = new Point(Canvas.GetLeft(crossConBtn), Canvas.GetTop(crossConBtn)),
+                size = new Size(crossConBtn.Width, crossConBtn.Height)
+            };
+            hoverLocations[circleConBtn] = new HoverImageInfo()
+            {
+                point = new Point(Canvas.GetLeft(circleConBtn), Canvas.GetTop(circleConBtn)),
+                size = new Size(circleConBtn.Width, circleConBtn.Height)
+            };
+            hoverLocations[squareConBtn] = new HoverImageInfo()
+            {
+                point = new Point(Canvas.GetLeft(squareConBtn), Canvas.GetTop(squareConBtn)),
+                size = new Size(squareConBtn.Width, squareConBtn.Height)
+            };
+            hoverLocations[triangleConBtn] = new HoverImageInfo()
+            {
+                point = new Point(Canvas.GetLeft(triangleConBtn), Canvas.GetTop(triangleConBtn)),
+                size = new Size(triangleConBtn.Width, triangleConBtn.Height)
+            };
+            hoverLocations[l1ConBtn] = new HoverImageInfo()
+            {
+                point = new Point(Canvas.GetLeft(l1ConBtn), Canvas.GetTop(l1ConBtn)),
+                size = new Size(l1ConBtn.Width, l1ConBtn.Height)
+            };
+            hoverLocations[r1ConBtn] = new HoverImageInfo()
+            {
+                point = new Point(Canvas.GetLeft(r1ConBtn), Canvas.GetTop(r1ConBtn)),
+                size = new Size(r1ConBtn.Width, r1ConBtn.Height)
+            };
+            hoverLocations[l2ConBtn] = new HoverImageInfo()
+            {
+                point = new Point(Canvas.GetLeft(l2ConBtn), Canvas.GetTop(l2ConBtn)),
+                size = new Size(l2ConBtn.Width, l2ConBtn.Height)
+            };
+            hoverLocations[r2ConBtn] = new HoverImageInfo()
+            {
+                point = new Point(Canvas.GetLeft(r2ConBtn), Canvas.GetTop(r2ConBtn)),
+                size = new Size(r2ConBtn.Width, r2ConBtn.Height)
+            };
+            hoverLocations[shareConBtn] = new HoverImageInfo()
+            {
+                point = new Point(Canvas.GetLeft(shareConBtn), Canvas.GetTop(shareConBtn)),
+                size = new Size(shareConBtn.Width, shareConBtn.Height)
+            };
+            hoverLocations[optionsConBtn] = new HoverImageInfo()
+            {
+                point = new Point(Canvas.GetLeft(optionsConBtn), Canvas.GetTop(optionsConBtn)),
+                size = new Size(optionsConBtn.Width, optionsConBtn.Height)
+            };
+            hoverLocations[guideConBtn] = new HoverImageInfo()
+            {
+                point = new Point(Canvas.GetLeft(guideConBtn), Canvas.GetTop(guideConBtn)),
+                size = new Size(guideConBtn.Width, guideConBtn.Height)
+            };
             hoverLocations[muteConBtn] = new HoverImageInfo()
             {
                 point = new Point(Canvas.GetLeft(muteConBtn), Canvas.GetTop(muteConBtn)),
                 size = new Size(muteConBtn.Width, muteConBtn.Height)
             };
 
-            hoverLocations[leftTouchConBtn] = new HoverImageInfo() { point = new Point(144, 44), size = new Size(140, 98) };
-            hoverLocations[multiTouchConBtn] = new HoverImageInfo() { point = new Point(143, 42), size = new Size(158, 100) };
-            hoverLocations[rightTouchConBtn] = new HoverImageInfo() { point = new Point(156, 47), size = new Size(146, 94) };
-            hoverLocations[topTouchConBtn] = new HoverImageInfo() { point = new Point(155, 6), size = new Size(153, 114) };
+            hoverLocations[leftTouchConBtn] = new HoverImageInfo()
+                { point = new Point(144, 44), size = new Size(140, 98) };
+            hoverLocations[multiTouchConBtn] = new HoverImageInfo()
+                { point = new Point(143, 42), size = new Size(158, 100) };
+            hoverLocations[rightTouchConBtn] = new HoverImageInfo()
+                { point = new Point(156, 47), size = new Size(146, 94) };
+            hoverLocations[topTouchConBtn] = new HoverImageInfo()
+                { point = new Point(155, 6), size = new Size(153, 114) };
 
-            hoverLocations[l3ConBtn] = new HoverImageInfo() { point = new Point(Canvas.GetLeft(l3ConBtn), Canvas.GetTop(l3ConBtn)),
-                size = new Size(l3ConBtn.Width, l3ConBtn.Height) };
-            hoverLocations[lsuConBtn] = new HoverImageInfo() { point = new Point(Canvas.GetLeft(l3ConBtn), Canvas.GetTop(l3ConBtn)),
-                size = new Size(l3ConBtn.Width, l3ConBtn.Height) };
-            hoverLocations[lsrConBtn] = new HoverImageInfo() { point = new Point(Canvas.GetLeft(l3ConBtn), Canvas.GetTop(l3ConBtn)),
-                size = new Size(l3ConBtn.Width, l3ConBtn.Height) };
-            hoverLocations[lsdConBtn] = new HoverImageInfo() { point = new Point(Canvas.GetLeft(l3ConBtn), Canvas.GetTop(l3ConBtn)),
-                size = new Size(l3ConBtn.Width, l3ConBtn.Height) };
-            hoverLocations[lslConBtn] = new HoverImageInfo() { point = new Point(Canvas.GetLeft(l3ConBtn), Canvas.GetTop(l3ConBtn)),
-                size = new Size(l3ConBtn.Width, l3ConBtn.Height) };
+            hoverLocations[l3ConBtn] = new HoverImageInfo()
+            {
+                point = new Point(Canvas.GetLeft(l3ConBtn), Canvas.GetTop(l3ConBtn)),
+                size = new Size(l3ConBtn.Width, l3ConBtn.Height)
+            };
+            hoverLocations[lsuConBtn] = new HoverImageInfo()
+            {
+                point = new Point(Canvas.GetLeft(l3ConBtn), Canvas.GetTop(l3ConBtn)),
+                size = new Size(l3ConBtn.Width, l3ConBtn.Height)
+            };
+            hoverLocations[lsrConBtn] = new HoverImageInfo()
+            {
+                point = new Point(Canvas.GetLeft(l3ConBtn), Canvas.GetTop(l3ConBtn)),
+                size = new Size(l3ConBtn.Width, l3ConBtn.Height)
+            };
+            hoverLocations[lsdConBtn] = new HoverImageInfo()
+            {
+                point = new Point(Canvas.GetLeft(l3ConBtn), Canvas.GetTop(l3ConBtn)),
+                size = new Size(l3ConBtn.Width, l3ConBtn.Height)
+            };
+            hoverLocations[lslConBtn] = new HoverImageInfo()
+            {
+                point = new Point(Canvas.GetLeft(l3ConBtn), Canvas.GetTop(l3ConBtn)),
+                size = new Size(l3ConBtn.Width, l3ConBtn.Height)
+            };
 
-            hoverLocations[r3ConBtn] = new HoverImageInfo() { point = new Point(Canvas.GetLeft(r3ConBtn), Canvas.GetTop(r3ConBtn)),
-                size = new Size(r3ConBtn.Width, r3ConBtn.Height) };
-            hoverLocations[rsuConBtn] = new HoverImageInfo() { point = new Point(Canvas.GetLeft(r3ConBtn), Canvas.GetTop(r3ConBtn)),
-                size = new Size(r3ConBtn.Width, r3ConBtn.Height) };
-            hoverLocations[rsrConBtn] = new HoverImageInfo() { point = new Point(Canvas.GetLeft(r3ConBtn), Canvas.GetTop(r3ConBtn)),
-                size = new Size(r3ConBtn.Width, r3ConBtn.Height) };
-            hoverLocations[rsdConBtn] = new HoverImageInfo() { point = new Point(Canvas.GetLeft(r3ConBtn), Canvas.GetTop(r3ConBtn)),
-                size = new Size(r3ConBtn.Width, r3ConBtn.Height) };
-            hoverLocations[rslConBtn] = new HoverImageInfo() { point = new Point(Canvas.GetLeft(r3ConBtn), Canvas.GetTop(r3ConBtn)),
-                size = new Size(r3ConBtn.Width, r3ConBtn.Height) };
+            hoverLocations[r3ConBtn] = new HoverImageInfo()
+            {
+                point = new Point(Canvas.GetLeft(r3ConBtn), Canvas.GetTop(r3ConBtn)),
+                size = new Size(r3ConBtn.Width, r3ConBtn.Height)
+            };
+            hoverLocations[rsuConBtn] = new HoverImageInfo()
+            {
+                point = new Point(Canvas.GetLeft(r3ConBtn), Canvas.GetTop(r3ConBtn)),
+                size = new Size(r3ConBtn.Width, r3ConBtn.Height)
+            };
+            hoverLocations[rsrConBtn] = new HoverImageInfo()
+            {
+                point = new Point(Canvas.GetLeft(r3ConBtn), Canvas.GetTop(r3ConBtn)),
+                size = new Size(r3ConBtn.Width, r3ConBtn.Height)
+            };
+            hoverLocations[rsdConBtn] = new HoverImageInfo()
+            {
+                point = new Point(Canvas.GetLeft(r3ConBtn), Canvas.GetTop(r3ConBtn)),
+                size = new Size(r3ConBtn.Width, r3ConBtn.Height)
+            };
+            hoverLocations[rslConBtn] = new HoverImageInfo()
+            {
+                point = new Point(Canvas.GetLeft(r3ConBtn), Canvas.GetTop(r3ConBtn)),
+                size = new Size(r3ConBtn.Width, r3ConBtn.Height)
+            };
 
-            hoverLocations[upConBtn] = new HoverImageInfo() { point = new Point(Canvas.GetLeft(upConBtn), Canvas.GetTop(upConBtn)),
-                size = new Size(upConBtn.Width, upConBtn.Height) };
-            hoverLocations[rightConBtn] = new HoverImageInfo() { point = new Point(Canvas.GetLeft(rightConBtn), Canvas.GetTop(rightConBtn)),
-                size = new Size(rightConBtn.Width, rightConBtn.Height) };
-            hoverLocations[downConBtn] = new HoverImageInfo() { point = new Point(Canvas.GetLeft(downConBtn), Canvas.GetTop(downConBtn)),
-                size = new Size(downConBtn.Width, downConBtn.Height) };
-            hoverLocations[leftConBtn] = new HoverImageInfo() { point = new Point(Canvas.GetLeft(leftConBtn), Canvas.GetTop(leftConBtn)),
-                size = new Size(leftConBtn.Width, leftConBtn.Height) };
+            hoverLocations[upConBtn] = new HoverImageInfo()
+            {
+                point = new Point(Canvas.GetLeft(upConBtn), Canvas.GetTop(upConBtn)),
+                size = new Size(upConBtn.Width, upConBtn.Height)
+            };
+            hoverLocations[rightConBtn] = new HoverImageInfo()
+            {
+                point = new Point(Canvas.GetLeft(rightConBtn), Canvas.GetTop(rightConBtn)),
+                size = new Size(rightConBtn.Width, rightConBtn.Height)
+            };
+            hoverLocations[downConBtn] = new HoverImageInfo()
+            {
+                point = new Point(Canvas.GetLeft(downConBtn), Canvas.GetTop(downConBtn)),
+                size = new Size(downConBtn.Width, downConBtn.Height)
+            };
+            hoverLocations[leftConBtn] = new HoverImageInfo()
+            {
+                point = new Point(Canvas.GetLeft(leftConBtn), Canvas.GetTop(leftConBtn)),
+                size = new Size(leftConBtn.Width, leftConBtn.Height)
+            };
         }
 
         private void RemoveHoverBtnText()
@@ -498,123 +588,124 @@ namespace DS4WinWPF.DS4Forms
         {
             ImageSourceConverter sourceConverter = new ImageSourceConverter();
 
-            ImageSource temp = sourceConverter.
-                ConvertFromString($"{Global.ASSEMBLY_RESOURCE_PREFIX}component/Resources/DS4-Config_Cross.png") as ImageSource;
+            ImageSource temp =
+                sourceConverter.ConvertFromString(
+                    $"{Global.ASSEMBLY_RESOURCE_PREFIX}component/Resources/DS4-Config_Cross.png") as ImageSource;
             ImageBrush crossHover = new ImageBrush(temp);
 
-            temp = sourceConverter.
-                ConvertFromString($"{Global.ASSEMBLY_RESOURCE_PREFIX}component/Resources/DS4-Config_Circle.png") as ImageSource;
+            temp = sourceConverter.ConvertFromString(
+                $"{Global.ASSEMBLY_RESOURCE_PREFIX}component/Resources/DS4-Config_Circle.png") as ImageSource;
             ImageBrush circleHover = new ImageBrush(temp);
 
-            temp = sourceConverter.
-                ConvertFromString($"{Global.ASSEMBLY_RESOURCE_PREFIX}component/Resources/DS4-Config_Square.png") as ImageSource;
+            temp = sourceConverter.ConvertFromString(
+                $"{Global.ASSEMBLY_RESOURCE_PREFIX}component/Resources/DS4-Config_Square.png") as ImageSource;
             ImageBrush squareHover = new ImageBrush(temp);
 
-            temp = sourceConverter.
-                ConvertFromString($"{Global.ASSEMBLY_RESOURCE_PREFIX}component/Resources/DS4-Config_Triangle.png") as ImageSource;
+            temp = sourceConverter.ConvertFromString(
+                $"{Global.ASSEMBLY_RESOURCE_PREFIX}component/Resources/DS4-Config_Triangle.png") as ImageSource;
             ImageBrush triangleHover = new ImageBrush(temp);
 
-            temp = sourceConverter.
-                ConvertFromString($"{Global.ASSEMBLY_RESOURCE_PREFIX}component/Resources/DS4-Config_L1.png") as ImageSource;
+            temp = sourceConverter.ConvertFromString(
+                $"{Global.ASSEMBLY_RESOURCE_PREFIX}component/Resources/DS4-Config_L1.png") as ImageSource;
             ImageBrush l1Hover = new ImageBrush(temp);
 
-            temp = sourceConverter.
-                ConvertFromString($"{Global.ASSEMBLY_RESOURCE_PREFIX}component/Resources/DS4-Config_R1.png") as ImageSource;
+            temp = sourceConverter.ConvertFromString(
+                $"{Global.ASSEMBLY_RESOURCE_PREFIX}component/Resources/DS4-Config_R1.png") as ImageSource;
             ImageBrush r1Hover = new ImageBrush(temp);
 
-            temp = sourceConverter.
-                ConvertFromString($"{Global.ASSEMBLY_RESOURCE_PREFIX}component/Resources/DS4-Config_L2.png") as ImageSource;
+            temp = sourceConverter.ConvertFromString(
+                $"{Global.ASSEMBLY_RESOURCE_PREFIX}component/Resources/DS4-Config_L2.png") as ImageSource;
             ImageBrush l2Hover = new ImageBrush(temp);
 
-            temp = sourceConverter.
-                ConvertFromString($"{Global.ASSEMBLY_RESOURCE_PREFIX}component/Resources/DS4-Config_R2.png") as ImageSource;
+            temp = sourceConverter.ConvertFromString(
+                $"{Global.ASSEMBLY_RESOURCE_PREFIX}component/Resources/DS4-Config_R2.png") as ImageSource;
             ImageBrush r2Hover = new ImageBrush(temp);
 
-            temp = sourceConverter.
-                ConvertFromString($"{Global.ASSEMBLY_RESOURCE_PREFIX}component/Resources/DS4-Config_Share.png") as ImageSource;
+            temp = sourceConverter.ConvertFromString(
+                $"{Global.ASSEMBLY_RESOURCE_PREFIX}component/Resources/DS4-Config_Share.png") as ImageSource;
             ImageBrush shareHover = new ImageBrush(temp);
 
-            temp = sourceConverter.
-                ConvertFromString($"{Global.ASSEMBLY_RESOURCE_PREFIX}component/Resources/DS4-Config_options.png") as ImageSource;
+            temp = sourceConverter.ConvertFromString(
+                $"{Global.ASSEMBLY_RESOURCE_PREFIX}component/Resources/DS4-Config_options.png") as ImageSource;
             ImageBrush optionsHover = new ImageBrush(temp);
 
-            temp = sourceConverter.
-                ConvertFromString($"{Global.ASSEMBLY_RESOURCE_PREFIX}component/Resources/DS4-Config_PS.png") as ImageSource;
+            temp = sourceConverter.ConvertFromString(
+                $"{Global.ASSEMBLY_RESOURCE_PREFIX}component/Resources/DS4-Config_PS.png") as ImageSource;
             ImageBrush guideHover = new ImageBrush(temp);
 
-            temp = sourceConverter.
-                ConvertFromString($"{Global.ASSEMBLY_RESOURCE_PREFIX}component/Resources/DS4-Config_TouchLeft.png") as ImageSource;
+            temp = sourceConverter.ConvertFromString(
+                $"{Global.ASSEMBLY_RESOURCE_PREFIX}component/Resources/DS4-Config_TouchLeft.png") as ImageSource;
             ImageBrush leftTouchHover = new ImageBrush(temp);
 
-            temp = sourceConverter.
-                ConvertFromString($"{Global.ASSEMBLY_RESOURCE_PREFIX}component/Resources/DS4-Config_TouchMulti.png") as ImageSource;
+            temp = sourceConverter.ConvertFromString(
+                $"{Global.ASSEMBLY_RESOURCE_PREFIX}component/Resources/DS4-Config_TouchMulti.png") as ImageSource;
             ImageBrush multiTouchTouchHover = new ImageBrush(temp);
 
-            temp = sourceConverter.
-                ConvertFromString($"{Global.ASSEMBLY_RESOURCE_PREFIX}component/Resources/DS4-Config_TouchRight.png") as ImageSource;
+            temp = sourceConverter.ConvertFromString(
+                $"{Global.ASSEMBLY_RESOURCE_PREFIX}component/Resources/DS4-Config_TouchRight.png") as ImageSource;
             ImageBrush rightTouchHover = new ImageBrush(temp);
 
-            temp = sourceConverter.
-                ConvertFromString($"{Global.ASSEMBLY_RESOURCE_PREFIX}component/Resources/DS4-Config_TouchUpper.png") as ImageSource;
+            temp = sourceConverter.ConvertFromString(
+                $"{Global.ASSEMBLY_RESOURCE_PREFIX}component/Resources/DS4-Config_TouchUpper.png") as ImageSource;
             ImageBrush topTouchHover = new ImageBrush(temp);
 
 
-            temp = sourceConverter.
-                ConvertFromString($"{Global.ASSEMBLY_RESOURCE_PREFIX}component/Resources/DS4-Config_LS.png") as ImageSource;
+            temp = sourceConverter.ConvertFromString(
+                $"{Global.ASSEMBLY_RESOURCE_PREFIX}component/Resources/DS4-Config_LS.png") as ImageSource;
             ImageBrush l3Hover = new ImageBrush(temp);
 
-            temp = sourceConverter.
-                ConvertFromString($"{Global.ASSEMBLY_RESOURCE_PREFIX}component/Resources/DS4-Config_LS.png") as ImageSource;
+            temp = sourceConverter.ConvertFromString(
+                $"{Global.ASSEMBLY_RESOURCE_PREFIX}component/Resources/DS4-Config_LS.png") as ImageSource;
             ImageBrush lsuHover = new ImageBrush(temp);
 
-            temp = sourceConverter.
-                ConvertFromString($"{Global.ASSEMBLY_RESOURCE_PREFIX}component/Resources/DS4-Config_LS.png") as ImageSource;
+            temp = sourceConverter.ConvertFromString(
+                $"{Global.ASSEMBLY_RESOURCE_PREFIX}component/Resources/DS4-Config_LS.png") as ImageSource;
             ImageBrush lsrHover = new ImageBrush(temp);
 
-            temp = sourceConverter.
-                ConvertFromString($"{Global.ASSEMBLY_RESOURCE_PREFIX}component/Resources/DS4-Config_LS.png") as ImageSource;
+            temp = sourceConverter.ConvertFromString(
+                $"{Global.ASSEMBLY_RESOURCE_PREFIX}component/Resources/DS4-Config_LS.png") as ImageSource;
             ImageBrush lsdHover = new ImageBrush(temp);
 
-            temp = sourceConverter.
-                ConvertFromString($"{Global.ASSEMBLY_RESOURCE_PREFIX}component/Resources/DS4-Config_LS.png") as ImageSource;
+            temp = sourceConverter.ConvertFromString(
+                $"{Global.ASSEMBLY_RESOURCE_PREFIX}component/Resources/DS4-Config_LS.png") as ImageSource;
             ImageBrush lslHover = new ImageBrush(temp);
 
 
-            temp = sourceConverter.
-                ConvertFromString($"{Global.ASSEMBLY_RESOURCE_PREFIX}component/Resources/DS4-Config_RS.png") as ImageSource;
+            temp = sourceConverter.ConvertFromString(
+                $"{Global.ASSEMBLY_RESOURCE_PREFIX}component/Resources/DS4-Config_RS.png") as ImageSource;
             ImageBrush r3Hover = new ImageBrush(temp);
 
-            temp = sourceConverter.
-                ConvertFromString($"{Global.ASSEMBLY_RESOURCE_PREFIX}component/Resources/DS4-Config_RS.png") as ImageSource;
+            temp = sourceConverter.ConvertFromString(
+                $"{Global.ASSEMBLY_RESOURCE_PREFIX}component/Resources/DS4-Config_RS.png") as ImageSource;
             ImageBrush rsuHover = new ImageBrush(temp);
 
-            temp = sourceConverter.
-                ConvertFromString($"{Global.ASSEMBLY_RESOURCE_PREFIX}component/Resources/DS4-Config_RS.png") as ImageSource;
+            temp = sourceConverter.ConvertFromString(
+                $"{Global.ASSEMBLY_RESOURCE_PREFIX}component/Resources/DS4-Config_RS.png") as ImageSource;
             ImageBrush rsrHover = new ImageBrush(temp);
 
-            temp = sourceConverter.
-                ConvertFromString($"{Global.ASSEMBLY_RESOURCE_PREFIX}component/Resources/DS4-Config_RS.png") as ImageSource;
+            temp = sourceConverter.ConvertFromString(
+                $"{Global.ASSEMBLY_RESOURCE_PREFIX}component/Resources/DS4-Config_RS.png") as ImageSource;
             ImageBrush rsdHover = new ImageBrush(temp);
 
-            temp = sourceConverter.
-                ConvertFromString($"{Global.ASSEMBLY_RESOURCE_PREFIX}component/Resources/DS4-Config_RS.png") as ImageSource;
+            temp = sourceConverter.ConvertFromString(
+                $"{Global.ASSEMBLY_RESOURCE_PREFIX}component/Resources/DS4-Config_RS.png") as ImageSource;
             ImageBrush rslHover = new ImageBrush(temp);
 
 
-            temp = sourceConverter.
-                ConvertFromString($"{Global.ASSEMBLY_RESOURCE_PREFIX}component/Resources/DS4-Config_Up.png") as ImageSource;
+            temp = sourceConverter.ConvertFromString(
+                $"{Global.ASSEMBLY_RESOURCE_PREFIX}component/Resources/DS4-Config_Up.png") as ImageSource;
             ImageBrush upHover = new ImageBrush(temp);
 
-            temp = sourceConverter.
-                ConvertFromString($"{Global.ASSEMBLY_RESOURCE_PREFIX}component/Resources/DS4-Config_Right.png") as ImageSource;
+            temp = sourceConverter.ConvertFromString(
+                $"{Global.ASSEMBLY_RESOURCE_PREFIX}component/Resources/DS4-Config_Right.png") as ImageSource;
             ImageBrush rightHover = new ImageBrush(temp);
 
-            temp = sourceConverter.
-                ConvertFromString($"{Global.ASSEMBLY_RESOURCE_PREFIX}component/Resources/DS4-Config_Down.png") as ImageSource;
+            temp = sourceConverter.ConvertFromString(
+                $"{Global.ASSEMBLY_RESOURCE_PREFIX}component/Resources/DS4-Config_Down.png") as ImageSource;
             ImageBrush downHover = new ImageBrush(temp);
 
-            temp = sourceConverter.
-                ConvertFromString($"{Global.ASSEMBLY_RESOURCE_PREFIX}component/Resources/DS4-Config_Left.png") as ImageSource;
+            temp = sourceConverter.ConvertFromString(
+                $"{Global.ASSEMBLY_RESOURCE_PREFIX}component/Resources/DS4-Config_Left.png") as ImageSource;
             ImageBrush leftHover = new ImageBrush(temp);
 
             hoverImages[crossConBtn] = crossHover;
@@ -817,18 +908,17 @@ namespace DS4WinWPF.DS4Forms
             {
                 App.rootHub.setRumble(0, 0, profileSettingsVM.FuncDevNum);
             }
+
             Global.outDevTypeTemp[deviceNum] = OutContType.X360;
             // Run profile loading in Task. Need to still wait for Task to finish
             Task.Run(() =>
             {
-                DS4Device device = deviceNum >= 0 && deviceNum < ControlService.CURRENT_DS4_CONTROLLER_LIMIT ?
-                    App.rootHub.DS4Controllers[deviceNum] : null;
+                DS4Device device = deviceNum >= 0 && deviceNum < ControlService.CURRENT_DS4_CONTROLLER_LIMIT
+                    ? App.rootHub.DS4Controllers[deviceNum]
+                    : null;
                 if (device != null)
                 {
-                    device.HaltReportingRunAction(() =>
-                    {
-                        Global.LoadProfile(deviceNum, false, App.rootHub);
-                    });
+                    device.HaltReportingRunAction(() => { Global.LoadProfile(deviceNum, false, App.rootHub); });
                 }
                 else
                 {
@@ -1028,7 +1118,8 @@ namespace DS4WinWPF.DS4Forms
         {
             keepsize = true;
             ImageSourceConverter c = new ImageSourceConverter();
-            sizeImage.Source = c.ConvertFromString($"{Global.ASSEMBLY_RESOURCE_PREFIX}component/Resources/checked.png") as ImageSource;
+            sizeImage.Source =
+                c.ConvertFromString($"{Global.ASSEMBLY_RESOURCE_PREFIX}component/Resources/checked.png") as ImageSource;
         }
 
         public void Close()
@@ -1068,10 +1159,7 @@ namespace DS4WinWPF.DS4Forms
             Color tempcolor = profileSettingsVM.FlashColorMedia;
             dialog.colorPicker.SelectedColor = tempcolor;
             profileSettingsVM.StartForcedColor(tempcolor);
-            dialog.ColorChanged += (sender2, color) =>
-            {
-                profileSettingsVM.UpdateForcedColor(color);
-            };
+            dialog.ColorChanged += (sender2, color) => { profileSettingsVM.UpdateForcedColor(color); };
             dialog.ShowDialog();
             profileSettingsVM.EndForcedColor();
             profileSettingsVM.UpdateFlashColor(dialog.colorPicker.SelectedColor.GetValueOrDefault());
@@ -1084,16 +1172,19 @@ namespace DS4WinWPF.DS4Forms
             Color tempcolor = profileSettingsVM.LowColorMedia;
             dialog.colorPicker.SelectedColor = tempcolor;
             profileSettingsVM.StartForcedColor(tempcolor);
-            dialog.ColorChanged += (sender2, color) =>
-            {
-                profileSettingsVM.UpdateForcedColor(color);
-            };
+            dialog.ColorChanged += (sender2, color) => { profileSettingsVM.UpdateForcedColor(color); };
             dialog.ShowDialog();
             profileSettingsVM.EndForcedColor();
             profileSettingsVM.UpdateLowColor(dialog.colorPicker.SelectedColor.GetValueOrDefault());
         }
 
-        private void HeavyRumbleTestBtn_Click(object sender, RoutedEventArgs e)
+        private enum RumbleType
+        {
+            Light,
+            Heavy
+        }
+
+        private void RumbleTestBtn_Click(object sender, RoutedEventArgs e)
         {
             int deviceNum = profileSettingsVM.FuncDevNum;
             if (deviceNum < ControlService.CURRENT_DS4_CONTROLLER_LIMIT)
@@ -1101,52 +1192,22 @@ namespace DS4WinWPF.DS4Forms
                 DS4Device d = App.rootHub.DS4Controllers[deviceNum];
                 if (d != null)
                 {
-                    bool rumbleActive = profileSettingsVM.HeavyRumbleActive;
-                    if (!rumbleActive)
+                    RumbleType type;
+                    var btn = sender as Button;
+                    if (!Global.InverseRumbleMotors[deviceNum])
                     {
-                        var rumbleBoost = profileSettingsVM.RumbleBoost;
-
-                        // Check if device is DualSense and adjust/update accordingly
-                        if (d is DS4Windows.InputDevices.DualSenseDevice dualsense)
-                        {
-                            UpdateDualSenseRumble(dualsense);
-                            if (!profileSettingsVM.EnableGenericRumbleStrRescaleForDualSenseDevices)
-                                rumbleBoost = 100;
-                        }
-
-                        profileSettingsVM.HeavyRumbleActive = true;
-                        if (Global.InverseRumbleMotors[deviceNum])
-                            d.setRumble((byte)Math.Min(255, 255 * rumbleBoost / 100),
-                                d.RightLightFastRumble);
-                        else
-                            d.setRumble(d.RightLightFastRumble,
-                            (byte)Math.Min(255, 255 * rumbleBoost / 100));
-
-                        heavyRumbleTestBtn.Content = Properties.Resources.StopHText;
+                        type = btn.Name == "heavyRumbleTestBtn" ? RumbleType.Heavy : RumbleType.Light;
                     }
                     else
                     {
-                        profileSettingsVM.HeavyRumbleActive = false;
-                        if (Global.InverseRumbleMotors[deviceNum])
-                            d.setRumble(0, d.RightLightFastRumble);
-                        else
-                            d.setRumble(d.RightLightFastRumble, 0);
-                        heavyRumbleTestBtn.Content = Properties.Resources.TestHText;
+                        type = btn.Name == "heavyRumbleTestBtn" ? RumbleType.Light : RumbleType.Heavy;
                     }
-                }
-            }
-        }
 
-        private void LightRumbleTestBtn_Click(object sender, RoutedEventArgs e)
-        {
-            int deviceNum = profileSettingsVM.FuncDevNum;
-            if (deviceNum < ControlService.CURRENT_DS4_CONTROLLER_LIMIT)
-            {
-                DS4Device d = App.rootHub.DS4Controllers[deviceNum];
-
-                if (d != null)
-                {
-                    bool rumbleActive = profileSettingsVM.LightRumbleActive;
+                    bool rumbleActive;
+                    if (type == RumbleType.Heavy)
+                        rumbleActive = profileSettingsVM.HeavyRumbleActive;
+                    else
+                        rumbleActive = profileSettingsVM.LightRumbleActive;
                     if (!rumbleActive)
                     {
                         var rumbleBoost = profileSettingsVM.RumbleBoost;
@@ -1159,30 +1220,63 @@ namespace DS4WinWPF.DS4Forms
                                 rumbleBoost = 100;
                         }
 
-                        profileSettingsVM.LightRumbleActive = true;
-                        if (Global.InverseRumbleMotors[deviceNum])
-                            d.setRumble(d.LeftHeavySlowRumble,
-                                (byte)Math.Min(255, 255 * rumbleBoost / 100));
+                        if (type == RumbleType.Heavy)
+                            profileSettingsVM.HeavyRumbleActive = true;
                         else
+                            profileSettingsVM.LightRumbleActive = true;
+
+                        if (type == RumbleType.Heavy)
+                        {
+                            d.setRumble(d.RightLightFastRumble,
+                                (byte)Math.Min(255, 255 * rumbleBoost / 100));
+                        }
+                        else
+                        {
                             d.setRumble((byte)Math.Min(255, 255 * rumbleBoost / 100),
                                 d.LeftHeavySlowRumble);
+                        }
 
-                        lightRumbleTestBtn.Content = Properties.Resources.StopLText;
+                        if (type == RumbleType.Heavy)
+                        {
+                            if (!Global.InverseRumbleMotors[deviceNum])
+                                heavyRumbleTestBtn.Content = Properties.Resources.StopHText;
+                            else
+                                lightRumbleTestBtn.Content = Properties.Resources.StopLText;
+                        }
+                        else
+                        {
+                            if (!Global.InverseRumbleMotors[deviceNum])
+                                lightRumbleTestBtn.Content = Properties.Resources.StopLText;
+                            else
+                                heavyRumbleTestBtn.Content = Properties.Resources.StopHText;
+                        }
                     }
                     else
                     {
-                        profileSettingsVM.LightRumbleActive = false;
-                        if (Global.InverseRumbleMotors[deviceNum])
-                            d.setRumble(d.LeftHeavySlowRumble, 0);
+                        if (type == RumbleType.Heavy)
+                        {
+                            profileSettingsVM.HeavyRumbleActive = false;
+                            d.setRumble(d.RightLightFastRumble, 0);
+                            if (!Global.InverseRumbleMotors[deviceNum])
+                                heavyRumbleTestBtn.Content = Properties.Resources.TestHText;
+                            else
+                                lightRumbleTestBtn.Content = Properties.Resources.TestLText;
+                        }
                         else
+                        {
+                            profileSettingsVM.LightRumbleActive = false;
                             d.setRumble(0, d.LeftHeavySlowRumble);
-                        lightRumbleTestBtn.Content = Properties.Resources.TestLText;
+                            if (!Global.InverseRumbleMotors[deviceNum])
+                                lightRumbleTestBtn.Content = Properties.Resources.TestLText;
+                            else
+                                heavyRumbleTestBtn.Content = Properties.Resources.TestHText;
+                        }
                     }
                 }
             }
         }
 
-        private void UpdateDualSenseRumble(DS4Windows.InputDevices.DualSenseDevice dualsense)
+    private void UpdateDualSenseRumble(DS4Windows.InputDevices.DualSenseDevice dualsense)
         {
                 switch ((DS4Windows.InputDevices.DualSenseDevice.RumbleEmulationMode)profileSettingsVM.DualSenseRumbleEmulationPerIndex)
                 {
