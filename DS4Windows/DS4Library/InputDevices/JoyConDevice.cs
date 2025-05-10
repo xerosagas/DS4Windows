@@ -358,11 +358,6 @@ namespace DS4Windows.InputDevices
                 rumbleReportLen = RUMBLE_REPORT_LEN_USB;
             }
 
-            if (!hDevice.IsFileStreamOpen())
-            {
-                hDevice.OpenFileStream(inputReportBuffer.Length);
-            }
-
             //NativeMethods.HidD_SetNumInputBuffers(hDevice.safeReadHandle.DangerousGetHandle(), 20);
 
             //Thread.Sleep(500);
@@ -394,31 +389,24 @@ namespace DS4Windows.InputDevices
 
         public static string ReadUSBSerial(HidDevice hDevice)
         {
-            if (!hDevice.IsFileStreamOpen())
-            {
-                hDevice.OpenFileStream(INPUT_REPORT_LEN_USB);
-            }
-
             string serial = DS4Device.BLANK_SERIAL;
             byte[] data = new byte[64];
             data[0] = 0x80; data[1] = 0x01;
             //result = hidDevice.WriteAsyncOutputReportViaInterrupt(data);
             bool result = hDevice.WriteOutputReportViaInterrupt(data, 0);
-            hDevice.fileStream.Flush();
             //Thread.Sleep(1000);
 
             byte[] cmdBuffer = new byte[64];
-            HidDevice.ReadStatus res = hDevice.ReadWithFileStream(cmdBuffer, 100);
+            HidDevice.ReadStatus res = hDevice.ReadFile(cmdBuffer, 100);
             while (!(cmdBuffer[0] == 0x81 && cmdBuffer[1] == 0x01))
             {
                 if (cmdBuffer[0] != 0x81)
                 {
                     result = hDevice.WriteOutputReportViaInterrupt(data, 0);
-                    hDevice.fileStream.Flush();
                 }
 
                 Array.Clear(cmdBuffer);
-                res = hDevice.ReadWithFileStream(cmdBuffer, 100);
+                res = hDevice.ReadFile(cmdBuffer, 100);
                 //Trace.WriteLine($"{cmdBuffer[0]} | {cmdBuffer[3]}");
             }
 
@@ -458,21 +446,19 @@ namespace DS4Windows.InputDevices
             data[0] = 0x80; data[1] = 0x01;
             //result = hidDevice.WriteAsyncOutputReportViaInterrupt(data);
             result = hDevice.WriteOutputReportViaInterrupt(data, 0);
-            hDevice.fileStream.Flush();
             //Thread.Sleep(1000);
 
             byte[] cmdBuffer = new byte[64];
-            HidDevice.ReadStatus res = hDevice.ReadWithFileStream(cmdBuffer, 100);
+            HidDevice.ReadStatus res = hDevice.ReadFile(cmdBuffer, 100);
             while (!(cmdBuffer[0] == 0x81 && cmdBuffer[1] == 0x01 && cmdBuffer[3] != 0x00))
             {
                 if (cmdBuffer[0] != 0x81)
                 {
                     result = hDevice.WriteOutputReportViaInterrupt(data, 0);
-                    hDevice.fileStream.Flush();
                 }
 
                 Array.Clear(cmdBuffer);
-                res = hDevice.ReadWithFileStream(cmdBuffer, 100);
+                res = hDevice.ReadFile(cmdBuffer, 100);
                 //Trace.WriteLine($"{cmdBuffer[0]} | {cmdBuffer[3]}");
             }
 
@@ -509,7 +495,6 @@ namespace DS4Windows.InputDevices
             //Thread.Sleep(2000);
             //Thread.Sleep(1000);
             result = hDevice.WriteOutputReportViaInterrupt(data, 0);
-            hDevice.fileStream.Flush();
             //Thread.Sleep(1000);
             WaitForReportResponse(0x81, 0x02, data, true);
 
@@ -529,13 +514,11 @@ namespace DS4Windows.InputDevices
             //Thread.Sleep(1000);
             //result = hidDevice.WriteOutputReportViaInterrupt(command, 500);
             //Thread.Sleep(2000);
-            hDevice.fileStream.Flush();
             //Thread.Sleep(1000);
             WaitForReportResponse(0x81, 0x02, data, true);
 
             data[0] = 0x80; data[1] = 0x4; // Prevent HID timeout
             result = hDevice.WriteOutputReportViaInterrupt(data, 0);
-            hDevice.fileStream.Flush();
             //result = hidDevice.WriteOutputReportViaInterrupt(command, 500);
             //WaitForReportResponse(0x81, 0x04, data);
 
@@ -553,20 +536,18 @@ namespace DS4Windows.InputDevices
             byte[] data = new byte[64];
             data[0] = 0x80; data[1] = 0x03; // 3Mbit baud rate
             bool result = hDevice.WriteOutputReportViaInterrupt(data, 100);
-            hDevice.fileStream.Flush();
 
             //return;
 
             byte[] cmdBuffer = new byte[64];
-            HidDevice.ReadStatus res = hDevice.ReadWithFileStream(cmdBuffer, 100);
+            HidDevice.ReadStatus res = hDevice.ReadFile(cmdBuffer, 100);
             while (!(cmdBuffer[0] == 0x81 && cmdBuffer[1] == 0x03))
             {
                 result = hDevice.WriteOutputReportViaInterrupt(data, 0);
-                hDevice.fileStream.Flush();
                 //Thread.Sleep(20);
 
                 Array.Clear(cmdBuffer);
-                res = hDevice.ReadWithFileStream(cmdBuffer, 100);
+                res = hDevice.ReadFile(cmdBuffer, 100);
                 //Trace.WriteLine($"{cmdBuffer[0]} | {cmdBuffer[1]}");
             }
 
@@ -576,17 +557,16 @@ namespace DS4Windows.InputDevices
         private void WaitForReportResponse(byte reportId, byte command, byte[] commandBuf, bool repeatPacket = true)
         {
             byte[] cmdBuffer = new byte[64];
-            HidDevice.ReadStatus res = hDevice.ReadWithFileStream(cmdBuffer, 100);
+            HidDevice.ReadStatus res = hDevice.ReadFile(cmdBuffer, 100);
             while (!(cmdBuffer[0] == reportId && cmdBuffer[1] == command))
             {
                 if (repeatPacket)
                 {
                     bool result = hDevice.WriteOutputReportViaInterrupt(commandBuf, 100);
-                    hDevice.fileStream.Flush();
                 }
 
                 Array.Clear(cmdBuffer);
-                res = hDevice.ReadWithFileStream(cmdBuffer, 100);
+                res = hDevice.ReadFile(cmdBuffer, 100);
                 //Trace.WriteLine($"{cmdBuffer[0]} | {cmdBuffer[1]}");
             }
 
@@ -662,8 +642,9 @@ namespace DS4Windows.InputDevices
 
             unchecked
             {
+                Debouncer = SetupDebouncer();
                 firstActive = DateTime.UtcNow;
-                NativeMethods.HidD_SetNumInputBuffers(hDevice.safeReadHandle.DangerousGetHandle(), 3);
+                NativeMethods.HidD_SetNumInputBuffers(hDevice.SafeReadHandle.DangerousGetHandle(), 3);
                 Queue<long> latencyQueue = new Queue<long>(21); // Set capacity at max + 1 to avoid any resizing
                 int tempLatencyCount = 0;
                 long oldtime = 0;
@@ -701,7 +682,7 @@ namespace DS4Windows.InputDevices
 
                     readWaitEv.Set();
 
-                    HidDevice.ReadStatus res = hDevice.ReadWithFileStream(inputReportBuffer);
+                    HidDevice.ReadStatus res = hDevice.ReadFile(inputReportBuffer);
                     if (res == HidDevice.ReadStatus.Success)
                     {
                         if (inputReportBuffer[0] != 0x30)
@@ -830,6 +811,7 @@ namespace DS4Windows.InputDevices
                         tempByte = inputReportBuffer[4];
                         cState.Share = (tempByte & 0x01) != 0;
                         cState.L3 = (tempByte & 0x08) != 0;
+
                         // Capture Button
                         //cState.PS = (tempByte & 0x20) != 0;
                         cState.Capture = (tempByte & 0x20) != 0;
@@ -841,8 +823,10 @@ namespace DS4Windows.InputDevices
                         cState.DpadRight = (tempByte & 0x04) != 0;
                         cState.L1 = (tempByte & 0x40) != 0;
                         cState.L2Btn = (tempByte & 0x80) != 0;
+
                         cState.L2 = (byte)(cState.L2Btn ? 255 : 0);
                         cState.L2Raw = cState.L2;
+
                         cState.SideL = (tempByte & 0x20) != 0;
                         cState.SideR = (tempByte & 0x10) != 0;
 
@@ -896,9 +880,11 @@ namespace DS4Windows.InputDevices
                         cState.Triangle = (tempByte & 0x02) != 0;
                         cState.Square = (tempByte & 0x01) != 0;
                         cState.R1 = (tempByte & 0x40) != 0;
+
                         cState.R2Btn = (tempByte & 0x80) != 0;
                         cState.R2 = (byte)(cState.R2Btn ? 255 : 0);
                         cState.R2Raw = cState.R2;
+
                         cState.SideL = (tempByte & 0x20) != 0;
                         cState.SideR = (tempByte & 0x10) != 0;
 
@@ -1259,7 +1245,6 @@ namespace DS4Windows.InputDevices
             frameCount = (byte)(++frameCount & 0x0F);
 
             result = hDevice.WriteOutputReportViaInterrupt(tmpRumble, 0);
-            hDevice.fileStream.Flush();
             //res = hidDevice.ReadWithFileStream(tmpReport, 500);
             //res = hidDevice.ReadFile(tmpReport);
         }
@@ -1267,38 +1252,71 @@ namespace DS4Windows.InputDevices
         private byte[] Subcommand(byte subcommand, byte[] tmpBuffer, uint bufLen,
             bool checkResponse = false)
         {
-            bool result;
-            byte[] commandBuffer = new byte[SUBCOMMAND_BUFFER_LEN];
-            Array.Copy(commandBuffHeader, 0, commandBuffer, 2, SUBCOMMAND_HEADER_LEN);
-            Array.Copy(tmpBuffer, 0, commandBuffer, 11, bufLen);
+            int retryLimit = 100;
+            byte[] tmpReport;
 
-            commandBuffer[0] = 0x01;
-            commandBuffer[1] = frameCount;
-            frameCount = (byte)(++frameCount & 0x0F);
-            commandBuffer[10] = subcommand;
-
-            result = hDevice.WriteOutputReportViaInterrupt(commandBuffer, 0);
-            hDevice.fileStream.Flush();
-
-            byte[] tmpReport = null;
-            if (result && checkResponse)
+            do
             {
-                tmpReport = new byte[inputReportLen];
-                HidDevice.ReadStatus res;
-                res = hDevice.ReadWithFileStream(tmpReport, SUBCOMMAND_RESPONSE_TIMEOUT);
-                int tries = 1;
-                while (res == HidDevice.ReadStatus.Success &&
-                    tmpReport[0] != 0x21 && tmpReport[14] != subcommand && tries < 100)
-                {
-                    //Console.WriteLine("TRY AGAIN: {0}", tmpReport[0]);
-                    res = hDevice.ReadWithFileStream(tmpReport, SUBCOMMAND_RESPONSE_TIMEOUT);
-                    tries++;
-                }
+                bool result;
+                byte[] commandBuffer = new byte[SUBCOMMAND_BUFFER_LEN];
+                Array.Copy(commandBuffHeader, 0, commandBuffer, 2, SUBCOMMAND_HEADER_LEN);
+                Array.Copy(tmpBuffer, 0, commandBuffer, 11, bufLen);
 
-                //Console.WriteLine("END GAME: {0} {1} {2}", subcommand, tmpReport[0], tries);
+                commandBuffer[0] = 0x01;
+                commandBuffer[1] = frameCount;
+                frameCount = (byte)(++frameCount & 0x0F);
+                commandBuffer[10] = subcommand;
+
+                result = hDevice.WriteOutputReportViaInterrupt(commandBuffer, 0);
+
+                tmpReport = null;
+                if (result && checkResponse)
+                {
+                    tmpReport = new byte[inputReportLen];
+                    HidDevice.ReadStatus res;
+                    res = hDevice.ReadFile(tmpReport, SUBCOMMAND_RESPONSE_TIMEOUT);
+                    int tries = 1;
+                    while (res == HidDevice.ReadStatus.Success &&
+                        tmpReport[0] != 0x21 && tmpReport[14] != subcommand && tries < 100)
+                    {
+                        //Console.WriteLine("TRY AGAIN: {0}", tmpReport[0]);
+                        res = hDevice.ReadFile(tmpReport, SUBCOMMAND_RESPONSE_TIMEOUT);
+                        tries++;
+                    }
+
+                    //Console.WriteLine("END GAME: {0} {1} {2}", subcommand, tmpReport[0], tries);
+                }
             }
+            while (ReloadStickCalib(subcommand, tmpBuffer, tmpReport, ref retryLimit));
 
             return tmpReport;
+        }
+
+        private bool ReloadStickCalib(byte subcommand, ReadOnlySpan<byte> tmpBuffer, ReadOnlySpan<byte> tmpReport, ref int retryLimit)
+        {
+            if (subcommand != 0x10) { return false; }
+            if (retryLimit-- <= 0) { return false; }
+
+            if (tmpBuffer.SequenceEqual<byte>([0x3D, 0x60, 0x00, 0x00, 0x09]) || // LEFT  STICK FACTORY CALIB
+                tmpBuffer.SequenceEqual<byte>([0x46, 0x60, 0x00, 0x00, 0x09]) || // RIGHT STICK FACTORY CALIB
+                tmpBuffer.SequenceEqual<byte>([0x12, 0x80, 0x00, 0x00, 0x09]) || // LEFT  STICK USER    CALIB
+                tmpBuffer.SequenceEqual<byte>([0x1D, 0x80, 0x00, 0x00, 0x09]))   // RIGHT STICK USER    CALIB
+            {
+                var SPI_RESP_OFFSET = 20;
+                var stickCalib = new ushort[6];
+                stickCalib[0] = (ushort)(((tmpReport[1 + SPI_RESP_OFFSET] << 8) & 0xF00) | tmpReport[0 + SPI_RESP_OFFSET]); // X Axis Max above center
+                stickCalib[1] = (ushort)((tmpReport[2 + SPI_RESP_OFFSET] << 4) | (tmpReport[1 + SPI_RESP_OFFSET] >> 4)); // Y Axis Max above center
+                stickCalib[2] = (ushort)(((tmpReport[4 + SPI_RESP_OFFSET] << 8) & 0xF00) | tmpReport[3 + SPI_RESP_OFFSET]); // X Axis Center
+                stickCalib[3] = (ushort)((tmpReport[5 + SPI_RESP_OFFSET] << 4) | (tmpReport[4 + SPI_RESP_OFFSET] >> 4)); // Y Axis Center
+                stickCalib[4] = (ushort)(((tmpReport[7 + SPI_RESP_OFFSET] << 8) & 0xF00) | tmpReport[6 + SPI_RESP_OFFSET]); // X Axis Min below center
+                stickCalib[5] = (ushort)((tmpReport[8 + SPI_RESP_OFFSET] << 4) | (tmpReport[7 + SPI_RESP_OFFSET] >> 4)); // Y Axis Min below center
+
+                return stickCalib.Any(item => item == 0);
+            }
+            else
+            {
+                return false;
+            }
         }
 
         public void WriteReport()

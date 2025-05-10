@@ -84,6 +84,7 @@ namespace DS4WinWPF.DS4Control.DTOXml
                     case SpecialAction.ActionTypeId.BatteryCheck:
                     case SpecialAction.ActionTypeId.MultiAction:
                     case SpecialAction.ActionTypeId.SASteeringWheelEmulationCalibrate:
+                    case SpecialAction.ActionTypeId.GyroCalibrate:
                         actionSerializer.Name = action.name;
                         actionSerializer.Trigger = action.controls;
                         actionSerializer.TypeString = action.type;
@@ -197,6 +198,11 @@ namespace DS4WinWPF.DS4Control.DTOXml
                         tempAction = new SpecialAction(actionSerializer.Name,
                             actionSerializer.Trigger, actionSerializer.TypeString,
                             "", actionSerializer.Delay);
+                        break;
+                    case "GyroCalibration":
+                        double.TryParse(actionSerializer.Details, System.Globalization.NumberStyles.Float, Global.configFileDecimalCulture, out var delay);
+                        tempAction = new SpecialAction(actionSerializer.Name, actionSerializer.Trigger,
+                            actionSerializer.TypeString, actionSerializer.Details, delay);
                         break;
                     default:
                         break;

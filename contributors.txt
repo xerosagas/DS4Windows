@@ -11,6 +11,7 @@ CrazyHPi
 DandelionSprout
 dante38
 Denellyne
+DerGoogler
 dezerving
 dondrakon
 dpearson2699
@@ -36,6 +37,7 @@ Kanuan
 Korney Czukowski (czukowski)
 kurtanr
 Leonardo Melati (Leomelati)
+major-sanyi
 MakiseKurisu
 markguleno
 mayawei
@@ -53,6 +55,7 @@ RedDevilus
 RobbyCBennett
 RokasKil
 sabihoshi
+Samzyre
 SakifX9
 Sander0542
 shikulja
@@ -65,6 +68,7 @@ sunnyqeen
 taolatao147
 toshixm
 tpneill
+TRARS
 trlef19
 V-Olk
 wingfixer

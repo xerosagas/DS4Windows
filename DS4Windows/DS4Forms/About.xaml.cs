@@ -34,10 +34,6 @@ namespace DS4WinWPF.DS4Forms
             headerLb.Content += version;
         }
 
-        private void ChangeLogLink_Click(object sender, RoutedEventArgs e)
-        {
-            Util.StartProcessHelper("https://docs.google.com/document/d/1CovpH08fbPSXrC6TmEprzgPwCe0tTjQ_HTFfDotpmxk/edit?usp=sharing");
-        }
 
         private void SiteLink_Click(object sender, RoutedEventArgs e)
         {
@@ -46,7 +42,12 @@ namespace DS4WinWPF.DS4Forms
 
         private void SourceLink_Click(object sender, RoutedEventArgs e)
         {
-            Util.StartProcessHelper("https://github.com/Ryochan7/DS4Windows");
+            Util.StartProcessHelper("https://github.com/schmaldeo/DS4Windows");
+        }
+
+        private void Ryochan7Link_Click(object sender, RoutedEventArgs e)
+        {
+            Util.StartProcessHelper("https://github.com/Ryochan7");
         }
 
         private void Jays2KingsLink_Click(object sender, RoutedEventArgs e)
@@ -66,12 +67,12 @@ namespace DS4WinWPF.DS4Forms
 
         private void ViGEmBusLink_Click(object sender, RoutedEventArgs e)
         {
-            Util.StartProcessHelper("https://vigem.org/");
+            Util.StartProcessHelper("https://github.com/nefarius/ViGEmBus");
         }
 
         private void HidHideLink_Click(object sender, RoutedEventArgs e)
         {
-            Util.StartProcessHelper("https://vigem.org/projects/HidHide/");
+            Util.StartProcessHelper("https://github.com/nefarius/HidHide/");
         }
 
         private void Crc32Link_Click(object sender, RoutedEventArgs e)
@@ -97,6 +98,11 @@ namespace DS4WinWPF.DS4Forms
         private void VJoyInterfaceLink_Click(object sender, RoutedEventArgs e)
         {
             Util.StartProcessHelper("https://github.com/shauleiz/vJoy/tree/master/apps/common/vJoyInterfaceCS");
+        }
+
+        private void ContributorsLink_OnClick(object sender, RoutedEventArgs e)
+        {
+            Util.StartProcessHelper("https://github.com/schmaldeo/DS4Windows/blob/master/contributors.txt");
         }
     }
 }

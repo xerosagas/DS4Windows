@@ -20,18 +20,19 @@ namespace DS4Windows
 {
     public class DS4StateFieldMapping
     {
-        public enum ControlType: int { Unknown = 0, Button, AxisDir, Trigger, Touch, GyroDir, SwipeDir }
+        public enum ControlType : int { Unknown = 0, Button, AxisDir, Trigger, Touch, GyroDir, SwipeDir }
+        public const byte LAST_DS4_ACTION = (byte)DS4Controls.TouchEnded;
 
-        public bool[] buttons = new bool[(int)DS4Controls.RSOuter + 1];
-        public byte[] axisdirs = new byte[(int)DS4Controls.RSOuter + 1];
-        public byte[] triggers = new byte[(int)DS4Controls.RSOuter + 1];
-        public int[] gryodirs = new int[(int)DS4Controls.RSOuter + 1];
-        public byte[] swipedirs = new byte[(int)DS4Controls.RSOuter + 1];
-        public bool[] swipedirbools = new bool[(int)DS4Controls.RSOuter + 1];
+        public bool[] buttons = new bool[(int)LAST_DS4_ACTION + 1];
+        public byte[] axisdirs = new byte[(int)LAST_DS4_ACTION + 1];
+        public byte[] triggers = new byte[(int)LAST_DS4_ACTION + 1];
+        public int[] gryodirs = new int[(int)LAST_DS4_ACTION + 1];
+        public byte[] swipedirs = new byte[(int)LAST_DS4_ACTION + 1];
+        public bool[] swipedirbools = new bool[(int)LAST_DS4_ACTION + 1];
         public bool touchButton = false;
         public bool outputTouchButton = false;
 
-        public static ControlType[] mappedType = new ControlType[54]
+        public static ControlType[] mappedType = new ControlType[LAST_DS4_ACTION + 1]
         {
             ControlType.Unknown, // DS4Controls.None
             ControlType.AxisDir, // DS4Controls.LXNeg
@@ -87,13 +88,15 @@ namespace DS4Windows
             ControlType.Button, // DS4Controls.SideR
             ControlType.Trigger, // DS4Controls.LSOuter
             ControlType.Trigger, // DS4Controls.RSOuter
+            ControlType.Button,  // DS4Controls.TouchStarted
+            ControlType.Button, // DS4Controls.TouchEnded
         };
 
         public DS4StateFieldMapping()
         {
         }
 
-        public DS4StateFieldMapping(DS4State cState, DS4StateExposed exposeState, Mouse tp, bool priorMouse=false)
+        public DS4StateFieldMapping(DS4State cState, DS4StateExposed exposeState, Mouse tp, bool priorMouse = false)
         {
             PopulateFieldMapping(cState, exposeState, tp, priorMouse);
         }
@@ -172,6 +175,8 @@ namespace DS4Windows
                 buttons[(int)DS4Controls.GyroSwipeRight] = tp != null ? tp.gyroSwipe.swipeRight : false;
                 buttons[(int)DS4Controls.GyroSwipeUp] = tp != null ? tp.gyroSwipe.swipeUp : false;
                 buttons[(int)DS4Controls.GyroSwipeDown] = tp != null ? tp.gyroSwipe.swipeDown : false;
+                buttons[(int)DS4Controls.TouchStarted] = tp != null ? tp.TouchStarted : false;
+                buttons[(int)DS4Controls.TouchEnded] = tp != null ? tp.TouchEnded : false;
 
                 touchButton = cState.TouchButton;
                 outputTouchButton = cState.OutputTouchButton;

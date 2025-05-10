@@ -16,13 +16,15 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
+using DS4Windows;
+using DS4WinWPF.ApiDTO;
+using HttpProgress;
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Net.Http.Json;
 using System.Threading.Tasks;
-using HttpProgress;
-using DS4Windows;
-using System.Collections.Generic;
 
 namespace DS4WinWPF.DS4Forms.ViewModels
 {
@@ -45,26 +47,21 @@ namespace DS4WinWPF.DS4Forms.ViewModels
 
         private string DownloadUpstreamUpdaterVersion()
         {
-            string result = string.Empty;
             // Sorry other devs, gonna have to find your own server
-            Uri url = new Uri("https://raw.githubusercontent.com/Ryochan7/DS4Updater/master/Updater2/newest.txt");
-            string filename = Path.Combine(Path.GetTempPath(), "DS4Updater_version.txt");
-            bool readFile = false;
-            using (var downloadStream = new FileStream(filename, FileMode.Create))
+            Uri url = new Uri("https://api.github.com/repos/schmaldeo/DS4Updater/releases/latest");
+
+            Task<System.Net.Http.HttpResponseMessage> requestTask = App.requestClient.GetAsync(url.ToString());
+            requestTask.Wait();
+            if (requestTask.Result.IsSuccessStatusCode)
             {
-                Task<System.Net.Http.HttpResponseMessage> temp = App.requestClient.GetAsync(url.ToString(), downloadStream);
-                temp.Wait();
-
-                if (temp.Result.IsSuccessStatusCode) readFile = true;
+                var gitHubReleaseTask = requestTask.Result.Content.ReadFromJsonAsync<GithubRelease>();
+                gitHubReleaseTask.Wait();
+                if (!gitHubReleaseTask.IsFaulted)
+                {
+                    return gitHubReleaseTask.Result.TagName.Substring(1);
+                }
             }
-
-            if (readFile)
-            {
-                result = File.ReadAllText(filename).Trim();
-                File.Delete(filename);
-            }
-
-            return result;
+            return string.Empty;
         }
 
         public bool RunUpdaterCheck(bool launch, out string upstreamVersion)
@@ -76,7 +73,7 @@ namespace DS4WinWPF.DS4Forms.ViewModels
                 (!string.IsNullOrEmpty(upstreamVersion) && FileVersionInfo.GetVersionInfo(destPath).FileVersion.CompareTo(upstreamVersion) != 0))
             {
                 launch = false;
-                Uri url2 = new Uri($"https://github.com/Ryochan7/DS4Updater/releases/download/v{upstreamVersion}/{updaterExe}");
+                Uri url2 = new Uri($"https://github.com/schmaldeo/DS4Updater/releases/download/v{upstreamVersion}/{updaterExe}");
                 string filename = Path.Combine(Path.GetTempPath(), "DS4Updater.exe");
                 using (var downloadStream = new FileStream(filename, FileMode.Create))
                 {
@@ -107,16 +104,25 @@ namespace DS4WinWPF.DS4Forms.ViewModels
         public void DownloadUpstreamVersionInfo()
         {
             // Sorry other devs, gonna have to find your own server
-            Uri url = new Uri("https://raw.githubusercontent.com/Ryochan7/DS4Windows/jay/DS4Windows/newest.txt");
+            Uri url = new Uri("https://api.github.com/repos/schmaldeo/DS4Windows/releases/latest");
             string filename = Global.appdatapath + "\\version.txt";
             bool success = false;
-            using (var downloadStream = new FileStream(filename, FileMode.Create))
+            using (StreamWriter streamWriter = new(filename, false))
             {
-                Task<System.Net.Http.HttpResponseMessage> temp = App.requestClient.GetAsync(url.ToString(), downloadStream);
+                Task<System.Net.Http.HttpResponseMessage> requestTask = App.requestClient.GetAsync(url.ToString());
                 try
                 {
-                    temp.Wait();
-                    if (temp.Result.IsSuccessStatusCode) success = true;
+                    requestTask.Wait();
+                    if (requestTask.Result.IsSuccessStatusCode)
+                    {
+                        var gitHubReleaseTask = requestTask.Result.Content.ReadFromJsonAsync<GithubRelease>();
+                        gitHubReleaseTask.Wait();
+                        if (!gitHubReleaseTask.IsFaulted)
+                        {
+                            streamWriter.Write(gitHubReleaseTask.Result.TagName.Substring(1));
+                            success = true;
+                        }
+                    }
                 }
                 catch (AggregateException) { }
             }

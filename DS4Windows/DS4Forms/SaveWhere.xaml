@@ -9,7 +9,7 @@
         lex:ResxLocalizationProvider.DefaultAssembly="DS4Windows"
         lex:ResxLocalizationProvider.DefaultDictionary="Strings"
         mc:Ignorable="d"
-        Title="{lex:Loc SaveWhere.WinTitle}" Height="184" Width="453" ResizeMode="NoResize" WindowStartupLocation="CenterScreen" Closing="Window_Closing"
+        Title="{lex:Loc SaveWhere.WinTitle}" Height="184" Width="453" ResizeMode="NoResize" WindowStartupLocation="CenterScreen"
         Style="{DynamicResource WindowStyle}">
     <StackPanel>
         <DockPanel x:Name="multipleSavesDockP" Margin="4,0">

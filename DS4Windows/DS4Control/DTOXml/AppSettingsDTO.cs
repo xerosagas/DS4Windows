@@ -19,6 +19,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.Design;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -140,6 +141,9 @@ namespace DS4WinWPF.DS4Control.DTOXml
             get => _formLocationY;
             set => _formLocationY = value;
         }
+
+        [XmlElement("ProcessPriority")]
+        public int ProcessPriority { get; set; }
 
         [XmlElement("Controller1")]
         public string Controller1CurrentProfile
@@ -285,6 +289,26 @@ namespace DS4WinWPF.DS4Control.DTOXml
             }
         }
 
+
+        [XmlIgnore]
+        public bool ProfileChangedNotification
+        {
+            get; private set;
+        }
+
+        [XmlElement("ProfileChangedNotification")]
+        public string ProfileChangedNotificationString
+        {
+            get => ProfileChangedNotification.ToString();
+            set
+            {
+                if (bool.TryParse(value, out var input))
+                {
+                    ProfileChangedNotification = input;
+                }
+            }
+        }
+
         [XmlIgnore]
         public bool DisconnectBTAtStop
         {
@@ -340,6 +364,20 @@ namespace DS4WinWPF.DS4Control.DTOXml
                     QuickCharge = temp;
                 }
             }
+        }
+
+        [XmlElement("UseMoonlight")]
+        public bool UseMoonlight
+        {
+            get;
+            set;
+        }
+
+        [XmlElement("UseAdvancedMoonlight")]
+        public bool UseAdvancedMoonlight
+        {
+            get;
+            set;
         }
 
         [XmlIgnore]
@@ -791,6 +829,7 @@ namespace DS4WinWPF.DS4Control.DTOXml
             UseExclusiveMode = source.useExclusiveMode;
             StartMinimized = source.startMinimized;
             MinimizeToTaskbar = source.minToTaskbar;
+            ProcessPriority = source.processPriority;
             FormWidth = source.formWidth;
             FormHeight = source.formHeight;
             FormLocationX = source.formLocationX;
@@ -807,9 +846,12 @@ namespace DS4WinWPF.DS4Control.DTOXml
             CheckWhen = source.CheckWhen;
             LastVersionChecked = source.lastVersionChecked;
             Notifications = source.notifications;
+            ProfileChangedNotification = source.profileChangedNotification;
             DisconnectBTAtStop = source.disconnectBTAtStop;
             SwipeProfiles = source.swipeProfiles;
             QuickCharge = source.quickCharge;
+            UseMoonlight = source.useMoonlight;
+            UseAdvancedMoonlight = source.useAdvancedMoonlight;
             CloseMinimizes = source.closeMini;
             UseLang = source.useLang;
             DownloadLang = source.downloadLang;
@@ -884,6 +926,7 @@ namespace DS4WinWPF.DS4Control.DTOXml
             destination.useExclusiveMode = UseExclusiveMode;
             destination.startMinimized = StartMinimized;
             destination.minToTaskbar = MinimizeToTaskbar;
+            destination.processPriority = ProcessPriority;
             destination.formWidth = FormWidth;
             destination.formHeight = FormHeight;
             destination.formLocationX = FormLocationX;
@@ -900,9 +943,12 @@ namespace DS4WinWPF.DS4Control.DTOXml
             destination.CheckWhen = CheckWhen;
             destination.lastVersionChecked = LastVersionChecked;
             destination.notifications = Notifications;
+            destination.profileChangedNotification = ProfileChangedNotification;
             destination.disconnectBTAtStop = DisconnectBTAtStop;
             destination.swipeProfiles = SwipeProfiles;
             destination.quickCharge = QuickCharge;
+            destination.useMoonlight = UseMoonlight;
+            destination.useAdvancedMoonlight = UseAdvancedMoonlight;
             destination.closeMini = CloseMinimizes;
             destination.useLang = UseLang;
             destination.downloadLang = DownloadLang;

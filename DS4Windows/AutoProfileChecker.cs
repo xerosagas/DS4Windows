@@ -25,6 +25,9 @@ using System.Text;
 using System.Diagnostics; // StopWatch
 using System.Threading; // Sleep
 using System.Threading.Tasks;
+using Windows.Win32;
+using Windows.Win32.Foundation;
+using Windows.Win32.UI.Accessibility;
 using DS4Windows;
 
 namespace DS4WinWPF
@@ -229,8 +232,14 @@ namespace DS4WinWPF
             //
             if (hWnd == prevForegroundWnd)
             {
-                // The active window is still the same. Return cached process and wndTitle values and FALSE to indicate caller that no changes since the last call of this method
+                // checking if current window title has changed, otherwise return cached values
                 topProcessName = prevForegroundProcessName;
+                var title = GetWindowTitle((HWND)hWnd).ToLower();
+                if (title != prevForegroundWndTitleName)
+                {
+                    prevForegroundWndTitleName = topWndTitleName = title;
+                    return true;
+                }
                 topWndTitleName = prevForegroundWndTitleName;
                 return false;
             }
@@ -266,6 +275,15 @@ namespace DS4WinWPF
                 DS4Windows.AppLogger.LogToGui($"DEBUG: Auto-Profile. PID={lpdwProcessId}  Path={topProcessName} | WND={hWnd}  Title={topWndTitleName}", false, true);
 
             return true;
+        }
+
+        private static unsafe string GetWindowTitle(HWND handle)
+        {
+            var strLength = PInvoke.GetWindowTextLength(handle) + 1;
+            var buffer = stackalloc char[strLength];
+            if (PInvoke.GetWindowText(handle, buffer, strLength) > 0)
+                return Marshal.PtrToStringAuto((IntPtr)buffer) ?? string.Empty;
+            return string.Empty;
         }
 
         private void SetAndWaitServiceStatus(bool serviceRunningStatus)
@@ -335,5 +353,8 @@ namespace DS4WinWPF
 
         [DllImport("user32.dll", CharSet = CharSet.Auto)]
         private static extern int GetWindowText(IntPtr hWnd, StringBuilder lpString, int nSize);
+
+        private const int WINEVENT_OUTOFCONTEXT = 0x0000;
+        private const int EVENT_OBJECT_NAMECHANGE = 0x800C;
     }
 }

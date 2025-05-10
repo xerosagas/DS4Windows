@@ -9,11 +9,8 @@
         Title="{lex:LocExtension HotkeysAbout}" Height="450" Width="800"
         Style="{DynamicResource WindowStyle}">
     <DockPanel>
-        <Label x:Name="headerLb" Content="DS4Windows - Ryochan7 Build (Version " DockPanel.Dock="Top" HorizontalAlignment="Center" />
-        
-        <TextBlock DockPanel.Dock="Top" HorizontalAlignment="Center" Margin="0,4,0,0">
-            <Hyperlink x:Name="changeLogLink" Click="ChangeLogLink_Click" Foreground="{DynamicResource AccentColor}">Changelog</Hyperlink>
-        </TextBlock>
+        <Label x:Name="headerLb" Content="DS4Windows - schmaldeo Build (Version " DockPanel.Dock="Top" HorizontalAlignment="Center" />
+
         <TabControl>
             <TabItem Header="Hotkeys">
                 <TextBlock TextWrapping="Wrap" xml:space="preserve">Hide DS4 Controller: Hides the DS4's regular input (Dinput) from other programs, check if you are getting double input in games or R2 pauses games
@@ -715,8 +712,9 @@ Public License instead of this License.  But first, please read
                 <DockPanel>
                     <StackPanel DockPanel.Dock="Top" Margin="10,0">
                         <StackPanel Orientation="Horizontal">
-                            <TextBlock><Hyperlink x:Name="siteLink" Click="SiteLink_Click" Foreground="{DynamicResource AccentColor}">Site</Hyperlink></TextBlock>
+                            <!-- <TextBlock><Hyperlink x:Name="siteLink" Click="SiteLink_Click" Foreground="{DynamicResource AccentColor}">Site</Hyperlink></TextBlock> -->
                             <TextBlock Margin="20,0,0,0"><Hyperlink x:Name="sourceLink" Click="SourceLink_Click" Foreground="{DynamicResource AccentColor}">Source</Hyperlink></TextBlock>
+                            <TextBlock Margin="20,0,0,0"><Hyperlink Click="Ryochan7Link_Click" Foreground="{DynamicResource AccentColor}">Ryochan7</Hyperlink></TextBlock>
                         </StackPanel>
                         <StackPanel Orientation="Horizontal">
                             <TextBlock><Hyperlink x:Name="jays2KingsLink" Click="Jays2KingsLink_Click" Foreground="{DynamicResource AccentColor}">Jays2Kings</Hyperlink></TextBlock>
@@ -724,6 +722,9 @@ Public License instead of this License.  But first, please read
                         </StackPanel>
                         <StackPanel Orientation="Horizontal">
                             <TextBlock><Hyperlink x:Name="electrobrainsLink" Click="ElectrobrainsLink_Click" Foreground="{DynamicResource AccentColor}">electrobrains (Branched off of)</Hyperlink></TextBlock>
+                        </StackPanel>
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock><Hyperlink Click="ContributorsLink_OnClick" Foreground="{DynamicResource AccentColor}">Contributors</Hyperlink></TextBlock>
                         </StackPanel>
                         <Label Content="Translators:" Margin="0,20,0,0" />
                     </StackPanel>
@@ -755,7 +756,7 @@ dondrakon - Ukranian
                                 <StackPanel Orientation="Horizontal" Margin="0,8,0,0">
                                     <TextBlock Text="Project URL:" />
                                     <TextBlock Margin="8,0,0,0">
-                                    <Hyperlink x:Name="viGEmBusLink" Click="ViGEmBusLink_Click" Foreground="{DynamicResource AccentColor}">https://vigem.org/</Hyperlink>
+                                    <Hyperlink x:Name="viGEmBusLink" Click="ViGEmBusLink_Click" Foreground="{DynamicResource AccentColor}">https://github.com/nefarius/ViGEmBus/</Hyperlink>
                                     </TextBlock>
                                 </StackPanel>
                                 <Expander Header="Description" Margin="0,8,0,0">
@@ -776,7 +777,7 @@ dondrakon - Ukranian
                                 <StackPanel Orientation="Horizontal" Margin="0,8,0,0">
                                     <TextBlock Text="Project URL:" />
                                     <TextBlock Margin="8,0,0,0">
-                                    <Hyperlink x:Name="hidHideLink" Click="HidHideLink_Click" Foreground="{DynamicResource AccentColor}">https://vigem.org/projects/HidHide/</Hyperlink>
+                                    <Hyperlink x:Name="hidHideLink" Click="HidHideLink_Click" Foreground="{DynamicResource AccentColor}">https://github.com/nefarius/HidHide/</Hyperlink>
                                     </TextBlock>
                                 </StackPanel>
                                 <Expander Header="Description" Margin="0,8,0,0">

@@ -281,6 +281,8 @@
                                 <ComboBoxItem Content="{lex:Loc All}" />
                             </ComboBox>
                         </StackPanel>
+                        <CheckBox Content="{lex:Loc ProfileSwitchNotification}" IsChecked="{Binding ProfileChangedNotification}"
+                                  Visibility="{Binding IsProfileChangedCheckVisible}" Margin="16 0 0 10"/>
                         <CheckBox Content="{lex:Loc DisconnectFromBtWhenStopping}" Margin="{StaticResource spaceMargin}"
                               IsChecked="{Binding DisconnectBTStop}" />
                         <StackPanel Orientation="Horizontal" Margin="{StaticResource spaceMargin}">
@@ -311,6 +313,7 @@
                                 <ComboBoxItem Content="{lex:Loc Colored}"/>
                                 <ComboBoxItem Content="{lex:Loc White}"/>
                                 <ComboBoxItem Content="{lex:Loc Black}"/>
+                                <ComboBoxItem Content="{lex:Loc Battery}"/>
                             </ComboBox>
                         </StackPanel>
                         <StackPanel Orientation="Horizontal" Margin="{StaticResource spaceMargin}">
@@ -406,6 +409,11 @@
                             </Button>
                             <TextBox x:Name="fakeExeNameTxt" Text="{Binding FakeExeName, UpdateSourceTrigger=LostFocus}" MinWidth="200" />
                         </DockPanel>
+
+                        <StackPanel Orientation="Horizontal" Margin="{StaticResource spaceMargin}">
+                            <Label Content="{lex:Loc ProcessPriority}" ContentStringFormat="{}{0}:"/>
+                            <ComboBox x:Name="ProcessPriorityComboBox" Margin="10,0,0,0" SelectedIndex="{Binding ProcessPriorityIndex}" SelectionChanged="ProcessPriorityComboBox_OnSelectionChanged" />
+                        </StackPanel>
 
                         <StackPanel Orientation="Horizontal" Margin="{StaticResource spaceMargin}">
                             <Label Content="{lex:Loc MainWin.AbsDisplayMonitor}" ContentStringFormat="{}{0}:" />

@@ -367,6 +367,15 @@ namespace DS4WinWPF.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to .
+        /// </summary>
+        public static string DinputOnly {
+            get {
+                return ResourceManager.GetString("DinputOnly", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Disconnect BT.
         /// </summary>
         public static string DisconnectBT {
@@ -973,6 +982,15 @@ namespace DS4WinWPF.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to .
+        /// </summary>
+        public static string OutContNotice {
+            get {
+                return ResourceManager.GetString("OutContNotice", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Please Download the Updater now, place it in the programs folder and rename to DS4Updater.exe if on x86, then check for update again. DS4Windows will attempt to open DS4Updater Release page when this window is closed..
         /// </summary>
         public static string PleaseDownloadUpdater {
@@ -1441,6 +1459,15 @@ namespace DS4WinWPF.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Touch Ended.
+        /// </summary>
+        public static string TouchEnded {
+            get {
+                return ResourceManager.GetString("TouchEnded", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Touchpad Movement is now Off.
         /// </summary>
         public static string TouchpadMovementOff {
@@ -1464,6 +1491,15 @@ namespace DS4WinWPF.Properties {
         public static string TouchpadOffTip {
             get {
                 return ResourceManager.GetString("TouchpadOffTip", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Touch Started.
+        /// </summary>
+        public static string TouchStarted {
+            get {
+                return ResourceManager.GetString("TouchStarted", resourceCulture);
             }
         }
         

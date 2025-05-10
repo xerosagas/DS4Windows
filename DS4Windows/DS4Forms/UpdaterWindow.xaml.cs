@@ -18,7 +18,9 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 using DS4WinWPF.DS4Forms.ViewModels;
 using System;
+using System.Threading.Tasks;
 using System.Windows;
+using DS4Windows;
 
 namespace DS4WinWPF.DS4Forms
 {
@@ -44,19 +46,10 @@ namespace DS4WinWPF.DS4Forms
 
             DataContext = updaterWinVM;
 
-            SetupEvents();
-
-            updaterWinVM.RetrieveChangelogInfo();
-        }
-
-        private void SetupEvents()
-        {
-            updaterWinVM.ChangelogDocumentChanged += UpdaterWinVM_ChangelogDocumentChanged;
-        }
-
-        private void UpdaterWinVM_ChangelogDocumentChanged(object sender, EventArgs e)
-        {
-            richChangelogTxtBox.Document = updaterWinVM.ChangelogDocument;
+            Task.Run(async () =>
+            {
+                await Dispatcher.InvokeAsync(async () => await updaterWinVM.DisplayChangelog());
+            });
         }
 
         private void YesBtn_Click(object sender, RoutedEventArgs e)

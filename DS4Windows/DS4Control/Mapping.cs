@@ -18,6 +18,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.IO;
@@ -28,6 +29,8 @@ using static DS4Windows.Global;
 using System.Drawing; // Point struct
 using Sensorit.Base;
 using DS4WinWPF.DS4Control;
+using DS4WinWPF.DS4Forms.ViewModels;
+using ThreadState = System.Threading.ThreadState;
 
 namespace DS4Windows
 {
@@ -1133,6 +1136,9 @@ namespace DS4Windows
 
             cState.CopyTo(dState);
             //DS4State dState = new DS4State(cState);
+
+            cState = ApplyStickCalibration(device, dState);
+
 
             if (lsMod.deadzoneType == StickDeadZoneInfo.DeadZoneType.Radial)
             {
@@ -2285,6 +2291,34 @@ namespace DS4Windows
             return dState;
         }
 
+        public static DS4State ApplyStickCalibration(int device, DS4State state)
+        {
+            if (RightStickDriftXAxis[device] != 0)
+            {
+                var translated = state.RX - RightStickDriftXAxis[device];
+                state.RX = (byte)Math.Clamp(translated, 0, 255);
+            }
+            if (RightStickDriftYAxis[device] != 0)
+            {
+                var translated = state.RY - RightStickDriftYAxis[device];
+                state.RY = (byte)Math.Clamp(translated, 0, 255);
+            }
+
+            if (LeftStickDriftXAxis[device] != 0)
+            {
+                var translated = state.LX - LeftStickDriftXAxis[device];
+                state.LX = (byte)Math.Clamp(translated, 0, 255);
+            }
+
+            if (LeftStickDriftYAxis[device] != 0)
+            {
+                var translated = state.LY - LeftStickDriftYAxis[device];
+                state.LY = (byte)Math.Clamp(translated, 0, 255);
+            }
+
+            return state;
+        }
+
         private static bool ShiftTrigger(int trigger, int device, DS4State cState, DS4StateExposed eState, Mouse tp, DS4StateFieldMapping fieldMapping)
         {
             bool result = false;
@@ -3150,7 +3184,7 @@ namespace DS4Windows
                     else if (triggerValue != 0 && !triggerData.outputActive)
                     {
                         bool outputActive = triggerData.checkTime +
-                            TimeSpan.FromMilliseconds(outputSettings.hipFireMS) < DateTime.Now;
+                            TimeSpan.FromMilliseconds(outputSettings.hipFireMS) + TimeSpan.FromMilliseconds(Global.DebouncingMs[device]) < DateTime.Now;
                         if (outputActive)
                         {
                             triggerData.outputActive = true;
@@ -3210,7 +3244,7 @@ namespace DS4Windows
                     }
                     else if (triggerValue != 0 && !triggerData.outputActive)
                     {
-                        bool outputActive = triggerData.checkTime + TimeSpan.FromMilliseconds(outputSettings.hipFireMS) < DateTime.Now;
+                        bool outputActive = triggerData.checkTime + TimeSpan.FromMilliseconds(outputSettings.hipFireMS) + TimeSpan.FromMilliseconds(Global.DebouncingMs[device]) < DateTime.Now;
                         if (outputActive)
                         {
                             triggerData.outputActive = true;
@@ -3395,6 +3429,19 @@ namespace DS4Windows
         //private static double FlickThreshold = 0.9;
         //private static double FlickTime = 0.1;
 
+        // array of DS4Controls that can be mapped to a bool (through DS4State) and used for lightbar macro press/release function
+        private static DS4Controls[] BoolDS4Controls =
+        [
+            DS4Controls.Square, DS4Controls.Triangle, DS4Controls.Circle, DS4Controls.Cross, DS4Controls.DpadUp,
+            DS4Controls.DpadDown, DS4Controls.DpadLeft, DS4Controls.DpadRight, DS4Controls.L1, DS4Controls.L3,
+            DS4Controls.R1, DS4Controls.R3, DS4Controls.Share, DS4Controls.Options, DS4Controls.Mute,
+            DS4Controls.TouchRight, DS4Controls.TouchLeft, DS4Controls.Capture, DS4Controls.SideL, DS4Controls.SideR,
+            DS4Controls.FnL, DS4Controls.FnR, DS4Controls.BLP, DS4Controls.BRP
+        ];
+
+        private static CancellationTokenSource threadCts = new();
+        private static Task lightbarMacroTask;
+
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private static void ProcessControlSettingAction(DS4ControlSettings dcs, int device, DS4State cState, DS4State MappedState, DS4StateExposed eState,
             Mouse tp, DS4StateFieldMapping fieldMapping, DS4StateFieldMapping outputfieldMapping, SyntheticState deviceState, ref double tempMouseDeltaX, ref double tempMouseDeltaY,
@@ -3456,7 +3503,8 @@ namespace DS4Windows
                             extrasRumbleActive[device] = true;
                         }
 
-                        if (extras[2] == 1)
+                        // lightbar macro takes precedence
+                        if (extras[2] == 1 && (!dcs.LightbarMacro?.Active ?? false))
                         {
                             DS4Color color = new DS4Color { red = (byte)extras[3], green = (byte)extras[4], blue = (byte)extras[5] };
                             DS4LightBar.forcedColor[device] = color;
@@ -3495,6 +3543,58 @@ namespace DS4Windows
 
                     held[device] = DS4Controls.None;
                     usingExtra = DS4Controls.None;
+                }
+            }
+
+
+            if (dcs.LightbarMacro is not null && dcs.LightbarMacro.Active)
+            {
+                if (BoolDS4Controls.Contains(dcs.control))
+                {
+                    var dev = ctrl.DS4Controllers[device];
+                    var prev = dev.GetRawPreviousStateRef();
+                    var curr = dev.GetRawCurrentStateRef();
+
+                    var field = typeof(DS4State).GetField(dcs.control.ToString());
+                    // using cState can lead to some duplicate input issues
+                    var currButtonState = (bool)field.GetValue(curr);
+                    var prevButtonState = (bool)field.GetValue(prev);
+
+                    if (prevButtonState != currButtonState)
+                    {
+                        if ((dcs.LightbarMacro.Trigger == LightbarMacroTrigger.Press && !prevButtonState && currButtonState)
+                            || (dcs.LightbarMacro.Trigger == LightbarMacroTrigger.Release && prevButtonState &&
+                                !currButtonState))
+                        {
+                            if (dcs.LightbarMacro.CancelCurrent && lightbarMacroTask != null && !lightbarMacroTask.IsCompleted)
+                            {
+                                threadCts.Cancel();
+
+                                try
+                                {
+                                    lightbarMacroTask.Wait();
+                                }
+                                catch (OperationCanceledException)
+                                {
+                                }
+                                finally
+                                {
+                                    threadCts.Dispose();
+                                    threadCts = new CancellationTokenSource();
+                                }
+                            }
+
+                            // if cancellation is on, the task has already been cancelled, if cancellation is off,
+                            // we need to make sure that we don't do Task.Run when the previous one hasn't completed yet,
+                            // as that would queue it and it's undesired. check for task being null too as it's
+                            // only initialised here and in case not a single macro hasn't run yet, it will be null
+                            if (dcs.LightbarMacro.CancelCurrent ||
+                                (!dcs.LightbarMacro.CancelCurrent
+                                 && (lightbarMacroTask is null || lightbarMacroTask.IsCompleted))
+                                )
+                                lightbarMacroTask = Task.Run(() => RunLightbarMacro(dcs.LightbarMacro.Macro, device, threadCts.Token));
+                        }
+                    }
                 }
             }
 
@@ -3804,6 +3904,47 @@ namespace DS4Windows
             }
         }
 
+        private static void RunLightbarMacro(ObservableCollection<LightbarMacroElement> macro, int device, CancellationToken token)
+        {
+            lock (DS4LightBar.forcedColor) lock (DS4LightBar.forcelight)
+            {
+                DS4LightBar.forcelight[device] = true;
+
+                var timestamp = DateTime.UtcNow.Ticks;
+                var i = 0;
+
+                while (i < macro.Count)
+                {
+                    if (token.IsCancellationRequested)
+                    {
+                        break;
+                    }
+
+                    DS4LightBar.forcedColor[device] = macro[i].Color;
+
+                    try
+                    {
+                        Task.Delay(10, token).Wait();
+                    }
+                    catch (AggregateException ex)
+                    {
+                        if (ex.InnerExceptions.All(e => e is OperationCanceledException))
+                        { }
+                        else
+                        { throw; }
+                    }
+
+                    if (DateTime.UtcNow.Ticks - timestamp >= macro[i].Length * TimeSpan.TicksPerMillisecond)
+                    {
+                        i++;
+                        timestamp = DateTime.UtcNow.Ticks;
+                    }
+                }
+
+                DS4LightBar.forcelight[device] = false;
+            }
+        }
+
         private static bool IfAxisIsNotModified(int device, bool shift, DS4Controls dc)
         {
             return shift ? false : GetDS4CSetting(device, dc).actionType == DS4ControlSettings.ActionType.Default;
@@ -3875,7 +4016,7 @@ namespace DS4Windows
                                 if (nowAction[device] >= oldnowAction[device] + TimeSpan.FromSeconds(time))
                                     triggeractivated = true;
                             }
-                            else if (nowAction[device] < DateTime.UtcNow - TimeSpan.FromMilliseconds(100))
+                            else if (nowAction[device] < DateTime.UtcNow - TimeSpan.FromMilliseconds(100) + TimeSpan.FromMilliseconds(Global.DebouncingMs[device]))
                                 oldnowAction[device] = DateTime.UtcNow;
                         }
                         else if (triggerToBeTapped && oldnowKeyAct[device] == DateTime.MinValue)
@@ -3912,7 +4053,7 @@ namespace DS4Windows
                                 }
                             }
                             DateTime now = DateTime.UtcNow;
-                            if (!subtriggeractivated && now <= oldnowKeyAct[device] + TimeSpan.FromMilliseconds(250))
+                            if (!subtriggeractivated && now <= oldnowKeyAct[device] + TimeSpan.FromMilliseconds(250) + TimeSpan.FromMilliseconds(Global.DebouncingMs[device]))
                             {
                                 await Task.Delay(3); //if the button is assigned to the same key use a delay so the key down is the last action, not key up
                                 triggeractivated = true;
@@ -4071,6 +4212,7 @@ namespace DS4Windows
                                         (device + 1).ToString(), action.details, $"{d.Battery}");
 
                                     AppLogger.LogToGui(prolog, false);
+                                    if (Global.ProfileChangedNotification) AppLogger.LogToTray(prolog);
                                     Task.Run(() =>
                                     {
                                         d.HaltReportingRunAction(() =>
@@ -4249,6 +4391,24 @@ namespace DS4Windows
 
                                 actionDone[index].dev[device] = true;
                             }
+                            else if (action.typeID == SpecialAction.ActionTypeId.GyroCalibrate)
+                            {
+                                actionFound = true;
+
+                                if (!actionDone[index].dev[device])
+                                {
+                                    var d = ctrl.DS4Controllers[device];
+
+                                    d.SixAxis.ResetContinuousCalibration();
+                                    if (d.JointDeviceSlotNumber != DS4Device.DEFAULT_JOINT_SLOT_NUMBER)
+                                    {
+                                        DS4Device tempDev = ctrl.DS4Controllers[d.JointDeviceSlotNumber];
+                                        tempDev?.SixAxis.ResetContinuousCalibration();
+                                    }
+
+                                    actionDone[index].dev[device] = true;
+                                }
+                            }
                         }
                         else
                         {
@@ -4348,7 +4508,7 @@ namespace DS4Windows
                                 {
                                     // pressed down
                                     action.pastTime = DateTime.UtcNow;
-                                    if (action.pastTime <= (action.firstTap + TimeSpan.FromMilliseconds(150)))
+                                    if (action.pastTime <= action.firstTap + TimeSpan.FromMilliseconds(150) + TimeSpan.FromMilliseconds(Global.DebouncingMs[device]))
                                     {
                                         action.tappedOnce = tappedOnce = false;
                                         action.secondtouchbegin = secondtouchbegin = true;
@@ -4373,7 +4533,7 @@ namespace DS4Windows
                                     {
                                         action.firstTouch = firstTouch = false;
                                         //firstTouch = false;
-                                        if (DateTime.UtcNow <= (action.pastTime + TimeSpan.FromMilliseconds(150)) && !tappedOnce)
+                                        if (DateTime.UtcNow <= (action.pastTime + TimeSpan.FromMilliseconds(150)  + TimeSpan.FromMilliseconds(Global.DebouncingMs[device])) && !tappedOnce)
                                         {
                                             action.tappedOnce = tappedOnce = true;
                                             //tappedOnce = true;
@@ -4403,7 +4563,7 @@ namespace DS4Windows
                                         }
                                     }
 
-                                    if ((DateTime.UtcNow - action.TimeofEnd) > TimeSpan.FromMilliseconds(150))
+                                    if ((DateTime.UtcNow - action.TimeofEnd) > TimeSpan.FromMilliseconds(150) + TimeSpan.FromMilliseconds(Global.DebouncingMs[device]))
                                     {
                                         if (macro != "")
                                             PlayMacro(device, macroControl, macro, null, null, DS4Controls.None, DS4KeyType.None);
@@ -4413,7 +4573,7 @@ namespace DS4Windows
                                     }
                                     //if it fails the method resets, and tries again with a new tester value (gives tap a delay so tap and hold can work)
                                 }
-                                else if (firstTouch && (DateTime.UtcNow - action.pastTime) > TimeSpan.FromMilliseconds(500)) //helddown
+                                else if (firstTouch && (DateTime.UtcNow - action.pastTime) > TimeSpan.FromMilliseconds(500) + TimeSpan.FromMilliseconds(Global.DebouncingMs[device])) //helddown
                                 {
                                     if (action.typeID == SpecialAction.ActionTypeId.MultiAction)
                                     {
@@ -4787,7 +4947,10 @@ namespace DS4Windows
                 string r = macroCodeValue.ToString().Substring(1);
                 byte heavy = (byte)(int.Parse(r[0].ToString()) * 100 + int.Parse(r[1].ToString()) * 10 + int.Parse(r[2].ToString()));
                 byte light = (byte)(int.Parse(r[3].ToString()) * 100 + int.Parse(r[4].ToString()) * 10 + int.Parse(r[5].ToString()));
-                d.setRumble(light, heavy);
+                if (Global.InverseRumbleMotors[device])
+                    d.setRumble(heavy, light);
+                else
+                    d.setRumble(light, heavy);
             }
             else
             {

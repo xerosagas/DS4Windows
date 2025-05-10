@@ -27,6 +27,8 @@ using System.Diagnostics;
 using System.Linq;
 using System.Drawing;
 
+using DS4WinWPF.DS4Control;
+
 namespace DS4Windows
 {
     public struct DS4Color : IEquatable<DS4Color>
@@ -94,7 +96,7 @@ namespace DS4Windows
             catch { return false; }
         }
 
-        public override string ToString() => $"Red: {red} Green: {green} Blue: {blue}";
+        public override string ToString() => $"#{red:X}{green:X}{blue:X}";
     }
 
     public enum ConnectionType : byte { BT, SONYWA, USB }; // Prioritize Bluetooth when both BT and USB are connected.
@@ -222,6 +224,11 @@ namespace DS4Windows
         protected bool charging;
         protected bool readyQuickChargeDisconnect;
         protected int warnInterval = WARN_INTERVAL_USB;
+
+        public Debouncer Debouncer
+        {
+            get; protected set;
+        }
         public int getWarnInterval()
         {
             return warnInterval;
@@ -633,6 +640,7 @@ namespace DS4Windows
             set => outputMapGyro = value;
         }
 
+
         public DS4Device(HidDevice hidDevice, string disName, VidPidFeatureSet featureSet = VidPidFeatureSet.DefaultDS4)
         {
             hDevice = hidDevice;
@@ -711,10 +719,10 @@ namespace DS4Windows
             if (runCalib)
                 RefreshCalibration();
 
-            if (!hDevice.IsFileStreamOpen())
-            {
-                hDevice.OpenFileStream(outputReport.Length);
-            }
+            // if (!hDevice.IsFileStreamOpen())
+            // {
+            //     hDevice.OpenFileStream(outputReport.Length);
+            // }
 
             // Temporarily disable this check as it does not seem to help
             // detect fake DS4 controllers
@@ -1017,8 +1025,9 @@ namespace DS4Windows
         {
             unchecked
             {
+                Debouncer = SetupDebouncer();
                 firstActive = DateTime.UtcNow;
-                NativeMethods.HidD_SetNumInputBuffers(hDevice.safeReadHandle.DangerousGetHandle(), 3);
+                NativeMethods.HidD_SetNumInputBuffers(hDevice.SafeReadHandle.DangerousGetHandle(), 3);
                 Queue<long> latencyQueue = new Queue<long>(21); // Set capacity at max + 1 to avoid any resizing
                 int tempLatencyCount = 0;
                 long oldtime = 0;
@@ -1069,14 +1078,14 @@ namespace DS4Windows
 
                     readWaitEv.Set();
 
-                    // Sony DS4 and compatible gamepads send data packets with 0x11 type code in BT mode. 
+                    // Sony DS4 and compatible gamepads send data packets with 0x11 type code in BT mode.
                     // Will no longer support any third party fake DS4 that does not behave according to official DS4 specs
                     //if (conType == ConnectionType.BT)
                     if (conType == ConnectionType.BT && (this.featureSet & VidPidFeatureSet.OnlyInputData0x01) == 0)
                     {
                         //HidDevice.ReadStatus res = hDevice.ReadFile(btInputReport);
                         //HidDevice.ReadStatus res = hDevice.ReadAsyncWithFileStream(btInputReport, READ_STREAM_TIMEOUT);
-                        HidDevice.ReadStatus res = hDevice.ReadWithFileStream(btInputReport);
+                        HidDevice.ReadStatus res = hDevice.ReadFile(btInputReport);
                         timeoutEvent = false;
                         if (res == HidDevice.ReadStatus.Success)
                         {
@@ -1140,7 +1149,7 @@ namespace DS4Windows
                             else
                             {
                                 int winError = Marshal.GetLastWin32Error();
-                                Console.WriteLine(Mac.ToString() + " " + DateTime.UtcNow.ToString("o") + "> disconnect due to read failure: " + winError);
+                                Console.WriteLine($"{Mac} {DateTime.UtcNow.ToString("o")}> disconnect due to read failure: {winError.ToString("x8")}");
                                 //Log.LogToGui(Mac.ToString() + " disconnected due to read failure: " + winError, true);
                                 AppLogger.LogToGui(Mac.ToString() + " disconnected due to read failure: " + winError, true);
                             }
@@ -1160,7 +1169,7 @@ namespace DS4Windows
                         //HidDevice.ReadStatus res = hDevice.ReadFile(inputReport);
                         //Array.Clear(inputReport, 0, inputReport.Length);
                         //HidDevice.ReadStatus res = hDevice.ReadAsyncWithFileStream(inputReport, READ_STREAM_TIMEOUT);
-                        HidDevice.ReadStatus res = hDevice.ReadWithFileStream(inputReport);
+                        HidDevice.ReadStatus res = hDevice.ReadFile(inputReport);
                         if (res != HidDevice.ReadStatus.Success)
                         {
                             if (res == HidDevice.ReadStatus.WaitTimedOut)
@@ -1170,7 +1179,7 @@ namespace DS4Windows
                             else
                             {
                                 int winError = Marshal.GetLastWin32Error();
-                                Console.WriteLine(Mac.ToString() + " " + DateTime.UtcNow.ToString("o") + "> disconnect due to read failure: " + winError);
+                                Console.WriteLine($"{Mac} {DateTime.UtcNow.ToString("o")}> disconnect due to read failure: {winError.ToString("x8")}");
                                 //Log.LogToGui(Mac.ToString() + " disconnected due to read failure: " + winError, true);
                             }
 
@@ -1250,6 +1259,7 @@ namespace DS4Windows
                     tempByte = inputReport[7];
                     cState.PS = (tempByte & (1 << 0)) != 0;
                     cState.TouchButton = (tempByte & 0x02) != 0;
+
                     cState.OutputTouchButton = cState.TouchButton;
                     cState.FrameCounter = (byte)(tempByte >> 2);
 
@@ -1511,6 +1521,38 @@ namespace DS4Windows
             }
 
             timeoutExecuted = true;
+        }
+
+        protected Debouncer SetupDebouncer()
+        {
+            var debouncingMs = TimeSpan.FromMilliseconds(Global.DebouncingMs[deviceSlotNumber]);
+            Debouncer debouncer = new(debouncingMs);
+            debouncer.AddDebouncer(nameof(DS4State.Cross));
+            debouncer.AddDebouncer(nameof(DS4State.Triangle));
+            debouncer.AddDebouncer(nameof(DS4State.Circle));
+            debouncer.AddDebouncer(nameof(DS4State.Square));
+            debouncer.AddDebouncer(nameof(DS4State.R3));
+            debouncer.AddDebouncer(nameof(DS4State.L3));
+            debouncer.AddDebouncer(nameof(DS4State.Options));
+            debouncer.AddDebouncer(nameof(DS4State.Share));
+            debouncer.AddDebouncer(nameof(DS4State.R2Btn));
+            debouncer.AddDebouncer(nameof(DS4State.L2Btn));
+            debouncer.AddDebouncer(nameof(DS4State.R1));
+            debouncer.AddDebouncer(nameof(DS4State.L1));
+            debouncer.AddDebouncer(nameof(DS4State.PS));
+            debouncer.AddDebouncer(nameof(DS4State.TouchButton));
+            debouncer.AddDebouncer(nameof(DS4State.Capture));
+            debouncer.AddDebouncer(nameof(DS4State.SideL));
+            debouncer.AddDebouncer(nameof(DS4State.SideR));
+            debouncer.AddDebouncer(nameof(DS4State.DpadUp));
+            debouncer.AddDebouncer(nameof(DS4State.DpadDown));
+            debouncer.AddDebouncer(nameof(DS4State.DpadLeft));
+            debouncer.AddDebouncer(nameof(DS4State.DpadRight));
+            Global.DebouncingMsChanged += (_, _) =>
+            {
+                debouncer.SetDuration(TimeSpan.FromMilliseconds(Global.DebouncingMs[deviceSlotNumber]));
+            };
+            return debouncer;
         }
 
         private unsafe void PrepareOutputReportInner(ref bool change, ref bool haptime)

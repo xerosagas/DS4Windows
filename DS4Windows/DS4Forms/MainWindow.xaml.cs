@@ -82,6 +82,12 @@ namespace DS4WinWPF.DS4Forms
 
         public bool IsInitialShow { get; set; }
 
+        public static List<ProcessPriorityClass> ProcessPriorityClasses =
+        [
+            ProcessPriorityClass.Normal, ProcessPriorityClass.AboveNormal,
+            ProcessPriorityClass.High, ProcessPriorityClass.RealTime
+        ];
+
         public MainWindow(ArgumentParser parser)
         {
             InitializeComponent();
@@ -96,6 +102,7 @@ namespace DS4WinWPF.DS4Forms
             //logListView.ItemsSource = logvm.LogItems;
             logListView.DataContext = logvm;
             lastMsgLb.DataContext = lastLogMsg;
+            ProcessPriorityComboBox.ItemsSource = ProcessPriorityClasses;
 
             profileListHolder.Refresh();
             profilesListBox.ItemsSource = profileListHolder.ProfileListCol;
@@ -199,14 +206,25 @@ namespace DS4WinWPF.DS4Forms
 
             // Log exceptions that might occur
             Util.LogAssistBackgroundTask(tempTask);
-
-            tempTask = Task.Delay(100).ContinueWith((t) =>
+#if !BETA_VERSION
+            tempTask = Task.Delay(100).ContinueWith(_ =>
             {
                 int checkwhen = Global.CheckWhen;
                 if (checkwhen > 0 && DateTime.Now >= Global.LastChecked + TimeSpan.FromHours(checkwhen))
                 {
-                    mainWinVM.DownloadUpstreamVersionInfo();
-                    Check_Version();
+                    try
+                    {
+                        if (Changelog.CheckNewerVersionExists(out var version, false))
+                        {
+                            DisplayUpdaterWindow(version.ToString());
+                        }
+                    }
+                    catch
+                    {
+                        Dispatcher.Invoke(() => MessageBox.Show(Strings.FailedToRetrieveLatestVersion, "DS4Windows Updater"));
+                        // bubble the exception up to allow to see what's wrong in the log
+                        throw;
+                    }
 
                     Global.LastChecked = DateTime.Now;
                 }
@@ -218,7 +236,49 @@ namespace DS4WinWPF.DS4Forms
                 //    return;
                 //}
             });
+#endif
             Util.LogAssistBackgroundTask(tempTask);
+        }
+
+        private void DisplayUpdaterWindow(string version)
+        {
+            MessageBoxResult result = MessageBoxResult.No;
+            Dispatcher.Invoke(() =>
+            {
+                var updaterWin = new UpdaterWindow(version);
+                updaterWin.ShowDialog();
+                result = updaterWin.Result;
+            });
+
+            if (result == MessageBoxResult.Yes)
+            {
+                bool launch = true;
+                launch = mainWinVM.RunUpdaterCheck(launch, out string newUpdaterVersion);
+
+                if (launch)
+                {
+                    launch = mainWinVM.LauchDS4Updater();
+                }
+
+                if (launch)
+                {
+                    // Set that the window is getting ready to close for other components
+                    contextclose = true;
+                    Dispatcher.BeginInvoke(Close);
+                }
+                else
+                {
+                    Dispatcher.Invoke(() =>
+                    {
+                        MessageBox.Show(Properties.Resources.PleaseDownloadUpdater);
+                        if (!string.IsNullOrEmpty(newUpdaterVersion))
+                        {
+                            Util.StartProcessHelper(
+                                $"https://github.com/schmaldeo/DS4Updater/releases/tag/v{newUpdaterVersion}/{mainWinVM.updaterExe}");
+                        }
+                    });
+                }
+            }
         }
 
         private void Check_Version(bool showstatus = false)
@@ -276,7 +336,7 @@ namespace DS4WinWPF.DS4Forms
                             MessageBox.Show(Properties.Resources.PleaseDownloadUpdater);
                             if (!string.IsNullOrEmpty(newUpdaterVersion))
                             {
-                                Util.StartProcessHelper($"https://github.com/Ryochan7/DS4Updater/releases/tag/v{newUpdaterVersion}/{mainWinVM.updaterExe}");
+                                Util.StartProcessHelper($"https://github.com/schmaldeo/DS4Updater/releases/tag/v{newUpdaterVersion}/{mainWinVM.updaterExe}");
                             }
                         });
                     }
@@ -787,7 +847,7 @@ Suspend support not enabled.", true);
             ChangeService();
         }
 
-        private async void ChangeService()
+        public async void ChangeService()
         {
             StartStopBtn.IsEnabled = false;
             App root = Application.Current as App;
@@ -1430,8 +1490,19 @@ Suspend support not enabled.", true);
         {
             Task.Run(() =>
             {
-                mainWinVM.DownloadUpstreamVersionInfo();
-                Check_Version(true);
+                try
+                {
+                    if (Changelog.CheckNewerVersionExists(out var version, false))
+                        DisplayUpdaterWindow(version.ToString());
+                    else
+                        Dispatcher.Invoke(() => MessageBox.Show(Properties.Resources.UpToDate, "DS4Windows Updater"));
+                }
+                catch
+                {
+                    Dispatcher.Invoke(() => MessageBox.Show(Strings.FailedToRetrieveLatestVersion, "DS4Windows Updater"));
+                    // bubble the exception up to allow to see what's wrong in the log
+                    throw;
+                }
             });
         }
 
@@ -1757,6 +1828,20 @@ Suspend support not enabled.", true);
                     }
                 }
             }
+        }
+
+        private void ProcessPriorityComboBox_OnSelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            using var process = Process.GetCurrentProcess();
+            var s = (ComboBox)sender;
+            var selectedPriority = (ProcessPriorityClass)s.SelectedItem;
+            if (!Global.IsAdministrator() && selectedPriority == ProcessPriorityClass.RealTime)
+            {
+                MessageBox.Show(Strings.RealTimeNoAdmin);
+                selectedPriority = ProcessPriorityClass.High;
+                settingsWrapVM.ProcessPriorityIndex = ProcessPriorityClasses.IndexOf(ProcessPriorityClass.High);
+            }
+            process.PriorityClass = selectedPriority;
         }
     }
 

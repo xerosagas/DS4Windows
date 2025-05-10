@@ -16,23 +16,14 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 using DS4WinWPF.DS4Forms.ViewModels;
 using DS4WinWPF.DS4Forms.ViewModels.SpecialActions;
 using Microsoft.Win32;
+using System;
+using System.Collections.Generic;
+using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Media;
 
 namespace DS4WinWPF.DS4Forms
 {
@@ -49,10 +40,11 @@ namespace DS4WinWPF.DS4Forms
         private LaunchProgramViewModel launchProgVM;
         private LoadProfileViewModel loadProfileVM;
         private PressKeyViewModel pressKeyVM;
-        private DisconnectBTViewModel disconnectBtVM;
+        private SpecialActionViewModel disconnectBtVM;
         private CheckBatteryViewModel checkBatteryVM;
         private MultiActButtonViewModel multiActButtonVM;
-        private SASteeringWheelViewModel saSteeringWheelVM;
+        private SpecialActionViewModel saSteeringWheelVM;
+        private SpecialActionViewModel calibrateGyroVM;
 
         public event EventHandler Cancel;
         public delegate void SaveHandler(object sender, string actionName);
@@ -75,7 +67,7 @@ namespace DS4WinWPF.DS4Forms
                 lsrTrigCk, rsuTrigCk, rsdTrigCk, rslTrigCk,
                 rsrTrigCk, swipeUpTrigCk, swipeDownTrigCk, swipeLeftTrigCk,
                 swipeRightTrigCk, tiltUpTrigCk, tiltDownTrigCk, tiltLeftTrigCk,
-                tiltRightTrigCk,
+                tiltRightTrigCk,touchStartedTrigCk,touchEndedTrigCk
             };
 
             unloadTriggerBoxes = new List<CheckBox>()
@@ -90,7 +82,7 @@ namespace DS4WinWPF.DS4Forms
                 unloadLsrTrigCk, unloadRsuTrigCk, unloadRsdTrigCk, unloadRslTrigCk,
                 unloadRsrTrigCk, unloadSwipeUpTrigCk, unloadSwipeDownTrigCk, unloadSwipeLeftTrigCk,
                 unloadSwipeRightTrigCk, unloadTiltUpTrigCk, unloadTiltDownTrigCk, unloadTiltLeftTrigCk,
-                unloadTiltRightTrigCk,
+                unloadTiltRightTrigCk,unloadTouchStartedTrigCk, unloadTouchEndedTrigCk,
             };
 
             specialActVM = new SpecialActEditorViewModel(deviceNum, specialAction);
@@ -98,10 +90,11 @@ namespace DS4WinWPF.DS4Forms
             launchProgVM = new LaunchProgramViewModel();
             loadProfileVM = new LoadProfileViewModel(profileList);
             pressKeyVM = new PressKeyViewModel();
-            disconnectBtVM = new DisconnectBTViewModel();
+            disconnectBtVM = new SpecialActionViewModel(5);
             checkBatteryVM = new CheckBatteryViewModel();
             multiActButtonVM = new MultiActButtonViewModel();
-            saSteeringWheelVM = new SASteeringWheelViewModel();
+            saSteeringWheelVM = new SpecialActionViewModel(8);
+            calibrateGyroVM = new SpecialActionViewModel(9);
 
             // Hide tab headers. Tab content will still be visible
             blankActTab.Visibility = Visibility.Collapsed;
@@ -113,6 +106,7 @@ namespace DS4WinWPF.DS4Forms
             checkBatteryTab.Visibility = Visibility.Collapsed;
             multiActTab.Visibility = Visibility.Collapsed;
             sixaxisWheelCalibrateTab.Visibility = Visibility.Collapsed;
+            gyroCalibrateTab.Visibility = Visibility.Collapsed;
 
             if (specialAction != null)
             {
@@ -132,6 +126,7 @@ namespace DS4WinWPF.DS4Forms
             checkBatteryTab.DataContext = checkBatteryVM;
             multiActTab.DataContext = multiActButtonVM;
             sixaxisWheelCalibrateTab.DataContext = saSteeringWheelVM;
+            gyroCalibrateTab.DataContext = calibrateGyroVM;
 
             SetupLateEvents();
         }
@@ -156,6 +151,7 @@ namespace DS4WinWPF.DS4Forms
             checkBatteryTab.DataContext = null;
             multiActTab.DataContext = null;
             sixaxisWheelCalibrateTab.DataContext = null;
+            gyroCalibrateTab.DataContext = null;
         }
 
         private void LoadAction(DS4Windows.SpecialAction specialAction)
@@ -226,6 +222,9 @@ namespace DS4WinWPF.DS4Forms
                     break;
                 case DS4Windows.SpecialAction.ActionTypeId.SASteeringWheelEmulationCalibrate:
                     saSteeringWheelVM.LoadAction(specialAction);
+                    break;
+                case DS4Windows.SpecialAction.ActionTypeId.GyroCalibrate:
+                    calibrateGyroVM.LoadAction(specialAction);
                     break;
             }
         }
@@ -303,6 +302,9 @@ namespace DS4WinWPF.DS4Forms
                     case DS4Windows.SpecialAction.ActionTypeId.SASteeringWheelEmulationCalibrate:
                         saSteeringWheelVM.SaveAction(tempAct, editMode);
                         break;
+                    case DS4Windows.SpecialAction.ActionTypeId.GyroCalibrate:
+                        calibrateGyroVM.SaveAction(tempAct, editMode);
+                        break;
                 }
 
                 Saved?.Invoke(this, tempAct.name);
@@ -338,6 +340,9 @@ namespace DS4WinWPF.DS4Forms
                     break;
                 case DS4Windows.SpecialAction.ActionTypeId.SASteeringWheelEmulationCalibrate:
                     valid = saSteeringWheelVM.IsValid(action);
+                    break;
+                case DS4Windows.SpecialAction.ActionTypeId.GyroCalibrate:
+                    valid = calibrateGyroVM.IsValid(action);
                     break;
             }
 

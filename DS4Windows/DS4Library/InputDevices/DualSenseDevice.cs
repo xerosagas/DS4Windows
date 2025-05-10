@@ -305,11 +305,6 @@ namespace DS4Windows.InputDevices
                 }
             }
 
-            if (!hDevice.IsFileStreamOpen())
-            {
-                hDevice.OpenFileStream(outputReport.Length);
-            }
-
             // Need to blank LED lights so lightbar will change colors
             // as requested
             if (conType == ConnectionType.BT)
@@ -504,8 +499,9 @@ namespace DS4Windows.InputDevices
         {
             unchecked
             {
+                Debouncer = SetupDebouncer();
                 firstActive = DateTime.UtcNow;
-                NativeMethods.HidD_SetNumInputBuffers(hDevice.safeReadHandle.DangerousGetHandle(), 3);
+                NativeMethods.HidD_SetNumInputBuffers(hDevice.SafeReadHandle.DangerousGetHandle(), 3);
                 Queue<long> latencyQueue = new Queue<long>(21); // Set capacity at max + 1 to avoid any resizing
                 int tempLatencyCount = 0;
                 long oldtime = 0;
@@ -561,7 +557,7 @@ namespace DS4Windows.InputDevices
                     if (conType == ConnectionType.BT)
                     {
                         timeoutEvent = false;
-                        HidDevice.ReadStatus res = hDevice.ReadWithFileStream(inputReport);
+                        HidDevice.ReadStatus res = hDevice.ReadFile(inputReport);
                         if (res == HidDevice.ReadStatus.Success)
                         {
                             uint recvCrc32 = inputReport[BT_INPUT_REPORT_CRC32_POS] |
@@ -609,7 +605,7 @@ namespace DS4Windows.InputDevices
                             else
                             {
                                 int winError = Marshal.GetLastWin32Error();
-                                Console.WriteLine(Mac.ToString() + " " + DateTime.UtcNow.ToString("o") + "> disconnect due to read failure: " + winError);
+                                Console.WriteLine($"{Mac} {DateTime.UtcNow.ToString("o")} > disconnect due to read failure: {winError.ToString("x8")}");
                                 //Log.LogToGui(Mac.ToString() + " disconnected due to read failure: " + winError, true);
                                 AppLogger.LogToGui(Mac.ToString() + " disconnected due to read failure: " + winError, true);
                             }
@@ -628,7 +624,7 @@ namespace DS4Windows.InputDevices
                     }
                     else
                     {
-                        HidDevice.ReadStatus res = hDevice.ReadWithFileStream(inputReport);
+                        HidDevice.ReadStatus res = hDevice.ReadFile(inputReport);
                         if (res != HidDevice.ReadStatus.Success)
                         {
                             if (res == HidDevice.ReadStatus.WaitTimedOut)
@@ -638,7 +634,7 @@ namespace DS4Windows.InputDevices
                             else
                             {
                                 int winError = Marshal.GetLastWin32Error();
-                                Console.WriteLine(Mac.ToString() + " " + DateTime.UtcNow.ToString("o") + "> disconnect due to read failure: " + winError);
+                                Console.WriteLine($"{Mac} {DateTime.UtcNow.ToString("o")} > disconnect due to read failure: {winError.ToString("x8")}");
                                 //Log.LogToGui(Mac.ToString() + " disconnected due to read failure: " + winError, true);
                             }
 
@@ -720,6 +716,7 @@ namespace DS4Windows.InputDevices
                     tempByte = inputReport[10 + reportOffset];
                     cState.PS = (tempByte & (1 << 0)) != 0;
                     cState.TouchButton = (tempByte & 0x02) != 0;
+
                     cState.OutputTouchButton = cState.TouchButton;
                     cState.Mute = (tempByte & (1 << 2)) != 0;
                     cState.FnL = (tempByte & (1 << 4)) != 0;

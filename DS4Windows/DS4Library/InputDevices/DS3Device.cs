@@ -53,11 +53,6 @@ namespace DS4Windows.InputDevices
             inputReport = new byte[hDevice.Capabilities.InputReportByteLength];
             outputReport = new byte[hDevice.Capabilities.OutputReportByteLength];
             warnInterval = WARN_INTERVAL_USB;
-
-            if (!hDevice.IsFileStreamOpen())
-            {
-                hDevice.OpenFileStream(outputReport.Length);
-            }
         }
 
         public static ConnectionType DetermineConnectionType(HidDevice hidDevice)
@@ -107,8 +102,9 @@ namespace DS4Windows.InputDevices
         {
             unchecked
             {
+                Debouncer = SetupDebouncer();
                 firstActive = DateTime.UtcNow;
-                NativeMethods.HidD_SetNumInputBuffers(hDevice.safeReadHandle.DangerousGetHandle(), 3);
+                NativeMethods.HidD_SetNumInputBuffers(hDevice.SafeReadHandle.DangerousGetHandle(), 3);
                 Queue<long> latencyQueue = new Queue<long>(21); // Set capacity at max + 1 to avoid any resizing
                 int tempLatencyCount = 0;
                 long oldtime = 0;
@@ -195,8 +191,10 @@ namespace DS4Windows.InputDevices
                     cState.DpadRight = ((featureReport[2 + reportOffset] & 0x20) > 0) && featureReport[15 + reportOffset] > 0;
                     cState.DpadDown = ((featureReport[2 + reportOffset] & 0x40) > 0) && featureReport[16 + reportOffset] > 0;
                     cState.DpadLeft = ((featureReport[2 + reportOffset] & 0x80) > 0) && featureReport[17 + reportOffset] > 0;
+
                     cState.L2 = ((featureReport[3 + reportOffset] & 0x01) > 0) ? featureReport[18 + reportOffset] : (byte)0x00;
                     cState.R2 = ((featureReport[3 + reportOffset] & 0x02) > 0) ? featureReport[19 + reportOffset] : (byte)0x00;
+
                     cState.L1 = ((featureReport[3 + reportOffset] & 0x04) > 0) && featureReport[20 + reportOffset] > 0;
                     cState.R1 = ((featureReport[3 + reportOffset] & 0x08) > 0) && featureReport[21 + reportOffset] > 0;
                     cState.Triangle = ((featureReport[3 + reportOffset] & 0x10) > 0) && featureReport[22 + reportOffset] > 0;
@@ -207,6 +205,7 @@ namespace DS4Windows.InputDevices
 
                     cState.L2Btn = cState.L2 > 0;
                     cState.R2Btn = cState.R2 > 0;
+
                     cState.L2Raw = cState.L2;
                     cState.R2Raw = cState.R2;
 
@@ -333,7 +332,7 @@ namespace DS4Windows.InputDevices
 
                         if (synced)
                         {
-                            sixAxis.handleDS3Sixaxis(pbGyro, pbAccel, cState, elapsedDeltaTime);
+                            sixAxis.handleDS3Sixaxis(pbGyro, pbAccel, cState, elapsedDeltaTime, deviceSlotNumber);
                         }
                     }
 

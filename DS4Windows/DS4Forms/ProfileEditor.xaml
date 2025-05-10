@@ -210,10 +210,11 @@
             <TabItem x:Name="specialActionsTab" Header="Special Actions">
                 <DockPanel x:Name="specialActionDockPanel">
                     <DockPanel x:Name="baseSpeActPanel" DockPanel.Dock="Top">
-                        <UniformGrid Rows="1" Columns="3" DockPanel.Dock="Top">
+                        <UniformGrid Rows="1" Columns="4" DockPanel.Dock="Top">
                             <Button x:Name="newActionBtn" Content="{lex:Loc NewAction}" Margin="0,0,5,0" Click="NewActionBtn_Click" />
                             <Button x:Name="editActionBtn" Content="{lex:Loc EditAction}" IsEnabled="{Binding ItemSelected}" Margin="5,0" Click="EditActionBtn_Click" />
                             <Button x:Name="removeActionBtn" Content="{lex:Loc RemoveAction}" IsEnabled="{Binding ItemSelected}" Margin="5,0,0,0" Click="RemoveActionBtn_Click" />
+                            <Button Content="{lex:Loc ExportSpecialActions}" Margin="5 0 0 0" Click="ExportSpecialActions_OnClick"/>
                         </UniformGrid>
 
                         <ListView x:Name="specialActionsLV" ItemsSource="{Binding ActionCol}" SelectedIndex="{Binding SpecialActionIndex}" SelectedItem="{Binding CurrentSpecialActionItem,Mode=OneWayToSource}" DockPanel.Dock="Bottom" Margin="0,10,0,0">
@@ -355,6 +356,10 @@
                                                     <RowDefinition Style="{StaticResource gridRowHeight}" />
                                                     <RowDefinition />
                                                     <RowDefinition />
+                                                    <RowDefinition />
+                                                    <RowDefinition />
+                                                    <RowDefinition />
+                                                    <RowDefinition />
                                                 </Grid.RowDefinitions>
 
                                                 <Label Content="{lex:Loc OutputCurve}" ContentStringFormat="{}{0}:" Grid.Row="0" Grid.Column="0" />
@@ -443,6 +448,23 @@
                                                        Margin="{StaticResource spaceMargin}" ToolTip="{lex:Loc StickOuterBindDeadTooltip}" DockPanel.Dock="Top" />
                                                     <CheckBox Content="Invert" IsChecked="{Binding LSOuterBindInvert}" ToolTip="{lex:Loc StickOuterBindInvertTooltip}" DockPanel.Dock="Top" HorizontalAlignment="Right" />
                                                 </DockPanel>
+
+                                                <Label Grid.Row="9" Grid.Column="0" Grid.ColumnSpan="2" Content="{lex:Loc StickCalibration}"
+                                                       HorizontalContentAlignment="Center" Margin="0 4 0 4" />
+
+                                                <Label Content="{lex:Loc XAxisOffset}" Grid.Row="10" Grid.Column="0" />
+                                                <DockPanel Grid.Row="10" Grid.Column="1">
+                                                    <xctk:SByteUpDown d:IsHidden="True" Value="{Binding LeftStickDriftXAxis,UpdateSourceTrigger=LostFocus}" MinWidth="50" Maximum="127" Minimum="-127" Increment="1"
+                                                                       Margin="{StaticResource spaceMargin}" />
+                                                </DockPanel>
+
+                                                <Label Content="{lex:Loc YAxisOffset}" Grid.Row="11" Grid.Column="0" />
+                                                <DockPanel Grid.Row="11" Grid.Column="1">
+                                                    <xctk:SByteUpDown d:IsHidden="True" Value="{Binding LeftStickDriftYAxis,UpdateSourceTrigger=LostFocus}" MinWidth="50" Maximum="127" Minimum="-127" Increment="1"
+                                                                       Margin="{StaticResource spaceMargin}" />
+                                                </DockPanel>
+                                                <Button Grid.Row="12" Grid.Column="0" Grid.ColumnSpan="2" Content="{lex:Loc AutomaticallyRecalibrateStick}" Click="CalibrateStick_OnClick"
+                                                        Tag="0" />
                                             </Grid>
 
                                             <GroupBox Header="{lex:Loc DeltaAcceleration}" DockPanel.Dock="Top">
@@ -642,6 +664,10 @@
                                                     <RowDefinition Style="{StaticResource gridRowHeight}" />
                                                     <RowDefinition />
                                                     <RowDefinition />
+                                                    <RowDefinition />
+                                                    <RowDefinition />
+                                                    <RowDefinition />
+                                                    <RowDefinition />
                                                 </Grid.RowDefinitions>
 
                                                 <Label Content="{lex:Loc OutputCurve}" ContentStringFormat="{}{0}:" Grid.Row="0" Grid.Column="0" />
@@ -730,6 +756,23 @@
                                                        Margin="{StaticResource spaceMargin}" ToolTip="{lex:Loc StickOuterBindDeadTooltip}"  DockPanel.Dock="Top" />
                                                     <CheckBox Content="Invert" IsChecked="{Binding RSOuterBindInvert}" ToolTip="{lex:Loc StickOuterBindInvertTooltip}" DockPanel.Dock="Top" HorizontalAlignment="Right" />
                                                 </DockPanel>
+
+                                                <Label Grid.Row="9" Grid.Column="0" Grid.ColumnSpan="2" Content="{lex:Loc StickCalibration}"
+                                                       HorizontalContentAlignment="Center" Margin="0 4 0 4" />
+
+                                                <Label Content="{lex:Loc XAxisOffset}" Grid.Row="10" Grid.Column="0" />
+                                                <DockPanel Grid.Row="10" Grid.Column="1">
+                                                    <xctk:SByteUpDown d:IsHidden="True" Value="{Binding RightStickDriftXAxis,UpdateSourceTrigger=LostFocus}" MinWidth="50" Maximum="127" Minimum="-127" Increment="1"
+                                                                      Margin="{StaticResource spaceMargin}" />
+                                                </DockPanel>
+
+                                                <Label Content="{lex:Loc YAxisOffset}" Grid.Row="11" Grid.Column="0" />
+                                                <DockPanel Grid.Row="11" Grid.Column="1">
+                                                    <xctk:SByteUpDown d:IsHidden="True" Value="{Binding RightStickDriftYAxis,UpdateSourceTrigger=LostFocus}" MinWidth="50" Maximum="127" Minimum="-127" Increment="1"
+                                                                      Margin="{StaticResource spaceMargin}" />
+                                                </DockPanel>
+                                                <Button Grid.Row="12" Grid.Column="0" Grid.ColumnSpan="2" Content="{lex:Loc AutomaticallyRecalibrateStick}" Click="CalibrateStick_OnClick"
+                                                        Tag="1" />
                                             </Grid>
 
                                             <GroupBox Header="{lex:Loc DeltaAcceleration}" DockPanel.Dock="Top">
@@ -1986,6 +2029,11 @@
                             </TabItem>
 
                         </TabControl>
+                        <StackPanel Orientation="Horizontal" Margin="0, 8, 0, 8">
+                            <CheckBox Content="{lex:Loc UseDs3PitchRollSim}"
+                                      IsChecked="{Binding UseDs3PitchRollSim}"
+                                      ToolTip="{lex:Loc UseDs3PitchRollSimTooltip}"/>
+                        </StackPanel>
                     </StackPanel>
                 </ScrollViewer>
             </TabItem>
@@ -2015,6 +2063,13 @@
                                   Margin="0,8,0,0" />-->
                             </StackPanel>
                         </GroupBox>
+                        <GroupBox Header="Debouncing" MinHeight="30" Margin="4,4,4,0" Padding="0,4,0,4">
+                            <StackPanel Orientation="Horizontal">
+                                <xctk:IntegerUpDown x:Name="Debouncing" Value="{Binding DebouncingMs}" Minimum="0" Maximum="1000"
+                                                    MinWidth="50" DockPanel.Dock="Left" />
+                                <Label Content="ms" />
+                            </StackPanel>
+                        </GroupBox>
                         <GroupBox Header="{lex:Loc Rumble}" MinHeight="50" Margin="4,4,4,0" Padding="0,4,0,4">
                             <StackPanel>
                             <UniformGrid Rows="1" Columns="3">
@@ -2032,9 +2087,10 @@
                                     </DockPanel>
                                 </UniformGrid>
 
-                                <Button x:Name="heavyRumbleTestBtn" Content="{lex:Loc TestHeavy}" Margin="10,0,0,0" Click="HeavyRumbleTestBtn_Click" />
-                                <Button x:Name="lightRumbleTestBtn" Content="{lex:Loc TestLight}" Margin="10,0,0,0" Click="LightRumbleTestBtn_Click" />
+                                <Button x:Name="heavyRumbleTestBtn" Content="{lex:Loc TestHeavy}" Margin="10,0,0,0" Click="RumbleTestBtn_Click" />
+                                <Button x:Name="lightRumbleTestBtn" Content="{lex:Loc TestLight}" Margin="10,0,0,0" Click="RumbleTestBtn_Click" />
                             </UniformGrid>
+                                <CheckBox Content="{lex:Loc InverseMotors}" IsChecked="{Binding InverseRumbleMotors}" />
                                 <GroupBox Header="{lex:Loc DualSRumbleSpecificSettings}" Margin="0,12,0,0" Padding="2,4">
 
                                     <StackPanel>

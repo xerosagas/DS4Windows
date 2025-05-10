@@ -406,6 +406,97 @@ namespace DS4WinWPF.DS4Forms.ViewModels
             set => Global.LightbarSettingsInfo[device].ds4winSettings.maxRainbowSat = value / 100.0;
         }
 
+        public sbyte LeftStickDriftXAxis
+        {
+            get => Global.LeftStickDriftXAxis[device];
+            set
+            {
+                Global.LeftStickDriftXAxis[device] = value;
+                LeftStickDriftXAxisChanged?.Invoke(this, EventArgs.Empty);
+            }
+        }
+
+        public event EventHandler LeftStickDriftXAxisChanged;
+
+        public sbyte LeftStickDriftYAxis
+        {
+            get => Global.LeftStickDriftYAxis[device];
+            set
+            {
+                Global.LeftStickDriftYAxis[device] = value;
+                LeftStickDriftYAxisChanged?.Invoke(this, EventArgs.Empty);
+            }
+        }
+
+        public event EventHandler LeftStickDriftYAxisChanged;
+
+        public sbyte RightStickDriftXAxis
+        {
+            get => Global.RightStickDriftXAxis[device];
+            set
+            {
+                Global.RightStickDriftXAxis[device] = value;
+                RightStickDriftXAxisChanged?.Invoke(this, EventArgs.Empty);
+            }
+        }
+
+        public event EventHandler RightStickDriftXAxisChanged;
+
+        public sbyte RightStickDriftYAxis
+        {
+            get => Global.RightStickDriftYAxis[device];
+            set
+            {
+                Global.RightStickDriftYAxis[device] = value;
+                RightStickDriftYAxisChanged?.Invoke(this, EventArgs.Empty);
+            }
+        }
+
+        public event EventHandler RightStickDriftYAxisChanged;
+
+        public bool HasDebouncingMsChanged { get; private set; }
+
+        public int DebouncingMs
+        {
+            get => Global.DebouncingMs[device];
+            set
+            {
+                HasDebouncingMsChanged = Global.DebouncingMs[device] != value;
+                Global.DebouncingMs[device] = value;
+                DebouncingMsChanged?.Invoke(this, EventArgs.Empty);
+            }
+        }
+
+        public event EventHandler DebouncingMsChanged;
+
+        public bool HasUseDs3PitchRollSimChanged
+        {
+            get;
+            private set;
+        }
+
+        public bool UseDs3PitchRollSim
+        {
+            get => Global.UseDs3PitchRollSim;
+            set
+            {
+                if (Global.UseDs3PitchRollSim != value)
+                {
+                    HasUseDs3PitchRollSimChanged = true;
+                }
+                else
+                {
+                    HasUseDs3PitchRollSimChanged = false;
+                }
+                Global.UseDs3PitchRollSim = value;
+            }
+        }
+
+        // public bool HasUseDs3PitchRollSimChanged()
+        // {
+        //     return UseDs3PitchRollSim != Global.UseDs3PitchRollSim;
+        // }
+
         public int RumbleBoost
         {
             get => Global.RumbleBoost[device];
@@ -1992,7 +2083,7 @@ namespace DS4WinWPF.DS4Forms.ViewModels
                 Global.DoubleTap[device] = value;
             }
         }
-        
+
         public bool TouchJitter
         {
             get => Global.TouchpadJitterCompensation[device];
@@ -2715,7 +2806,7 @@ namespace DS4WinWPF.DS4Forms.ViewModels
             get => Global.GyroMouseStickInf[device].smoothWeight;
             set => Global.GyroMouseStickInf[device].smoothWeight = value;
         }
-        
+
         private string touchDisInvertString = "None";
         public string TouchDisInvertString
         {
@@ -2892,6 +2983,13 @@ namespace DS4WinWPF.DS4Forms.ViewModels
         public bool UsingMinViGEm173333
         {
             get => Global.IsUsingMinViGEm117333();
+        }
+
+
+        public bool InverseRumbleMotors
+        {
+            get => Global.InverseRumbleMotors[device];
+            set => Global.InverseRumbleMotors[device] = value;
         }
 
         public ProfileSettingsViewModel(int device)
@@ -3199,7 +3297,7 @@ namespace DS4WinWPF.DS4Forms.ViewModels
             int index = 0;
             List<int> triggerList = new List<int>();
             List<string> triggerName = new List<string>();
-            
+
             foreach(MenuItem item in menu.Items)
             {
                 if (item.IsChecked)
@@ -3207,7 +3305,7 @@ namespace DS4WinWPF.DS4Forms.ViewModels
                     triggerList.Add(index);
                     triggerName.Add(item.Header.ToString());
                 }
-                
+
                 index++;
             }
 

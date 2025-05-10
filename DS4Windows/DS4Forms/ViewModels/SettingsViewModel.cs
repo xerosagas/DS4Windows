@@ -18,6 +18,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -42,7 +43,6 @@ namespace DS4WinWPF.DS4Forms.ViewModels
             get => DS4Windows.Global.UseExclusiveMode;
             set => DS4Windows.Global.UseExclusiveMode = value;
         }
-
 
         public bool SwipeTouchSwitchProfile { get => DS4Windows.Global.SwipeProfiles;
             set => DS4Windows.Global.SwipeProfiles = value; }
@@ -105,7 +105,37 @@ namespace DS4WinWPF.DS4Forms.ViewModels
 
         public event EventHandler ShowRunStartPanelChanged;
 
-        public int ShowNotificationsIndex { get => DS4Windows.Global.Notifications; set => DS4Windows.Global.Notifications = value; }
+        private Visibility _isProfileChangedCheckVisible;
+
+        public Visibility IsProfileChangedCheckVisible
+        {
+            get => _isProfileChangedCheckVisible;
+            private set
+            {
+                _isProfileChangedCheckVisible = value;
+                IsProfileChangedCheckVisibleChanged?.Invoke(this, EventArgs.Empty);
+            }
+        }
+
+        public event EventHandler IsProfileChangedCheckVisibleChanged;
+
+        public bool ProfileChangedNotification
+        {
+            get => Global.ProfileChangedNotification;
+            set => Global.ProfileChangedNotification = value;
+        }
+
+        public int ShowNotificationsIndex
+        {
+            get => DS4Windows.Global.Notifications;
+            set
+            {
+                Global.Notifications = value;
+                // display only when all notifications are on
+                IsProfileChangedCheckVisible = value == 2 ? Visibility.Visible : Visibility.Collapsed;
+            }
+        }
+
         public bool DisconnectBTStop { get => DS4Windows.Global.DCBTatStop; set => DS4Windows.Global.DCBTatStop = value; }
         public bool FlashHighLatency { get => DS4Windows.Global.FlashWhenLate; set => DS4Windows.Global.FlashWhenLate = value; }
         public int FlashHighLatencyAt { get => DS4Windows.Global.FlashWhenLateAt; set => DS4Windows.Global.FlashWhenLateAt = value; }
@@ -377,9 +407,23 @@ namespace DS4WinWPF.DS4Forms.ViewModels
             set => Global.AbsoluteDisplayEDID = value;
         }
 
+        public int ProcessPriorityIndex
+        {
+            get => Global.ProcessPriority;
+            set
+            {
+                Global.ProcessPriority = value;
+                ProcessPriorityIndexChanged?.Invoke(this, EventArgs.Empty);
+            }
+
+        }
+
+        public event EventHandler ProcessPriorityIndexChanged;
+
         public SettingsViewModel()
         {
             checkEveryUnitIdx = 1;
+            IsProfileChangedCheckVisible = Global.Notifications == 2 ? Visibility.Visible : Visibility.Collapsed;
 
             int checklapse = DS4Windows.Global.CheckWhen;
             if (checklapse < 24 && checklapse > 0)

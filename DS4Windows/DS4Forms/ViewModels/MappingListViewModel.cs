@@ -16,14 +16,11 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
+using DS4Windows;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Input;
-using DS4Windows;
 
 namespace DS4WinWPF.DS4Forms.ViewModels
 {
@@ -78,7 +75,7 @@ namespace DS4WinWPF.DS4Forms.ViewModels
 
         public MappingListViewModel(int devIndex, OutContType devType)
         {
-            mappings.Add(new MappedControl(devIndex, DS4Controls.Cross, "Cross",  devType));
+            mappings.Add(new MappedControl(devIndex, DS4Controls.Cross, "Cross", devType));
             mappings.Add(new MappedControl(devIndex, DS4Controls.Circle, "Circle", devType));
             mappings.Add(new MappedControl(devIndex, DS4Controls.Square, "Square", devType));
             mappings.Add(new MappedControl(devIndex, DS4Controls.Triangle, "Triangle", devType));
@@ -129,7 +126,7 @@ namespace DS4WinWPF.DS4Forms.ViewModels
             mappings.Add(new MappedControl(devIndex, DS4Controls.FnR, "Function Right", devType));
             mappings.Add(new MappedControl(devIndex, DS4Controls.BLP, "Bottom Left Paddle", devType));
             mappings.Add(new MappedControl(devIndex, DS4Controls.BRP, "Bottom Right Paddle", devType));
-            
+
             int controlIndex = 0;
             foreach (MappedControl mapped in mappings)
             {
@@ -173,12 +170,12 @@ namespace DS4WinWPF.DS4Forms.ViewModels
 
         public void UpdateMappingDevType(OutContType devType)
         {
-            foreach(MappedControl mapped in mappings)
+            foreach (MappedControl mapped in mappings)
             {
                 mapped.DevType = devType;
             }
 
-            foreach(MappedControl mapped in extraControls)
+            foreach (MappedControl mapped in extraControls)
             {
                 mapped.DevType = devType;
             }
@@ -230,7 +227,7 @@ namespace DS4WinWPF.DS4Forms.ViewModels
         public event EventHandler MappingNameChanged;
 
         public MappedControl(int devIndex, DS4Controls control, string controlName,
-            OutContType devType, bool initMap=false)
+            OutContType devType, bool initMap = false)
         {
             this.devIndex = devIndex;
             this.devType = devType;
@@ -246,7 +243,7 @@ namespace DS4WinWPF.DS4Forms.ViewModels
                     shiftMappingName = ShiftTrigger(setting.shiftTrigger) + " -> " + GetMappingString(true);
                 }
             }
-            
+
             DevTypeChanged += MappedControl_DevTypeChanged;
         }
 

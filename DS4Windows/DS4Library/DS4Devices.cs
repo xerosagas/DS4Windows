@@ -22,7 +22,6 @@ using System.Diagnostics;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Security.Principal;
-using System.Threading;
 using DS4Windows.InputDevices;
 
 namespace DS4Windows
@@ -187,10 +186,49 @@ namespace DS4Windows
             new VidPidInfo(0x0C12, 0x0E15, "Playmax Wired Controller (PS4)", InputDeviceType.DS4, VidPidFeatureSet.NoBatteryReading | VidPidFeatureSet.NoGyroCalib), // Generic PS4 Controller by Playmax (brand primarily in New Zealand). Standard Wired PS4 controller, no Gyro, no Lightbar, no Battery. There is a newer model but I'm not sure if it uses a different Vid or Pid yet.
         };
 
+
+        private static bool detectNewControllers = true;
+        private static long timestamp;
+        private static bool DetectNewControllers
+        {
+            get => detectNewControllers;
+            set
+            {
+                if (detectNewControllers) timestamp = Stopwatch.GetTimestamp();
+
+                detectNewControllers = value;
+            }
+        }
         private static bool IsRealDS4(HidDevice hDevice)
         {
-            bool result = !Global.CheckIfVirtualDevice(hDevice.DevicePath);
-            return result;
+            if (!Global.UseMoonlight) return !Global.CheckIfVirtualDevice(hDevice.DevicePath);
+            if (!Global.UseAdvancedMoonlight)
+            {
+                // this approach should work on most devices, but not on my pc for some reason
+                if (hDevice.Attributes.VendorId == 1356 && hDevice.Attributes.ProductId == 1476) return true;
+            }
+            else
+            {
+                // all of this basically tries to add a 5 seconds cooldown when a new device is connected and moonlight
+                // support is on to avoid getting 8 virtual connected devices from one physical one
+                if (!DetectNewControllers)
+                {
+                    var curTimestamp = Stopwatch.GetTimestamp();
+                    if (curTimestamp - timestamp > 5 * TimeSpan.TicksPerSecond) DetectNewControllers = true;
+                }
+
+                // Moonlight detection
+                if (hDevice.Attributes.VendorId == 1356 && hDevice.Attributes.ProductId == 1476)
+                {
+                    if (DetectNewControllers)
+                    {
+                        DetectNewControllers = false;
+                        return true;
+                    }
+                    return DetectNewControllers;
+                }
+            }
+            return !Global.CheckIfVirtualDevice(hDevice.DevicePath);
         }
 
         // Enumerates ds4 controllers in the system

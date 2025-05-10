@@ -40,7 +40,10 @@
                     <Rectangle Width="130" Height="130" Stroke="{DynamicResource ForegroundColor}">
                     </Rectangle>
                     <Ellipse x:Name="lsDeadEllipse" Width="{Binding Path=Width, ElementName=lsCanvas}"
-                             Height="{Binding Path=Height, ElementName=lsCanvas}" Fill="#FFCF1F1F">
+                             Height="{Binding Path=Height, ElementName=lsCanvas}" Fill="#4FCF1F1F">
+                    </Ellipse>
+                    <Ellipse x:Name="lsDriftEllipse" Width="{Binding Path=Width, ElementName=lsCanvas}"
+                            Height="{Binding Path=Height, ElementName=lsCanvas}" Fill="#FFCF1F1F">
                     </Ellipse>
                     <Rectangle x:Name="lsMapValRec" Width="6" Height="6" Canvas.Left="62" Canvas.Top="62" Fill="#FFABABAB">
                     </Rectangle>
@@ -76,6 +79,9 @@
                                Height="{Binding Path=Height, ElementName=rsCanvas}" Stroke="{DynamicResource ForegroundColor}">
                     </Rectangle>
                     <Ellipse x:Name="rsDeadEllipse" Width="{Binding Path=Width, ElementName=rsCanvas}"
+                             Height="{Binding Path=Height, ElementName=rsCanvas}" Fill="#4FCF1F1F">
+                    </Ellipse>
+                    <Ellipse x:Name="rsDriftEllipse" Width="{Binding Path=Width, ElementName=rsCanvas}"
                              Height="{Binding Path=Height, ElementName=rsCanvas}" Fill="#FFCF1F1F">
                     </Ellipse>
                     <Rectangle x:Name="rsMapValRec" Width="6" Height="6" Canvas.Left="62" Canvas.Top="62" Fill="#FFABABAB">
